@@ -52,6 +52,7 @@ export default function DMPage() {
   const [showPPVModal, setShowPPVModal] = useState(false)
   const [limitModal, setLimitModal] = useState<{ open: boolean, type: 'messages' | 'photos' | 'scenario' | 'phase' }>({ open: false, type: 'messages' })
   const [ppvCost] = useState(10)
+  const [showAvatarModal, setShowAvatarModal] = useState(false)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [input, setInput] = useState('')
@@ -297,7 +298,7 @@ export default function DMPage() {
   if (loading) return <div className="h-screen flex items-center justify-center bg-ginger-bg"><div className="w-12 h-12 border-4 border-ginger-primary/30 border-t-ginger-primary rounded-full animate-spin" /></div>
 
   return (
-    <div className="h-[100dvh] md:h-[calc(100vh-64px)] flex bg-ginger-bg overflow-hidden font-sans relative z-20">
+    <div className="min-h-screen md:h-[calc(100vh-64px)] flex bg-ginger-bg overflow-hidden font-sans relative z-20">
       {/* Background effects bloqués pour éviter le scroll global */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="blob-pink top-[-20%] left-[-10%] w-[600px] h-[600px]" />
@@ -345,14 +346,16 @@ export default function DMPage() {
       </div>
 
       {/* CENTER: Chat Interface */}
-      <div className="flex-1 flex flex-col min-w-0 bg-ginger-bg h-full">
+      <div className="flex-1 flex flex-col min-w-0 bg-ginger-bg md:h-full overflow-hidden">
         {/* Chat Header */}
-        <header className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-ginger-bg/50 backdrop-blur-xl">
+        <header className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-ginger-bg/95 backdrop-blur-xl">
           <div className="flex items-center gap-4">
             <Link href="/contacts" className="lg:hidden p-2 -ml-2 text-zinc-400 hover:text-white">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <Avatar src={model?.chat_avatar_url || model?.avatar_url} alt={model?.name || ''} size="md" online={true} />
+            <button onClick={() => setShowAvatarModal(true)} className="cursor-pointer">
+              <Avatar src={model?.chat_avatar_url || model?.avatar_url} alt={model?.name || ''} size="md" online={true} />
+            </button>
             <div>
               <h1 className="font-bold text-white">{model?.name}</h1>
               <div className="flex items-center gap-1.5">
@@ -373,7 +376,7 @@ export default function DMPage() {
         </header>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth min-h-0">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 pb-32 scroll-smooth">
           <div className="max-w-3xl mx-auto space-y-6">
             <AnimatePresence>
               {messages.map((message, index) => (
@@ -396,8 +399,8 @@ export default function DMPage() {
           </div>
         </div>
 
-        {/* Input */}
-        <div className="shrink-0 p-4 md:p-6 bg-ginger-surface border-t border-white/5">
+        {/* Input - Sticky bottom */}
+        <div className="sticky bottom-0 z-40 p-4 md:p-6 bg-ginger-surface/95 backdrop-blur-xl border-t border-white/5">
           <form 
             onSubmit={handleSendMessage}
             className="max-w-3xl mx-auto flex items-center gap-2 md:gap-3"
@@ -489,6 +492,42 @@ export default function DMPage() {
                 </div>
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Avatar Modal */}
+      <AnimatePresence>
+        {showAvatarModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowAvatarModal(false)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-2xl w-full"
+            >
+              <button
+                onClick={() => setShowAvatarModal(false)}
+                className="absolute -top-12 right-0 p-2 text-white hover:text-ginger-primary transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <img
+                src={model?.chat_avatar_url || model?.avatar_url}
+                alt={model?.name || ''}
+                className="w-full h-auto rounded-2xl shadow-2xl"
+              />
+              <div className="mt-4 text-center">
+                <h3 className="text-xl font-bold text-white">{model?.name}</h3>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
