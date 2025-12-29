@@ -101,18 +101,6 @@ export default function ScenarioCard({ scenario, index }: ScenarioCardProps) {
               Premium
             </Badge>
           )}
-          
-          <div className="flex gap-2">
-            <div className="bg-zinc-800/80 backdrop-blur-md text-white font-black text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
-              {t('softScenes')}
-            </div>
-            {hasHard && (
-              <div className="bg-gradient-to-r from-pink-600 to-rose-600 text-white font-black text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full shadow-xl shadow-pink-600/30 flex items-center gap-1">
-                <Flame className="w-3 h-3 fill-white" />
-                {t('hardScenes')}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Bottom Content */}
