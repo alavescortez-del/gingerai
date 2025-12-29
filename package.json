@@ -18,15 +18,15 @@
     "next": "^14.2.21",
     "next-intl": "^4.6.1",
     "postcss": "^8.4.49",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "tailwindcss": "^3.4.17",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.35",
     "typescript": "^5.7.2"
