@@ -83,6 +83,17 @@ export default function Footer() {
           <p className="text-zinc-600 text-xs font-bold uppercase tracking-widest">
             © {currentYear} Sugarush • {t('allRights')}
           </p>
+          
+          {/* 18+ Badge */}
+          <div className="flex items-center gap-2">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full blur opacity-50 group-hover:opacity-75 transition-opacity" />
+              <div className="relative px-4 py-2 bg-gradient-to-r from-pink-600 to-rose-600 rounded-full border-2 border-white/20">
+                <span className="text-white font-black text-sm tracking-wider">18+</span>
+              </div>
+            </div>
+          </div>
+
           <div className="flex items-center gap-2 text-zinc-600 text-xs font-bold uppercase tracking-widest">
             {t('madeWith')} <Heart className="w-3 h-3 text-pink-600 fill-pink-600" /> {t('forLovers')}
           </div>
