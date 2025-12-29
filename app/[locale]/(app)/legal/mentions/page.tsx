@@ -37,7 +37,6 @@ export default function MentionsLegalesPage() {
                 <p>{t('editor.address')}</p>
                 <p>{t('editor.siret')}</p>
                 <p>{t('editor.email')}</p>
-                <p>{t('editor.phone')}</p>
               </div>
             </section>
 
