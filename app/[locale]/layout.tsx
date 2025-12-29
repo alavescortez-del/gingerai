@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from 'next-intl'
 import { notFound } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/request'
+import AgeVerificationModal from '@/components/modals/AgeVerificationModal'
 
 // Import all messages statically to avoid caching issues
 import frMessages from '@/messages/fr.json'
@@ -36,6 +37,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      <AgeVerificationModal />
       {children}
     </NextIntlClientProvider>
   )

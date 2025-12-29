@@ -485,6 +485,14 @@
       "plans": "Plans & Pricing",
       "plansDesc": "Discover our offers"
     }
+  },
+  "ageVerification": {
+    "title": "Age Verification",
+    "message": "You must be 18 years or older to access this site. This site contains adult content.",
+    "warning": "By continuing, you confirm that you are of legal age in your country",
+    "accept": "✓ I am 18 or older",
+    "decline": "✗ I am under 18",
+    "legal": "By using this site, you accept our Terms of Use and Privacy Policy"
   }
 }
 

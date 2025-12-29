@@ -485,6 +485,14 @@
       "plans": "Plans & Tarifs",
       "plansDesc": "Découvrez nos offres"
     }
+  },
+  "ageVerification": {
+    "title": "Vérification d'âge",
+    "message": "Vous devez avoir 18 ans ou plus pour accéder à ce site. Ce site contient du contenu réservé aux adultes.",
+    "warning": "En continuant, vous confirmez avoir l'âge légal requis dans votre pays",
+    "accept": "✓ J'ai 18 ans ou plus",
+    "decline": "✗ J'ai moins de 18 ans",
+    "legal": "En utilisant ce site, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité"
   }
 }
 

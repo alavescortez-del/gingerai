@@ -485,6 +485,14 @@
       "plans": "Pläne & Preise",
       "plansDesc": "Entdecken Sie unsere Angebote"
     }
+  },
+  "ageVerification": {
+    "title": "Altersüberprüfung",
+    "message": "Sie müssen 18 Jahre oder älter sein, um auf diese Seite zuzugreifen. Diese Seite enthält Inhalte für Erwachsene.",
+    "warning": "Indem Sie fortfahren, bestätigen Sie, dass Sie in Ihrem Land volljährig sind",
+    "accept": "✓ Ich bin 18 oder älter",
+    "decline": "✗ Ich bin unter 18",
+    "legal": "Durch die Nutzung dieser Seite akzeptieren Sie unsere Nutzungsbedingungen und Datenschutzrichtlinie"
   }
 }
 
