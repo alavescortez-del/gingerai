@@ -265,11 +265,10 @@
       "backHome": "Retour à l'accueil",
       "editor": {
         "title": "1. Éditeur du site",
-        "company": "Raison sociale :",
-        "address": "Adresse :",
-        "siret": "SIRET :",
-        "email": "Email :",
-        "phone": "Téléphone :"
+        "company": "Raison sociale : Sugarush par Thomas Damien",
+        "address": "Adresse : Rue des pléaides Melesse 35520",
+        "siret": "SIRET : 83160303000014",
+        "email": "Email : aloha@sugarush.me"
       },
       "hosting": {
         "title": "2. Hébergement",
@@ -366,7 +365,7 @@
       },
       "claims": {
         "title": "7. Réclamations",
-        "content": "Pour toute réclamation concernant une commande, contactez-nous à l'adresse : contact@sugarush.me. Nous nous engageons à répondre dans un délai de 7 jours ouvrés."
+        "content": "Pour toute réclamation concernant une commande, contactez-nous à l'adresse : aloha@sugarush.me. Nous nous engageons à répondre dans un délai de 7 jours ouvrés."
       }
     },
     "privacy": {
@@ -409,7 +408,7 @@
         "item3": "Droit à l'effacement : supprimer vos données",
         "item4": "Droit à la portabilité : récupérer vos données",
         "item5": "Droit d'opposition : refuser certains traitements",
-        "contact": "Pour exercer vos droits, contactez-nous à : contact@sugarush.me"
+        "contact": "Pour exercer vos droits, contactez-nous à : aloha@sugarush.me"
       },
       "cookies": {
         "title": "7. Cookies",
@@ -425,7 +424,7 @@
       },
       "contact": {
         "title": "10. Contact",
-        "content": "Pour toute question relative à cette politique, contactez-nous à : contact@sugarush.me"
+        "content": "Pour toute question relative à cette politique, contactez-nous à : aloha@sugarush.me"
       }
     }
   },

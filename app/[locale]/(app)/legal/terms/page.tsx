@@ -33,7 +33,7 @@ export default function TermsPage() {
               <p className="text-lg">Bienvenue chez Sugarush !</p>
               <p>Les présentes conditions générales d'utilisation (les "CGU") définissent les conditions juridiquement contraignantes de votre utilisation de sugarush.me et/ou de l'un de nos canaux, plates-formes, produits ou services en ligne, y compris tout le contenu qu'ils contiennent ("Services").</p>
               
-              <p>Les Services sont détenus et exploités par [Votre Société], dont l'adresse est [Votre Adresse].</p>
+              <p>Les Services sont détenus et exploités par Sugarush par Thomas Damien, dont l'adresse est Rue des Pléiades, Melesse 35520, France (SIRET : 83160303000014).</p>
               
               <p>En accédant au site et/ou en utilisant les Services, vous acceptez de vous soumettre aux présentes CGU. Si vous n'êtes pas d'accord avec les présentes CGU, veuillez cesser d'utiliser nos services.</p>
               
@@ -87,7 +87,7 @@ export default function TermsPage() {
             {/* 2. Politique à l'égard des mineurs */}
             <section>
               <h2 className="text-3xl font-bold text-white mb-4">2. Politique à l'égard des mineurs</h2>
-              <p>Les Services sont strictement réservés aux adultes de 18 ans et plus. Nous ne collectons pas sciemment de données auprès de mineurs. Si vous avez connaissance qu'un mineur utilise les Services, veuillez nous contacter immédiatement à contact@sugarush.me.</p>
+              <p>Les Services sont strictement réservés aux adultes de 18 ans et plus. Nous ne collectons pas sciemment de données auprès de mineurs. Si vous avez connaissance qu'un mineur utilise les Services, veuillez nous contacter immédiatement à aloha@sugarush.me.</p>
             </section>
 
             {/* 3. Propriété intellectuelle */}
@@ -227,7 +227,7 @@ export default function TermsPage() {
             {/* Contact */}
             <section className="bg-pink-500/10 border border-pink-500/20 rounded-lg p-6">
               <h2 className="text-2xl font-bold text-white mb-4">📧 Besoin d'aide ?</h2>
-              <p>Si vous avez des questions concernant ces CGU, contactez-nous à : <a href="mailto:contact@sugarush.me" className="text-pink-500 hover:text-pink-400">contact@sugarush.me</a></p>
+              <p>Si vous avez des questions concernant ces CGU, contactez-nous à : <a href="mailto:aloha@sugarush.me" className="text-pink-500 hover:text-pink-400">aloha@sugarush.me</a></p>
             </section>
 
           </div>
