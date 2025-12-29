@@ -298,7 +298,7 @@ export default function DMPage() {
   if (loading) return <div className="h-screen flex items-center justify-center bg-ginger-bg"><div className="w-12 h-12 border-4 border-ginger-primary/30 border-t-ginger-primary rounded-full animate-spin" /></div>
 
   return (
-    <div className="min-h-screen md:h-[calc(100vh-64px)] flex bg-ginger-bg overflow-hidden font-sans relative z-20">
+    <div className="h-screen flex bg-ginger-bg overflow-hidden font-sans relative z-20">
       {/* Background effects bloqués pour éviter le scroll global */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="blob-pink top-[-20%] left-[-10%] w-[600px] h-[600px]" />
@@ -346,9 +346,9 @@ export default function DMPage() {
       </div>
 
       {/* CENTER: Chat Interface */}
-      <div className="flex-1 flex flex-col min-w-0 bg-ginger-bg md:h-full overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 bg-ginger-bg h-full">
         {/* Chat Header */}
-        <header className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-ginger-bg/95 backdrop-blur-xl">
+        <header className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-ginger-bg/95 backdrop-blur-xl">
           <div className="flex items-center gap-4">
             <Link href="/contacts" className="lg:hidden p-2 -ml-2 text-zinc-400 hover:text-white">
               <ArrowLeft className="w-5 h-5" />
@@ -376,8 +376,8 @@ export default function DMPage() {
         </header>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 pb-32 scroll-smooth">
-          <div className="max-w-3xl mx-auto space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth min-h-0">
+          <div className="max-w-3xl mx-auto space-y-6 pb-4">
             <AnimatePresence>
               {messages.map((message, index) => (
                 <motion.div
@@ -399,8 +399,8 @@ export default function DMPage() {
           </div>
         </div>
 
-        {/* Input - Sticky bottom */}
-        <div className="sticky bottom-0 z-40 p-4 md:p-6 bg-ginger-surface/95 backdrop-blur-xl border-t border-white/5">
+        {/* Input */}
+        <div className="shrink-0 p-4 md:p-6 bg-ginger-surface border-t border-white/5">
           <form 
             onSubmit={handleSendMessage}
             className="max-w-3xl mx-auto flex items-center gap-2 md:gap-3"
@@ -504,28 +504,32 @@ export default function DMPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowAvatarModal(false)}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md p-8"
           >
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative max-w-2xl w-full"
+            <button
+              onClick={() => setShowAvatarModal(false)}
+              className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all z-10"
             >
-              <button
-                onClick={() => setShowAvatarModal(false)}
-                className="absolute -top-12 right-0 p-2 text-white hover:text-ginger-primary transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
+              <X className="w-6 h-6" />
+            </button>
+            
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-3xl w-full"
+            >
               <img
                 src={model?.chat_avatar_url || model?.avatar_url}
                 alt={model?.name || ''}
-                className="w-full h-auto rounded-2xl shadow-2xl"
+                onContextMenu={(e) => e.preventDefault()}
+                className="w-full h-auto rounded-2xl shadow-2xl select-none pointer-events-none"
+                draggable={false}
               />
-              <div className="mt-4 text-center">
-                <h3 className="text-xl font-bold text-white">{model?.name}</h3>
+              <div className="mt-6 text-center">
+                <h3 className="text-2xl font-bold text-white">{model?.name}</h3>
+                <p className="text-sm text-zinc-400 mt-1">Clique en dehors pour fermer</p>
               </div>
             </motion.div>
           </motion.div>
