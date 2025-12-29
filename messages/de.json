@@ -428,6 +428,64 @@
         "content": "Bei Fragen zu dieser Richtlinie kontaktieren Sie uns unter: contact@sugarush.me"
       }
     }
+  },
+  "support": {
+    "title": "Hilfe-Center",
+    "subtitle": "Finden Sie Antworten auf Ihre Fragen oder kontaktieren Sie unser Team",
+    "backHome": "Zurück zur Startseite",
+    "faqTitle": "Häufig gestellte Fragen",
+    "faq": {
+      "q1": {
+        "question": "Wie erstelle ich ein Konto?",
+        "answer": "Klicken Sie oben rechts auf 'Registrieren', geben Sie Ihre E-Mail-Adresse ein und erstellen Sie ein Passwort. Sie erhalten eine Bestätigungs-E-Mail zur Aktivierung Ihres Kontos."
+      },
+      "q2": {
+        "question": "Welche Zahlungsmethoden werden akzeptiert?",
+        "answer": "Wir akzeptieren Kreditkarten (Visa, Mastercard), Apple Pay und Google Pay. Alle Zahlungen werden über Stripe gesichert."
+      },
+      "q3": {
+        "question": "Wie kündige ich mein Abonnement?",
+        "answer": "Gehen Sie zu Einstellungen > Abonnement > Abmelden. Ihr Abonnement bleibt bis zum Ende des aktuellen Zeitraums aktiv. Sie werden für den nächsten Zeitraum nicht belastet."
+      },
+      "q4": {
+        "question": "Kann ich eine Rückerstattung erhalten?",
+        "answer": "Ja, Sie haben 24 Stunden nach Ihrer Zahlung Zeit, eine Rückerstattung zu beantragen. Nach diesem Zeitraum oder wenn Sie mehr als 20 Nachrichten verwendet haben, erfolgt keine Rückerstattung."
+      },
+      "q5": {
+        "question": "Sind Gespräche privat?",
+        "answer": "Ja, alle Ihre Gespräche sind verschlüsselt und streng vertraulich. Wir teilen sie niemals mit Dritten. Weitere Details finden Sie in unserer Datenschutzerklärung."
+      },
+      "q6": {
+        "question": "Wie funktioniert die KI?",
+        "answer": "Unsere KI-Charaktere verwenden fortschrittliche Sprachmodelle, um natürliche und kontextuelle Antworten zu generieren. Gespräche werden in Echtzeit basierend auf Ihren Nachrichten generiert."
+      },
+      "q7": {
+        "question": "Kann ich meinen eigenen Charakter erstellen?",
+        "answer": "Ja, Sie können benutzerdefinierte Charaktere erstellen, indem Sie deren Aussehen, Persönlichkeit und Charaktereigenschaften auswählen. Diese Funktion steht Premium-Abonnenten zur Verfügung."
+      },
+      "q8": {
+        "question": "Ist die Seite auf Mobilgeräten verfügbar?",
+        "answer": "Ja, Sugarush ist vollständig responsive und funktioniert perfekt auf Mobilgeräten, Tablets und Desktops. Sie können von jedem Gerät auf Ihr Konto zugreifen."
+      }
+    },
+    "contactTitle": "Benötigen Sie weitere Hilfe?",
+    "contactSubtitle": "Unser Team ist hier, um Ihnen zu helfen",
+    "responseTime": "Wir antworten normalerweise innerhalb von 24-48 Stunden",
+    "hoursTitle": "Support-Zeiten",
+    "hoursContent": "Unser Team ist Montag bis Freitag von 9 bis 18 Uhr (Pariser Zeit) verfügbar. Anfragen, die außerhalb dieser Zeiten eingehen, werden am nächsten Werktag bearbeitet.",
+    "includeTitle": "Bitte fügen Sie in Ihrer Nachricht hinzu",
+    "include1": "Eine detaillierte Beschreibung Ihres Problems",
+    "include2": "Screenshots, wenn möglich",
+    "include3": "Ihre Konto-E-Mail-Adresse",
+    "include4": "Den Browser und das Gerät, das Sie verwenden",
+    "quickLinks": {
+      "terms": "Nutzungsbedingungen",
+      "termsDesc": "Sehen Sie unsere AGB",
+      "privacy": "Datenschutz",
+      "privacyDesc": "Ihre Daten sind geschützt",
+      "plans": "Pläne & Preise",
+      "plansDesc": "Entdecken Sie unsere Angebote"
+    }
   }
 }
 

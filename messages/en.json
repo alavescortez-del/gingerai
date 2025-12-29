@@ -428,6 +428,64 @@
         "content": "For any question regarding this policy, contact us at: contact@sugarush.me"
       }
     }
+  },
+  "support": {
+    "title": "Help Center",
+    "subtitle": "Find answers to your questions or contact our team",
+    "backHome": "Back to home",
+    "faqTitle": "Frequently Asked Questions",
+    "faq": {
+      "q1": {
+        "question": "How do I create an account?",
+        "answer": "Click 'Sign up' in the top right, enter your email address and create a password. You will receive a confirmation email to activate your account."
+      },
+      "q2": {
+        "question": "What payment methods are accepted?",
+        "answer": "We accept credit cards (Visa, Mastercard), Apple Pay and Google Pay. All payments are secured via Stripe."
+      },
+      "q3": {
+        "question": "How do I cancel my subscription?",
+        "answer": "Go to Settings > Subscription > Unsubscribe. Your subscription will remain active until the end of the current period. You will not be charged for the next period."
+      },
+      "q4": {
+        "question": "Can I get a refund?",
+        "answer": "Yes, you have 24 hours after your payment to request a refund. After this period or if you have used more than 20 messages, no refund will be provided."
+      },
+      "q5": {
+        "question": "Are conversations private?",
+        "answer": "Yes, all your conversations are encrypted and strictly confidential. We never share them with third parties. See our Privacy Policy for more details."
+      },
+      "q6": {
+        "question": "How does the AI work?",
+        "answer": "Our AI characters use advanced language models to generate natural and contextual responses. Conversations are generated in real-time based on your messages."
+      },
+      "q7": {
+        "question": "Can I create my own character?",
+        "answer": "Yes, you can create custom characters by choosing their appearance, personality and character traits. This feature is available for premium subscribers."
+      },
+      "q8": {
+        "question": "Is the site available on mobile?",
+        "answer": "Yes, Sugarush is fully responsive and works perfectly on mobile, tablet and desktop. You can access your account from any device."
+      }
+    },
+    "contactTitle": "Need more help?",
+    "contactSubtitle": "Our team is here to help you",
+    "responseTime": "We usually respond within 24-48 hours",
+    "hoursTitle": "Support hours",
+    "hoursContent": "Our team is available Monday to Friday, 9am to 6pm (Paris time). Requests received outside these hours will be processed the next business day.",
+    "includeTitle": "In your message, please include",
+    "include1": "A detailed description of your problem",
+    "include2": "Screenshots if possible",
+    "include3": "Your account email address",
+    "include4": "The browser and device you're using",
+    "quickLinks": {
+      "terms": "Terms of Use",
+      "termsDesc": "View our ToS",
+      "privacy": "Privacy",
+      "privacyDesc": "Your data is protected",
+      "plans": "Plans & Pricing",
+      "plansDesc": "Discover our offers"
+    }
   }
 }
 

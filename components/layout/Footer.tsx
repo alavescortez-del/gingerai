@@ -53,7 +53,7 @@ export default function Footer() {
               <li><Link href={`/${locale}/scenarios`} className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{tn('scenarios')}</Link></li>
               <li><Link href={`/${locale}/contacts`} className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{tn('contacts')}</Link></li>
               <li><Link href={`/${locale}/subscriptions`} className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{tn('subscriptions')}</Link></li>
-              <li><Link href={`/${locale}/register`} className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{tn('register')}</Link></li>
+              <li><Link href={`/${locale}/support`} className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">Support</Link></li>
             </ul>
           </div>
 

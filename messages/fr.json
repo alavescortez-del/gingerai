@@ -428,6 +428,64 @@
         "content": "Pour toute question relative à cette politique, contactez-nous à : contact@sugarush.me"
       }
     }
+  },
+  "support": {
+    "title": "Centre d'Aide",
+    "subtitle": "Trouvez des réponses à vos questions ou contactez notre équipe",
+    "backHome": "Retour à l'accueil",
+    "faqTitle": "Questions Fréquentes",
+    "faq": {
+      "q1": {
+        "question": "Comment créer un compte ?",
+        "answer": "Cliquez sur 'S'inscrire' en haut à droite, entrez votre adresse email et créez un mot de passe. Vous recevrez un email de confirmation pour activer votre compte."
+      },
+      "q2": {
+        "question": "Quels sont les moyens de paiement acceptés ?",
+        "answer": "Nous acceptons les cartes bancaires (Visa, Mastercard), Apple Pay et Google Pay. Tous les paiements sont sécurisés via Stripe."
+      },
+      "q3": {
+        "question": "Comment annuler mon abonnement ?",
+        "answer": "Allez dans Paramètres > Abonnement > Se désabonner. Votre abonnement restera actif jusqu'à la fin de la période en cours. Vous ne serez pas facturé pour la période suivante."
+      },
+      "q4": {
+        "question": "Puis-je obtenir un remboursement ?",
+        "answer": "Oui, vous disposez de 24 heures après votre paiement pour demander un remboursement. Après ce délai ou si vous avez utilisé plus de 20 messages, aucun remboursement ne sera effectué."
+      },
+      "q5": {
+        "question": "Les conversations sont-elles privées ?",
+        "answer": "Oui, toutes vos conversations sont chiffrées et strictement confidentielles. Nous ne les partageons jamais avec des tiers. Consultez notre Politique de confidentialité pour plus de détails."
+      },
+      "q6": {
+        "question": "Comment fonctionne l'IA ?",
+        "answer": "Nos personnages IA utilisent des modèles de langage avancés pour générer des réponses naturelles et contextuelles. Les conversations sont générées en temps réel en fonction de vos messages."
+      },
+      "q7": {
+        "question": "Puis-je créer mon propre personnage ?",
+        "answer": "Oui, vous pouvez créer des personnages personnalisés en choisissant leur apparence, leur personnalité et leurs traits de caractère. Cette fonctionnalité est disponible pour les abonnés premium."
+      },
+      "q8": {
+        "question": "Le site est-il disponible sur mobile ?",
+        "answer": "Oui, Sugarush est entièrement responsive et fonctionne parfaitement sur mobile, tablette et ordinateur. Vous pouvez accéder à votre compte depuis n'importe quel appareil."
+      }
+    },
+    "contactTitle": "Besoin d'aide supplémentaire ?",
+    "contactSubtitle": "Notre équipe est là pour vous aider",
+    "responseTime": "Nous répondons généralement sous 24-48 heures",
+    "hoursTitle": "Horaires du support",
+    "hoursContent": "Notre équipe est disponible du lundi au vendredi, de 9h à 18h (heure de Paris). Les demandes reçues en dehors de ces horaires seront traitées le jour ouvrable suivant.",
+    "includeTitle": "Dans votre message, merci d'inclure",
+    "include1": "Une description détaillée de votre problème",
+    "include2": "Des captures d'écran si possible",
+    "include3": "Votre adresse email de compte",
+    "include4": "Le navigateur et l'appareil que vous utilisez",
+    "quickLinks": {
+      "terms": "Conditions d'utilisation",
+      "termsDesc": "Consultez nos CGU",
+      "privacy": "Confidentialité",
+      "privacyDesc": "Vos données sont protégées",
+      "plans": "Plans & Tarifs",
+      "plansDesc": "Découvrez nos offres"
+    }
   }
 }
 
