@@ -1,0 +1,262 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Ein Fehler ist aufgetreten",
+    "online": "Online",
+    "offline": "Offline",
+    "available": "Verfügbar",
+    "premium": "Premium",
+    "free": "Kostenlos",
+    "soft": "Soft",
+    "unleashed": "Unleashed",
+    "send": "Senden",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "search": "Suchen",
+    "seeAll": "Alle anzeigen",
+    "years": "Jahre"
+  },
+  "nav": {
+    "home": "Startseite",
+    "scenarios": "Szenarien",
+    "contacts": "Kontakte",
+    "subscriptions": "Abonnements",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden"
+  },
+  "home": {
+    "hero": {
+      "title1": "Immersive Szenarien",
+      "desc1": "Erlebe interaktive Abenteuer, die sich nach deinen Entscheidungen entwickeln",
+      "title2": "Intelligente Gespräche",
+      "desc2": "Eine KI, die versteht, sich anpasst und natürlich antwortet",
+      "title3": "Exklusive Inhalte",
+      "desc3": "Schalte intime Momente und personalisierte Inhalte frei",
+      "cta": "Kostenlos starten"
+    },
+    "scenarios": {
+      "title": "Immersive Szenarien",
+      "subtitle": "Jedes Szenario ist ein einzigartiges Abenteuer, bei dem deine Entscheidungen die Geschichte formen"
+    },
+    "chat": {
+      "title": "Oder chatte frei",
+      "subtitle": "Keine Lust einem Szenario zu folgen? Starte ein freies Gespräch mit dem Charakter deiner Wahl"
+    },
+    "features": {
+      "ai": {
+        "title": "Ultra-realistische KI",
+        "desc": "Natürliche Gespräche, die sich deinem Stil anpassen und sich mit der Zeit entwickeln"
+      },
+      "content": {
+        "title": "Exklusive Inhalte",
+        "desc": "Schalte intime Momente und personalisierte Inhalte frei, während du vorankommst"
+      },
+      "privacy": {
+        "title": "100% Privat",
+        "desc": "Deine Gespräche sind verschlüsselt und werden nie geteilt. Dein geheimer Garten bleibt deiner"
+      }
+    },
+    "seo": {
+      "title": "Finde deine ideale virtuelle Partnerin",
+      "subtitle": "Lass deinen KI-Charakter sich um deine Wünsche kümmern, egal wie intim",
+      "aiTitle": "Fortgeschrittene Konversations-KI",
+      "aiDesc": "Mit unserer KI-Technologie und unserem adaptiven Lernsystem kannst du eine authentische und leidenschaftliche Beziehung mit der Partnerin deiner Träume erleben.",
+      "freedomTitle": "Totale Freiheit",
+      "freedomDesc": "Die Wahl liegt bei dir: Erlebe ein einzigartiges romantisches Abenteuer mit einer hingebungsvollen Partnerin oder vervielfache aufregende Begegnungen mit verschiedenen Charakteren.",
+      "customTitle": "Vollständige Anpassung",
+      "customDesc": "Wähle aus einer Vielzahl von Persönlichkeiten, Stilen und Charme. Jeder Charakter hat seine eigene Geschichte, Wünsche und einzigartige Art zu kommunizieren.",
+      "progressTitle": "Dynamischer Fortschritt",
+      "progressDesc": "Dein Charakter lernt dich durch eure Gespräche kennen. Bestimme das Tempo und steigere die Intensität, vom leichten Flirten bis zu den intimsten Gesprächen.",
+      "progressCta": "Während du Fortschritte machst, schalte exklusive Inhalte und besondere Momente frei. Jede Interaktion zählt und bringt dich neuen Erfahrungen näher.",
+      "waitingForYou": "Deine virtuelle Begleiterin wartet auf dich"
+    },
+    "immersion": {
+      "title": "Eine totale",
+      "titleHighlight": "Sensorische Immersion",
+      "desc": "Sugarush ist nicht nur ein einfacher Chat. Es ist eine neue Technologie-Erfahrung, bei der jedes Detail zählt.",
+      "sound": {
+        "title": "Adaptive Klangkulisse",
+        "desc": "Eine immersive Klangatmosphäre, die sich mit der Intensität eurer Gespräche entwickelt, vom sanften Flirten bis zu den explizitesten Szenen."
+      },
+      "aiTech": {
+        "title": "Hyper-realistische KI",
+        "desc": "Angetrieben von den neuesten Sprachmodellen, für sofortige, natürliche Antworten mit verstörendem Realismus."
+      }
+    },
+    "cta": {
+      "title": "BEREIT FÜR DAS ERLEBNIS?",
+      "subtitle": "Tritt der Community bei und starte das Abenteuer.",
+      "button": "Jetzt starten",
+      "private": "100% Privat",
+      "noCommitment": "Keine Verpflichtung",
+      "instant": "Sofortiger Zugang"
+    }
+  },
+  "scenario": {
+    "launch": "Erlebnis starten",
+    "softScenes": "SOFT",
+    "hardScenes": "HARTE SZENEN",
+    "location": "Ort",
+    "affinity": "Affinität",
+    "actions": "Aktionen",
+    "writeMessage": "Schreiben...",
+    "askQuestion": "Stelle eine Frage",
+    "phaseRequired": "Affinität erforderlich",
+    "unleashedRequired": "Unleashed-Abo für diese Phase erforderlich.",
+    "softRequired": "Soft- oder Unleashed-Abo für diese Phase erforderlich."
+  },
+  "dm": {
+    "title": "Chat",
+    "searchPlaceholder": "Profil suchen...",
+    "writeMessage": "Nachricht schreiben...",
+    "aboutMe": "Über mich:",
+    "age": "Alter",
+    "language": "Sprache"
+  },
+  "contacts": {
+    "title": "Meine Kontakte",
+    "subtitle": "Deine virtuellen Partnerinnen",
+    "empty": "Noch keine Kontakte",
+    "emptySubtitle": "Starte ein Szenario oder einen Chat, um Kontakte freizuschalten",
+    "startChat": "Chatten",
+    "searchPlaceholder": "Kontakte suchen..."
+  },
+  "auth": {
+    "login": {
+      "title": "Anmelden",
+      "subtitle": "Willkommen zurück",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "forgot": "Passwort vergessen?",
+      "submit": "Anmelden",
+      "noAccount": "Noch kein Konto?",
+      "register": "Registrieren"
+    },
+    "register": {
+      "title": "Registrieren",
+      "subtitle": "Erlebe das Abenteuer",
+      "name": "Dein Vorname",
+      "namePlaceholder": "Z.B.: Max",
+      "email": "E-Mail",
+      "emailPlaceholder": "deine@email.com",
+      "password": "Passwort",
+      "submit": "Los geht's",
+      "hasAccount": "Hast du bereits ein Konto?",
+      "login": "Anmelden"
+    },
+    "modal": {
+      "badge": "Neues Szenario",
+      "title": "Erlebe das Abenteuer",
+      "subtitle": "Erstelle dein kostenloses Konto und chatte mit unseren hyper-realistischen KI-Modellen.",
+      "anonymous": "Anonym",
+      "free": "Kostenlos",
+      "secure": "Sicher"
+    }
+  },
+  "subscriptions": {
+    "title": "Wähle dein",
+    "titleHighlight": "Genuss-Level",
+    "subtitle": "Schalte das volle Potenzial deiner virtuellen Partnerinnen frei und erlebe unzensierte Abenteuer.",
+    "perMonth": "/Monat",
+    "currentPlan": "Aktueller Plan",
+    "choosePlan": "Wählen",
+    "popular": "Beliebt",
+    "plans": {
+      "free": {
+        "name": "Kostenlos",
+        "desc": "Um die Sugarush-Erfahrung zu entdecken",
+        "features": [
+          "5 Nachrichten pro Tag",
+          "5 Fotos pro Tag",
+          "Zugang zu Szenarien (Anfang)",
+          "Nur Aktionen ohne Affinität",
+          "Begrenzt auf 5 Interaktionen pro Szenario"
+        ]
+      },
+      "soft": {
+        "name": "Soft",
+        "desc": "Für mehr Vergnügen und Teasing",
+        "features": [
+          "30 Nachrichten pro Tag",
+          "20 Fotos pro Tag",
+          "Voller Zugang zu Phase 1",
+          "Moderate Teasing-Aktionen",
+          "Prioritäts-Support"
+        ]
+      },
+      "unleashed": {
+        "name": "Unleashed",
+        "desc": "Das ultimative Erlebnis ohne Grenzen",
+        "features": [
+          "Unbegrenzte Nachrichten",
+          "Unbegrenzte Fotos",
+          "Voller Zugang (Phase 1 & 2)",
+          "Alle Aktionen freigeschaltet",
+          "Ultra-expliziter unzensierter Inhalt",
+          "Früher Zugang zu neuen Funktionen"
+        ]
+      }
+    },
+    "trust": {
+      "secure": "100% Sicher",
+      "instant": "Sofortiger Zugang",
+      "cancel": "Einfache Kündigung",
+      "noCensorship": "Keine Zensur"
+    }
+  },
+  "planLimit": {
+    "messages": {
+      "title": "Nachrichtenlimit erreicht",
+      "free": "Du hast deine 5 kostenlosen Nachrichten heute verbraucht. Schalte den Soft-Modus frei, um das Abenteuer fortzusetzen.",
+      "soft": "Du hast dein Limit von 30 Nachrichten erreicht. Werde unbegrenzt, um nie aufzuhören!"
+    },
+    "photos": {
+      "title": "Fotolimit erreicht",
+      "free": "Deine 5 kostenlosen Fotos wurden angesehen. Das Soft-Abo gibt dir 20 pro Tag!",
+      "soft": "Du hast deine 20 Fotos gesehen. Upgrade auf Unleashed, um alles ohne Limits zu sehen!"
+    },
+    "scenario": {
+      "title": "Testversion beendet",
+      "desc": "Der kostenlose Modus endet hier nach 5 Interaktionen. Schalte vollen Zugang frei, um zu sehen, was als nächstes kommt!"
+    },
+    "phase": {
+      "title": "Gesperrter Inhalt",
+      "free": "Dieser Schritt erfordert mindestens das Soft-Abo. Bereit, die Hitze aufzudrehen?",
+      "soft": "Nur der Unleashed-Plan ermöglicht den Zugang zu den explizitesten und intimsten Szenen."
+    },
+    "default": {
+      "title": "Premium-Inhalt",
+      "desc": "Dieses Element erfordert ein höheres Abonnement."
+    },
+    "imageBadge": "Privater Moment",
+    "imageTitle": "Hör jetzt nicht auf",
+    "cta": "Jetzt upgraden",
+    "later": "Vielleicht später",
+    "planSoft": "Soft-Plan",
+    "planSoftDesc": "30 Msgs & Phase 1",
+    "planUnleashed": "Unleashed",
+    "planUnleashedDesc": "Alles unbegrenzt"
+  },
+  "footer": {
+    "tagline": "Das immersivste und realistischste Dating-Simulator-Erlebnis. Tauche ein in Geschichten, in denen jede Entscheidung zählt.",
+    "navigation": "Navigation",
+    "legal": "Rechtliches",
+    "terms": "Nutzungsbedingungen",
+    "privacy": "Datenschutz",
+    "cookies": "Cookie-Richtlinie",
+    "legalNotice": "Impressum",
+    "secureTitle": "Sichere Erfahrung",
+    "secureDesc": "Deine Daten sind verschlüsselt und deine Gespräche bleiben streng privat. 100% sichere Zahlung über Stripe.",
+    "allRights": "Alle Rechte vorbehalten",
+    "madeWith": "Gemacht mit",
+    "forLovers": "für digitale Liebhaber"
+  }
+}
+

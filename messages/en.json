@@ -1,0 +1,262 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "online": "Online",
+    "offline": "Offline",
+    "available": "Available",
+    "premium": "Premium",
+    "free": "Free",
+    "soft": "Soft",
+    "unleashed": "Unleashed",
+    "send": "Send",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "seeAll": "See all",
+    "years": "y/o"
+  },
+  "nav": {
+    "home": "Home",
+    "scenarios": "Scenarios",
+    "contacts": "Contacts",
+    "subscriptions": "Subscriptions",
+    "login": "Login",
+    "register": "Sign up",
+    "logout": "Logout"
+  },
+  "home": {
+    "hero": {
+      "title1": "Immersive Scenarios",
+      "desc1": "Experience interactive adventures that evolve based on your choices",
+      "title2": "Smart Conversations",
+      "desc2": "An AI that understands, adapts and responds naturally",
+      "title3": "Exclusive Content",
+      "desc3": "Unlock intimate moments and personalized content",
+      "cta": "Start for free"
+    },
+    "scenarios": {
+      "title": "Immersive Scenarios",
+      "subtitle": "Each scenario is a unique adventure where your choices shape the story"
+    },
+    "chat": {
+      "title": "Or chat freely",
+      "subtitle": "Don't want to follow a scenario? Start a free conversation with the character of your choice"
+    },
+    "features": {
+      "ai": {
+        "title": "Ultra-realistic AI",
+        "desc": "Natural conversations that adapt to your style and evolve over time"
+      },
+      "content": {
+        "title": "Exclusive content",
+        "desc": "Unlock intimate moments and personalized content as you progress"
+      },
+      "privacy": {
+        "title": "100% Private",
+        "desc": "Your conversations are encrypted and never shared. Your secret garden stays yours"
+      }
+    },
+    "seo": {
+      "title": "Find Your Ideal Virtual Partner",
+      "subtitle": "Let your AI character take care of your desires, no matter how intimate",
+      "aiTitle": "Advanced Conversational AI",
+      "aiDesc": "With our AI technology and adaptive learning system, you can experience an authentic and passionate relationship with the partner of your dreams.",
+      "freedomTitle": "Total Freedom",
+      "freedomDesc": "The choice is yours: live a unique romantic adventure with a devoted partner, or multiply exciting encounters with different characters.",
+      "customTitle": "Complete Customization",
+      "customDesc": "Choose from a variety of personalities, styles and charms. Each character has their own story, desires and unique way of communicating.",
+      "progressTitle": "Dynamic Progression",
+      "progressDesc": "Your character learns to know you through your exchanges. Set the pace and increase the intensity, from light flirting to the most intimate conversations.",
+      "progressCta": "As you progress, unlock exclusive content and special moments. Every interaction counts and brings you closer to new experiences.",
+      "waitingForYou": "Your virtual companion is waiting for you"
+    },
+    "immersion": {
+      "title": "A Total",
+      "titleHighlight": "Sensory Immersion",
+      "desc": "Sugarush is not just a simple chat. It's a new technology experience where every detail matters.",
+      "sound": {
+        "title": "Adaptive Soundtrack",
+        "desc": "An immersive sound atmosphere that evolves with the intensity of your exchanges, from soft flirting to the most explicit scenes."
+      },
+      "aiTech": {
+        "title": "Hyper-Realistic AI",
+        "desc": "Powered by the latest language models, for instant, natural responses with disturbing realism."
+      }
+    },
+    "cta": {
+      "title": "READY FOR THE EXPERIENCE?",
+      "subtitle": "Join the community and start the adventure.",
+      "button": "Start now",
+      "private": "100% Private",
+      "noCommitment": "No Commitment",
+      "instant": "Instant Access"
+    }
+  },
+  "scenario": {
+    "launch": "Launch experience",
+    "softScenes": "SOFT",
+    "hardScenes": "HARD SCENES",
+    "location": "Location",
+    "affinity": "Affinity",
+    "actions": "Actions",
+    "writeMessage": "Write...",
+    "askQuestion": "Ask any question",
+    "phaseRequired": "Affinity required",
+    "unleashedRequired": "Unleashed subscription required for this phase.",
+    "softRequired": "Soft or Unleashed subscription required for this phase."
+  },
+  "dm": {
+    "title": "Chat",
+    "searchPlaceholder": "Search a profile...",
+    "writeMessage": "Write a message...",
+    "aboutMe": "About me:",
+    "age": "Age",
+    "language": "Language"
+  },
+  "contacts": {
+    "title": "My Contacts",
+    "subtitle": "Your virtual partners",
+    "empty": "No contacts yet",
+    "emptySubtitle": "Start a scenario or a chat to unlock contacts",
+    "startChat": "Chat",
+    "searchPlaceholder": "Search contacts..."
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "subtitle": "Welcome back",
+      "email": "Email",
+      "password": "Password",
+      "forgot": "Forgot password?",
+      "submit": "Login",
+      "noAccount": "Don't have an account?",
+      "register": "Sign up"
+    },
+    "register": {
+      "title": "Sign up",
+      "subtitle": "Join the experience",
+      "name": "Your first name",
+      "namePlaceholder": "Ex: John",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "submit": "Let's go",
+      "hasAccount": "Already have an account?",
+      "login": "Login"
+    },
+    "modal": {
+      "badge": "New Scenario",
+      "title": "Join the experience",
+      "subtitle": "Create your free account and start chatting with our hyper-realistic AI models.",
+      "anonymous": "Anonymous",
+      "free": "Free",
+      "secure": "Secure"
+    }
+  },
+  "subscriptions": {
+    "title": "Choose your",
+    "titleHighlight": "Pleasure Level",
+    "subtitle": "Unlock the full potential of your virtual partners and experience uncensored adventures.",
+    "perMonth": "/month",
+    "currentPlan": "Current plan",
+    "choosePlan": "Choose",
+    "popular": "Popular",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "desc": "To discover the Sugarush experience",
+        "features": [
+          "5 messages per day",
+          "5 photos per day",
+          "Access to scenarios (beginning)",
+          "Actions without affinity only",
+          "Limited to 5 interactions per scenario"
+        ]
+      },
+      "soft": {
+        "name": "Soft",
+        "desc": "For more pleasure and teasing",
+        "features": [
+          "30 messages per day",
+          "20 photos per day",
+          "Full access to Phase 1",
+          "Moderate teasing actions",
+          "Priority support"
+        ]
+      },
+      "unleashed": {
+        "name": "Unleashed",
+        "desc": "The ultimate experience with no limits",
+        "features": [
+          "Unlimited messages",
+          "Unlimited photos",
+          "Full access (Phase 1 & 2)",
+          "All actions unlocked",
+          "Ultra-explicit uncensored content",
+          "Early access to new features"
+        ]
+      }
+    },
+    "trust": {
+      "secure": "100% Secure",
+      "instant": "Instant Access",
+      "cancel": "Easy Cancellation",
+      "noCensorship": "Zero Censorship"
+    }
+  },
+  "planLimit": {
+    "messages": {
+      "title": "Message limit reached",
+      "free": "You've used your 5 free messages today. Unlock Soft mode to continue the adventure.",
+      "soft": "You've reached your 30 message limit. Go unlimited to never stop!"
+    },
+    "photos": {
+      "title": "Photo limit reached",
+      "free": "Your 5 free photos have been viewed. The Soft subscription gives you 20 per day!",
+      "soft": "You've seen your 20 photos. Upgrade to Unleashed to see everything without limits!"
+    },
+    "scenario": {
+      "title": "Trial ended",
+      "desc": "Free mode ends here after 5 interactions. Unlock full access to see what's next!"
+    },
+    "phase": {
+      "title": "Locked Content",
+      "free": "This step requires at least the Soft subscription. Ready to turn up the heat?",
+      "soft": "Only the Unleashed plan allows access to the most explicit and intimate scenes."
+    },
+    "default": {
+      "title": "Premium Content",
+      "desc": "This element requires a higher subscription to unlock."
+    },
+    "imageBadge": "Private Moment",
+    "imageTitle": "Don't stop now",
+    "cta": "Upgrade now",
+    "later": "Maybe later",
+    "planSoft": "Soft Plan",
+    "planSoftDesc": "30 msgs & Phase 1",
+    "planUnleashed": "Unleashed",
+    "planUnleashedDesc": "Everything unlimited"
+  },
+  "footer": {
+    "tagline": "The most immersive and realistic dating simulator experience. Dive into stories where every choice matters.",
+    "navigation": "Navigation",
+    "legal": "Legal",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookie Policy",
+    "legalNotice": "Legal Notice",
+    "secureTitle": "Secure Experience",
+    "secureDesc": "Your data is encrypted and your conversations remain strictly private. 100% secure payment via Stripe.",
+    "allRights": "All rights reserved",
+    "madeWith": "Made with",
+    "forLovers": "for digital lovers"
+  }
+}
+
