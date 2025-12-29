@@ -373,7 +373,7 @@ export default function DMPage() {
         </header>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth pb-24 md:pb-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
           <div className="max-w-3xl mx-auto space-y-6">
             <AnimatePresence>
               {messages.map((message, index) => (
@@ -396,8 +396,8 @@ export default function DMPage() {
           </div>
         </div>
 
-        {/* Input - Fixed on mobile */}
-        <div className="sticky bottom-0 p-4 md:p-6 bg-gradient-to-t from-ginger-surface via-ginger-surface to-transparent backdrop-blur-sm border-t border-white/5">
+        {/* Input */}
+        <div className="p-4 md:p-6 bg-ginger-surface border-t border-white/5">
           <form 
             onSubmit={handleSendMessage}
             className="max-w-3xl mx-auto flex items-center gap-2 md:gap-3"
