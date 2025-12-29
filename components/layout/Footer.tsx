@@ -61,10 +61,10 @@ export default function Footer() {
           <div className="text-center md:text-left">
             <h4 className="text-white font-black uppercase tracking-widest text-xs mb-6">{t('legal')}</h4>
             <ul className="space-y-4">
-              <li><Link href="#" className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{t('terms')}</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{t('privacy')}</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{t('cookies')}</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{t('legalNotice')}</Link></li>
+              <li><Link href={`/${locale}/legal/terms`} className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{t('terms')}</Link></li>
+              <li><Link href={`/${locale}/legal/privacy`} className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{t('privacy')}</Link></li>
+              <li><Link href={`/${locale}/legal/sales`} className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">CGV</Link></li>
+              <li><Link href={`/${locale}/legal/mentions`} className="text-zinc-500 hover:text-pink-500 text-sm font-bold transition-colors">{t('legalNotice')}</Link></li>
             </ul>
           </div>
 

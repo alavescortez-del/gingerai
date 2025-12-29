@@ -257,6 +257,177 @@
     "allRights": "Tous droits réservés",
     "madeWith": "Fait avec",
     "forLovers": "pour les amoureux du digital"
+  },
+  "legal": {
+    "mentions": {
+      "title": "Mentions Légales",
+      "lastUpdate": "Dernière mise à jour : Décembre 2024",
+      "backHome": "Retour à l'accueil",
+      "editor": {
+        "title": "1. Éditeur du site",
+        "company": "Raison sociale :",
+        "address": "Adresse :",
+        "siret": "SIRET :",
+        "email": "Email :",
+        "phone": "Téléphone :"
+      },
+      "hosting": {
+        "title": "2. Hébergement",
+        "provider": "Hébergeur :",
+        "address": "Adresse :",
+        "website": "Site web :"
+      },
+      "intellectual": {
+        "title": "3. Propriété intellectuelle",
+        "content": "L'ensemble du contenu de ce site (textes, images, vidéos, logos, design) est la propriété exclusive de Sugarush ou de ses partenaires. Toute reproduction, distribution ou utilisation sans autorisation préalable est strictement interdite."
+      },
+      "data": {
+        "title": "4. Données personnelles",
+        "content": "Pour en savoir plus sur la collecte et le traitement de vos données personnelles, consultez notre",
+        "privacyLink": "Politique de confidentialité"
+      },
+      "liability": {
+        "title": "5. Responsabilité",
+        "content": "Sugarush s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées sur ce site. Toutefois, Sugarush ne peut garantir l'exactitude, la précision ou l'exhaustivité des informations mises à disposition sur ce site."
+      }
+    },
+    "terms": {
+      "title": "Conditions Générales d'Utilisation (CGU)",
+      "lastUpdate": "Dernière mise à jour : Décembre 2024",
+      "backHome": "Retour à l'accueil",
+      "intro": {
+        "title": "Préambule",
+        "content": "Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») régissent l'utilisation du site Sugarush.me et de ses services. En accédant au site, vous acceptez sans réserve les présentes CGU."
+      },
+      "object": {
+        "title": "1. Objet",
+        "content": "Sugarush est une plateforme proposant des conversations avec des personnages IA et des scénarios immersifs interactifs. Le site permet aux utilisateurs de discuter avec des intelligences artificielles dans un cadre ludique et privé."
+      },
+      "access": {
+        "title": "2. Accès au service",
+        "content": "L'accès au site est réservé aux personnes majeures (18 ans et plus). En vous inscrivant, vous certifiez avoir l'âge légal requis. Sugarush se réserve le droit de suspendre ou supprimer l'accès à tout utilisateur ne respectant pas cette condition."
+      },
+      "account": {
+        "title": "3. Compte utilisateur",
+        "content": "Pour accéder à certains services, vous devez créer un compte avec une adresse email valide. Vous êtes responsable de la confidentialité de vos identifiants et de toutes les activités effectuées depuis votre compte. En cas d'utilisation frauduleuse, vous devez immédiatement en informer Sugarush."
+      },
+      "content": {
+        "title": "4. Contenu et utilisation",
+        "content": "Le contenu généré par l'IA est fourni à titre de divertissement uniquement. Sugarush ne garantit pas l'exactitude ou la pertinence des réponses générées. Il est interdit d'utiliser le service à des fins illégales, de harcèlement, ou pour partager du contenu contraire aux bonnes mœurs."
+      },
+      "liability": {
+        "title": "5. Responsabilité",
+        "content": "Sugarush ne peut être tenu responsable des dommages directs ou indirects résultant de l'utilisation du service, notamment en cas d'interruption, de bug, ou de contenu inapproprié généré par l'IA. L'utilisateur utilise le service à ses propres risques."
+      },
+      "intellectual": {
+        "title": "6. Propriété intellectuelle",
+        "content": "Tous les éléments du site (design, textes, images, logos) sont protégés par le droit d'auteur. Toute reproduction ou utilisation sans autorisation est interdite."
+      },
+      "termination": {
+        "title": "7. Résiliation",
+        "content": "Sugarush se réserve le droit de suspendre ou résilier votre compte en cas de violation des présentes CGU, sans préavis ni indemnité."
+      },
+      "law": {
+        "title": "8. Loi applicable",
+        "content": "Les présentes CGU sont régies par le droit français. Tout litige sera soumis aux tribunaux compétents de France."
+      }
+    },
+    "sales": {
+      "title": "Conditions Générales de Vente (CGV)",
+      "lastUpdate": "Dernière mise à jour : Décembre 2024",
+      "backHome": "Retour à l'accueil",
+      "preamble": {
+        "title": "Préambule",
+        "content": "Les présentes Conditions Générales de Vente (ci-après « CGV ») régissent toutes les transactions effectuées sur Sugarush.me. En effectuant un achat, vous acceptez sans réserve les présentes CGV."
+      },
+      "prices": {
+        "title": "1. Prix",
+        "content": "Les prix sont affichés en euros (€) et sont TTC (toutes taxes comprises). Sugarush se réserve le droit de modifier ses tarifs à tout moment, mais les abonnements en cours restent au prix souscrit jusqu'à leur échéance."
+      },
+      "order": {
+        "title": "2. Commande",
+        "content": "Toute commande effectuée sur le site constitue un engagement ferme d'achat. Vous recevrez une confirmation par email après validation du paiement."
+      },
+      "payment": {
+        "title": "3. Paiement",
+        "content": "Les paiements sont sécurisés via Stripe. Les moyens de paiement acceptés incluent : cartes bancaires (Visa, Mastercard), Apple Pay, Google Pay. Le paiement est exigible immédiatement à la commande."
+      },
+      "delivery": {
+        "title": "4. Livraison",
+        "content": "Les services numériques (crédits, abonnements) sont activés instantanément après validation du paiement. Aucune livraison physique n'est requise."
+      },
+      "withdrawal": {
+        "title": "5. Droit de rétractation",
+        "content": "Conformément à l'article L221-28 du Code de la consommation, le droit de rétractation ne s'applique pas aux contenus numériques fournis immédiatement avec votre accord exprès."
+      },
+      "warranty": {
+        "title": "6. Garanties",
+        "content": "Sugarush s'engage à fournir un service de qualité. En cas de dysfonctionnement majeur empêchant l'utilisation du service, vous pouvez demander un remboursement partiel ou total selon la gravité du problème."
+      },
+      "claims": {
+        "title": "7. Réclamations",
+        "content": "Pour toute réclamation concernant une commande, contactez-nous à l'adresse : contact@sugarush.me. Nous nous engageons à répondre dans un délai de 7 jours ouvrés."
+      }
+    },
+    "privacy": {
+      "title": "Politique de Confidentialité",
+      "lastUpdate": "Dernière mise à jour : Décembre 2024",
+      "backHome": "Retour à l'accueil",
+      "intro": {
+        "title": "Introduction",
+        "content": "Chez Sugarush, nous prenons très au sérieux la protection de vos données personnelles. Cette politique explique quelles données nous collectons, comment nous les utilisons et quels sont vos droits."
+      },
+      "collected": {
+        "title": "1. Données collectées",
+        "content": "Nous collectons les données suivantes :",
+        "item1": "Données d'identification : email, pseudonyme",
+        "item2": "Données de connexion : adresse IP, logs de connexion",
+        "item3": "Données d'utilisation : historique des conversations, scénarios visités",
+        "item4": "Données de paiement : traitées par Stripe (nous ne stockons jamais vos coordonnées bancaires)"
+      },
+      "usage": {
+        "title": "2. Utilisation des données",
+        "content": "Vos données sont utilisées pour : gérer votre compte et vos abonnements, améliorer nos services et personnaliser votre expérience, assurer la sécurité du site et prévenir les fraudes, respecter nos obligations légales."
+      },
+      "legal": {
+        "title": "3. Base légale",
+        "content": "Le traitement de vos données repose sur : l'exécution du contrat (fourniture du service), votre consentement (cookies, newsletter), notre intérêt légitime (amélioration du service, sécurité)."
+      },
+      "sharing": {
+        "title": "4. Partage des données",
+        "content": "Nous ne vendons jamais vos données. Elles peuvent être partagées uniquement avec : nos prestataires techniques (hébergement, paiement), les autorités légales en cas de réquisition judiciaire."
+      },
+      "retention": {
+        "title": "5. Conservation des données",
+        "content": "Vos données sont conservées tant que votre compte est actif. Après suppression de votre compte, vos données sont anonymisées ou supprimées sous 30 jours, sauf obligation légale de conservation."
+      },
+      "rights": {
+        "title": "6. Vos droits",
+        "content": "Conformément au RGPD, vous disposez des droits suivants :",
+        "item1": "Droit d'accès : consulter vos données",
+        "item2": "Droit de rectification : corriger vos données",
+        "item3": "Droit à l'effacement : supprimer vos données",
+        "item4": "Droit à la portabilité : récupérer vos données",
+        "item5": "Droit d'opposition : refuser certains traitements",
+        "contact": "Pour exercer vos droits, contactez-nous à : contact@sugarush.me"
+      },
+      "cookies": {
+        "title": "7. Cookies",
+        "content": "Nous utilisons des cookies essentiels pour le fonctionnement du site (authentification, panier) et des cookies analytiques pour améliorer l'expérience utilisateur. Vous pouvez gérer vos préférences dans les paramètres de votre navigateur."
+      },
+      "security": {
+        "title": "8. Sécurité",
+        "content": "Nous mettons en œuvre des mesures techniques et organisationnelles pour protéger vos données : chiffrement des connexions (HTTPS), authentification sécurisée, sauvegardes régulières, accès restreint aux données."
+      },
+      "changes": {
+        "title": "9. Modifications",
+        "content": "Cette politique peut être mise à jour. Toute modification substantielle vous sera notifiée par email ou via une notification sur le site."
+      },
+      "contact": {
+        "title": "10. Contact",
+        "content": "Pour toute question relative à cette politique, contactez-nous à : contact@sugarush.me"
+      }
+    }
   }
 }
 
