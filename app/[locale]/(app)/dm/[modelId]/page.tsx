@@ -345,9 +345,9 @@ export default function DMPage() {
       </div>
 
       {/* CENTER: Chat Interface */}
-      <div className="flex-1 flex flex-col min-w-0 bg-ginger-bg">
+      <div className="flex-1 flex flex-col min-w-0 bg-ginger-bg h-full">
         {/* Chat Header */}
-        <header className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-ginger-bg/50 backdrop-blur-xl">
+        <header className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-ginger-bg/50 backdrop-blur-xl">
           <div className="flex items-center gap-4">
             <Link href="/contacts" className="lg:hidden p-2 -ml-2 text-zinc-400 hover:text-white">
               <ArrowLeft className="w-5 h-5" />
@@ -373,7 +373,7 @@ export default function DMPage() {
         </header>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth min-h-0">
           <div className="max-w-3xl mx-auto space-y-6">
             <AnimatePresence>
               {messages.map((message, index) => (
@@ -397,7 +397,7 @@ export default function DMPage() {
         </div>
 
         {/* Input */}
-        <div className="p-4 md:p-6 bg-ginger-surface border-t border-white/5">
+        <div className="shrink-0 p-4 md:p-6 bg-ginger-surface border-t border-white/5">
           <form 
             onSubmit={handleSendMessage}
             className="max-w-3xl mx-auto flex items-center gap-2 md:gap-3"
