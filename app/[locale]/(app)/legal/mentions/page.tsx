@@ -33,11 +33,11 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold text-white mb-4">{t('editor.title')}</h2>
               <div className="text-zinc-300 space-y-2">
-                <p><strong>{t('editor.company')}</strong> Sugarush par Thomas Damien</p>
-                <p><strong>{t('editor.address')}</strong> Rue des Pléiades, Melesse 35520, France</p>
-                <p><strong>{t('editor.siret')}</strong> 83160303000014</p>
-                <p><strong>{t('editor.email')}</strong> aloha@sugarush.me</p>
-                <p><strong>{t('editor.phone')}</strong> +33 (0)6 XX XX XX XX</p>
+                <p>{t('editor.company')}</p>
+                <p>{t('editor.address')}</p>
+                <p>{t('editor.siret')}</p>
+                <p>{t('editor.email')}</p>
+                <p>{t('editor.phone')}</p>
               </div>
             </section>
 

@@ -265,11 +265,11 @@
       "backHome": "Zurück zur Startseite",
       "editor": {
         "title": "1. Herausgeber der Website",
-        "company": "Firmenname:",
-        "address": "Adresse:",
-        "siret": "SIRET:",
-        "email": "E-Mail:",
-        "phone": "Telefon:"
+        "company": "Firmenname: Sugarush par Thomas Damien",
+        "address": "Adresse: Rue des Pléiades, Melesse 35520, Frankreich",
+        "siret": "SIRET: 83160303000014",
+        "email": "E-Mail: aloha@sugarush.me",
+        "phone": "Telefon: [Zu vervollständigen]"
       },
       "hosting": {
         "title": "2. Hosting",
