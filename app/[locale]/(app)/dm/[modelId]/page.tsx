@@ -373,7 +373,7 @@ export default function DMPage() {
         </header>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 scroll-smooth">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth pb-24 md:pb-6">
           <div className="max-w-3xl mx-auto space-y-6">
             <AnimatePresence>
               {messages.map((message, index) => (
@@ -396,33 +396,33 @@ export default function DMPage() {
           </div>
         </div>
 
-        {/* Input */}
-        <div className="p-6">
+        {/* Input - Fixed on mobile */}
+        <div className="sticky bottom-0 p-4 md:p-6 bg-gradient-to-t from-ginger-surface via-ginger-surface to-transparent backdrop-blur-sm border-t border-white/5">
           <form 
             onSubmit={handleSendMessage}
-            className="max-w-3xl mx-auto flex items-center gap-3"
+            className="max-w-3xl mx-auto flex items-center gap-2 md:gap-3"
           >
             <div className="flex-1 relative flex items-center bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden focus-within:border-ginger-primary/30 transition-all">
               <input 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Écrivez un message..."
-                className="flex-1 bg-transparent py-4 px-6 text-sm text-white placeholder:text-zinc-600 focus:outline-none"
+                className="flex-1 bg-transparent py-3 md:py-4 px-4 md:px-6 text-sm text-white placeholder:text-zinc-600 focus:outline-none"
               />
-              <div className="flex items-center gap-1 pr-4">
-                <button type="button" className="p-2 text-zinc-500 hover:text-white transition-colors">
-                  <Sparkles className="w-5 h-5" />
-                </button>
-                <div className="w-px h-6 bg-white/10 mx-1" />
-                <button type="button" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] font-bold text-zinc-300 uppercase tracking-widest transition-all">
-                  Actions <ChevronRight className="w-3 h-3" />
+              <div className="flex items-center pr-2 md:pr-3">
+                <button 
+                  type="button" 
+                  className="p-2 text-zinc-500 hover:text-pink-400 transition-colors"
+                  title="Envoyer une photo"
+                >
+                  <ImageIcon className="w-5 h-5" />
                 </button>
               </div>
             </div>
             <button 
               type="submit"
               disabled={!input.trim()}
-              className="p-4 rounded-2xl bg-pink-600 text-white disabled:opacity-50 disabled:grayscale transition-all hover:scale-105 active:scale-95 shadow-lg shadow-pink-600/20"
+              className="p-3 md:p-4 rounded-2xl bg-pink-600 text-white disabled:opacity-50 disabled:grayscale transition-all hover:scale-105 active:scale-95 shadow-lg shadow-pink-600/20 flex-shrink-0"
             >
               <Send className="w-5 h-5" />
             </button>
