@@ -4,9 +4,9 @@ import { filterPhotosByCategory } from '@/lib/photo-categories'
 
 export async function POST(req: NextRequest) {
   try {
-    const { modelId, contactId, userId, categories = [] } = await req.json()
+    const { modelId, contactId, userId, categories = [], colors = [] } = await req.json()
 
-    console.log('📸 Send-photo API called:', { modelId, contactId, userId, categories })
+    console.log('📸 Send-photo API called:', { modelId, contactId, userId, categories, colors })
 
     if (!modelId || !contactId || !userId) {
       console.log('❌ Missing parameters')
@@ -78,22 +78,36 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Filtrer par catégories si spécifiées
+    // Filtrer par catégories ET couleurs si spécifiées
     console.log('🏷️ Categories received:', categories)
+    console.log('🎨 Colors received:', colors)
     console.log('📁 All image files:', imageFiles.map(f => f.name))
     
-    if (categories && categories.length > 0) {
-      const categoryFilteredFiles = filterPhotosByCategory(imageFiles, categories)
-      console.log('🔍 Filtered files:', categoryFilteredFiles.map(f => f.name))
+    let noMatchReason = ''
+    
+    if ((categories && categories.length > 0) || (colors && colors.length > 0)) {
+      const filterResult = filterPhotosByCategory(imageFiles, categories, colors)
+      console.log('🔍 Filter result:', { 
+        filteredCount: filterResult.filtered.length, 
+        noMatch: filterResult.noMatch, 
+        reason: filterResult.noMatchReason 
+      })
       
-      // Si des photos correspondent aux catégories, les utiliser
-      if (categoryFilteredFiles.length > 0) {
-        imageFiles = categoryFilteredFiles
-        console.log('✅ Using filtered files:', imageFiles.length)
-      } else {
-        console.log('⚠️ No matching files, using all images')
+      // Si pas de correspondance avec une couleur spécifique
+      if (filterResult.noMatch && filterResult.noMatchReason.startsWith('no_color:')) {
+        const missingColor = filterResult.noMatchReason.replace('no_color:', '')
+        return NextResponse.json({
+          success: false,
+          noPhoto: true,
+          reason: 'no_color',
+          missingColor: missingColor,
+          message: null
+        })
       }
-      // Sinon, garder toutes les photos (fallback)
+      
+      imageFiles = filterResult.filtered
+      noMatchReason = filterResult.noMatchReason
+      console.log('✅ Using filtered files:', imageFiles.length)
     }
 
     // 3. Récupérer les photos déjà envoyées à cet utilisateur pour ce modèle
@@ -111,15 +125,25 @@ export async function POST(req: NextRequest) {
       return !sentPhotoUrls.some(url => url.includes(photoPath))
     })
 
-    // Si toutes les photos ont été envoyées, réinitialiser (renvoyer n'importe laquelle)
+    // Si toutes les photos de cette catégorie ont été envoyées
     if (availablePhotos.length === 0) {
+      // Vérifier si c'est une catégorie spécifique ou toutes les photos
+      const totalSentForModel = sentPhotoUrls.length
+      const totalPhotosForModel = files.filter(f => f.name.match(/\.(jpg|jpeg|png|webp|gif)$/i)).length
+      
+      if (totalSentForModel >= totalPhotosForModel) {
+        // Vraiment TOUTES les photos ont été envoyées
+        return NextResponse.json({
+          success: false,
+          noPhoto: true,
+          reason: 'all_sent',
+          totalSent: totalSentForModel,
+          message: null
+        })
+      }
+      
+      // Sinon juste cette catégorie est épuisée, prendre une photo de la même catégorie déjà envoyée
       availablePhotos = imageFiles
-      // Optionnel : Supprimer l'historique pour ce modèle
-      await supabase
-        .from('sent_photos')
-        .delete()
-        .eq('user_id', userId)
-        .eq('model_id', modelId)
     }
 
     // 5. Choisir une photo aléatoire

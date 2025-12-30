@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { buildSystemPrompt, buildDMPrompt, buildPhotoConfirmationPrompt, getCurrentContext } from '@/lib/prompts'
 import { createClient } from '@supabase/supabase-js'
-import { detectPhotoCategories } from '@/lib/photo-categories'
+import { detectPhotoCategories, detectColors } from '@/lib/photo-categories'
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
@@ -129,16 +129,19 @@ export async function POST(request: NextRequest) {
     
     const isPhotoRequest = isDM && matchesRequest && !matchesExclusion
     
+    // Detect photo categories AND colors from the message
+    const photoCategories = isPhotoRequest ? detectPhotoCategories(lastUserMessage) : []
+    const photoColors = isPhotoRequest ? detectColors(lastUserMessage) : []
+    
     console.log('📸 Photo detection:', {
       message: lastUserMessageLower,
       matchesRequest,
       matchesExclusion,
       isDM,
-      isPhotoRequest
+      isPhotoRequest,
+      categories: photoCategories,
+      colors: photoColors
     })
-    
-    // Detect photo categories from the message
-    const photoCategories = isPhotoRequest ? detectPhotoCategories(lastUserMessage) : []
     
     // Check photo limit if it's a photo request
     if (isPhotoRequest && (finalUserData.daily_photos_count || 0) >= limits.photos) {
@@ -269,7 +272,8 @@ NE PROPOSE PAS D'AUTRE CHOIX, la photo va être envoyée automatiquement après 
     return NextResponse.json({ 
       content,
       shouldSendPhoto: isPhotoRequest, // Flag to trigger photo sending from frontend
-      photoCategories: photoCategories // Categories detected in user's request
+      photoCategories: photoCategories, // Categories detected in user's request
+      photoColors: photoColors // Colors detected in user's request
     })
 
   } catch (error) {

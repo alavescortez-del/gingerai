@@ -255,6 +255,7 @@ export default function DMPage() {
       const aiContent = data.content
       const shouldSendPhoto = data.shouldSendPhoto
       const photoCategories = data.photoCategories || []
+      const photoColors = data.photoColors || []
       
       // Logique d'envoi de photo :
       // - Si photoCategories.length > 0 : L'utilisateur a spécifié une catégorie → Envoyer directement
@@ -320,21 +321,61 @@ export default function DMPage() {
                 modelId: model.id,
                 contactId: contact.id,
                 userId: session?.user?.id,
-                categories: photoCategories
+                categories: photoCategories,
+                colors: photoColors
               })
             })
 
             console.log('📸 Photo API response status:', photoResponse.status)
             
-            if (!photoResponse.ok) {
-              const errorData = await photoResponse.json()
-              console.error('❌ Photo API error:', errorData)
+            const photoData = await photoResponse.json()
+            console.log('📸 Photo API response:', photoData)
+            
+            // Gérer les cas spéciaux
+            if (photoData.noPhoto) {
+              let specialMessage = ''
+              
+              if (photoData.reason === 'no_color') {
+                // Pas de photo avec cette couleur
+                const colorMessages = [
+                  `Ah mince, j'ai pas de photo en ${photoData.missingColor}... 😅 Tu veux une autre couleur ?`,
+                  `Désolée bébé, j'en ai pas en ${photoData.missingColor} 🥺 Je peux t'envoyer autre chose ?`,
+                  `Hmm ${photoData.missingColor}... j'ai pas ça dans ma collection 😏 Mais j'ai plein d'autres trucs sexy !`,
+                  `Oups, pas de ${photoData.missingColor} pour moi ! 🙈 Tu veux voir quoi d'autre ?`
+                ]
+                specialMessage = colorMessages[Math.floor(Math.random() * colorMessages.length)]
+              } else if (photoData.reason === 'all_sent') {
+                // Toutes les photos ont été envoyées
+                const allSentMessages = [
+                  `T'as déjà tout vu bébé ! 😏 Faudra attendre que j'en fasse d'autres... 📸`,
+                  `Haha tu m'as déjà tout demandé ! 🔥 Je vais devoir faire une nouvelle séance photo rien que pour toi 😘`,
+                  `T'es gourmand toi ! T'as épuisé tout mon stock 😂 Patience, j'en prépare d'autres...`,
+                  `Wow, t'as vraiment tout vu ! 👀 Laisse-moi le temps d'en faire des nouvelles, coquin 😈`
+                ]
+                specialMessage = allSentMessages[Math.floor(Math.random() * allSentMessages.length)]
+              }
+              
+              if (specialMessage) {
+                const noPhotoMessage: Message = {
+                  id: crypto.randomUUID(),
+                  contact_id: contact.id,
+                  role: 'assistant',
+                  content: specialMessage,
+                  created_at: new Date().toISOString()
+                }
+                addMessage(noPhotoMessage)
+                
+                // Save to DB
+                await supabase.from('messages').insert({
+                  contact_id: contact.id,
+                  role: 'assistant',
+                  content: specialMessage
+                })
+              }
+              return
             }
             
-            if (photoResponse.ok) {
-              const photoData = await photoResponse.json()
-              console.log('✅ Photo sent:', photoData)
-              
+            if (photoData.success && photoData.photoUrl) {
               // Add the photo message to the chat
               const photoMessage: Message = {
                 id: crypto.randomUUID(),

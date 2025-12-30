@@ -5,6 +5,22 @@ export interface PhotoCategory {
   fileKeywords: string[]  // Mots à chercher dans les noms de fichiers
 }
 
+// Couleurs supportées (français + anglais)
+export const COLORS: Record<string, string[]> = {
+  vert: ['vert', 'green'],
+  rouge: ['rouge', 'red'],
+  bleu: ['bleu', 'blue'],
+  rose: ['rose', 'pink'],
+  noir: ['noir', 'black'],
+  blanc: ['blanc', 'white'],
+  jaune: ['jaune', 'yellow'],
+  orange: ['orange'],
+  violet: ['violet', 'purple'],
+  gris: ['gris', 'grey', 'gray'],
+  marron: ['marron', 'brown'],
+  beige: ['beige'],
+}
+
 // Mapping des catégories
 export const PHOTO_CATEGORIES: Record<string, PhotoCategory> = {
   sport: {
@@ -46,6 +62,26 @@ export const PHOTO_CATEGORIES: Record<string, PhotoCategory> = {
 }
 
 /**
+ * Détecte les couleurs dans le message de l'utilisateur
+ */
+export function detectColors(message: string): string[] {
+  const messageLower = message.toLowerCase()
+  const detectedColors: string[] = []
+
+  for (const [colorName, variants] of Object.entries(COLORS)) {
+    const hasColor = variants.some(variant => 
+      messageLower.includes(variant.toLowerCase())
+    )
+    if (hasColor) {
+      // Retourner toutes les variantes de la couleur pour la recherche
+      detectedColors.push(...variants)
+    }
+  }
+
+  return Array.from(new Set(detectedColors))
+}
+
+/**
  * Détecte les catégories dans le message de l'utilisateur
  */
 export function detectPhotoCategories(message: string): string[] {
@@ -83,28 +119,64 @@ export function getFileKeywordsForCategories(categories: string[]): string[] {
 }
 
 /**
- * Filtre les fichiers selon les catégories
+ * Filtre les fichiers selon les catégories ET les couleurs
+ * Retourne { filtered: files, noMatch: boolean, noMatchReason: string }
  */
 export function filterPhotosByCategory<T extends { name: string }>(
   files: T[],
-  categories: string[]
-): T[] {
-  if (categories.length === 0) {
-    // Pas de catégorie spécifique, retourner tous les fichiers
-    return files
+  categories: string[],
+  colors: string[] = []
+): { filtered: T[], noMatch: boolean, noMatchReason: string } {
+  if (categories.length === 0 && colors.length === 0) {
+    // Pas de critère spécifique, retourner tous les fichiers
+    return { filtered: files, noMatch: false, noMatchReason: '' }
   }
 
   const fileKeywords = getFileKeywordsForCategories(categories)
+  // Ajouter les couleurs aux mots-clés de recherche
+  const allKeywords = [...fileKeywords, ...colors]
+  
+  console.log('🔎 Searching for keywords:', allKeywords)
   
   // Filtrer les fichiers qui contiennent au moins un des mots-clés
-  const filteredFiles = files.filter(file => {
+  let filteredFiles = files.filter(file => {
     const fileNameLower = file.name.toLowerCase()
-    return fileKeywords.some(keyword => 
+    return allKeywords.some(keyword => 
       fileNameLower.includes(keyword.toLowerCase())
     )
   })
 
-  // Si aucune photo ne correspond, retourner toutes les photos
-  return filteredFiles.length > 0 ? filteredFiles : files
+  // Si on a des couleurs ET des catégories, essayer de matcher les deux
+  if (colors.length > 0 && categories.length > 0 && filteredFiles.length > 0) {
+    // Essayer de trouver des photos qui matchent la couleur spécifiquement
+    const colorMatchedFiles = filteredFiles.filter(file => {
+      const fileNameLower = file.name.toLowerCase()
+      return colors.some(color => fileNameLower.includes(color.toLowerCase()))
+    })
+    
+    // Si on trouve des photos avec la couleur, les utiliser
+    if (colorMatchedFiles.length > 0) {
+      filteredFiles = colorMatchedFiles
+    } else {
+      // Pas de photo avec cette couleur spécifique
+      const colorName = colors[0] // Première couleur demandée
+      return { 
+        filtered: [], 
+        noMatch: true, 
+        noMatchReason: `no_color:${colorName}` 
+      }
+    }
+  }
+
+  // Si aucune photo ne correspond du tout
+  if (filteredFiles.length === 0) {
+    return { 
+      filtered: files, // Fallback sur toutes les photos
+      noMatch: true, 
+      noMatchReason: 'no_category_match' 
+    }
+  }
+
+  return { filtered: filteredFiles, noMatch: false, noMatchReason: '' }
 }
 
