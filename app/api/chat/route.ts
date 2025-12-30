@@ -63,14 +63,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch user plan and current usage
-    // Utilise maybeSingle() pour éviter les erreurs si l'utilisateur n'existe pas encore
-    const { data: userData } = await supabase
+    const { data: userData, error: userError } = await supabase
       .from('users')
       .select('plan, daily_messages_count, daily_photos_count')
       .eq('id', user.id)
-      .maybeSingle()
+      .single()
+
+    if (userError) {
+      console.error('User fetch error:', userError)
+      // If user not found in users table, use defaults
+      const defaultUserData = { plan: 'free', daily_messages_count: 0, daily_photos_count: 0 }
+      // Continue with defaults instead of failing
+    }
     
-    // Si l'utilisateur n'existe pas dans la table, utiliser les valeurs par défaut
     const finalUserData = userData || { plan: 'free', daily_messages_count: 0, daily_photos_count: 0 }
 
     const userPlan = (finalUserData.plan || 'free') as keyof typeof PLAN_LIMITS
@@ -85,14 +90,44 @@ export async function POST(request: NextRequest) {
       }, { status: 403 })
     }
 
-    // Detect photo requests with multiple keywords
+    // Detect photo requests - More intelligent detection
     const lastUserMessage = messages[messages.length - 1]?.content || ''
-    const lastUserMessageLower = lastUserMessage.toLowerCase()
-    const photoKeywords = [
-      'photo', 'image', 'pic', 'picture', 'voir', 'montre', 'envoie',
-      'selfie', 'nude', 'nue', 'corps', 'tenue', 'lingerie', 'outfit'
+    const lastUserMessageLower = lastUserMessage.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
+    
+    // Patterns qui indiquent une VRAIE demande de photo
+    const photoRequestPatterns = [
+      // Demandes explicites
+      /envoie[- ]?(moi|nous)?\s*(une|des|ta|tes)?\s*(photo|image|pic|selfie)/i,
+      /envoie[- ]?(une|des|ta|tes)\s*(photo|image|pic|selfie)/i,
+      /(montre|fais voir|fait voir)[- ]?(moi|nous)?\s*(une|des|ta|tes)?\s*(photo|image)?/i,
+      /(je veux|j'veux|jveux)\s*(voir|une|des|ta|tes)\s*(photo|image|toi)/i,
+      /(tu peux|peux[- ]?tu)\s*(m'envoyer|envoyer|montrer)\s*(une|des|ta|tes)?\s*(photo|image)?/i,
+      /(une|des|ta|tes)\s*(photo|image|pic|selfie)\s*(de toi|stp|s'?il te plait|please)?$/i,
+      /photo\s*(de toi|stp|s'?il te plait|please|now|maintenant)/i,
+      // Questions directes
+      /(t'as|tu as|as[- ]?tu)\s*(une|des)?\s*(photo|image|pic)/i,
+      // Demandes de contenu spécifique (nude, lingerie, etc.)
+      /(envoie|montre|fais voir|je veux)\s*.{0,20}(nude|nue|sexy|lingerie|bikini|maillot|sous[- ]?vetement)/i,
+      /une\s*(photo|image)\s*.{0,10}(sport|gym|workout|fitness|plage|beach|piscine)/i,
+      // Réponses courtes de demande
+      /^(photo|image|selfie|pic|nude)\s*[!?]*$/i,
+      /^envoie\s*[!?]*$/i,
     ]
-    const isPhotoRequest = isDM && photoKeywords.some(keyword => lastUserMessageLower.includes(keyword))
+    
+    // Patterns qui NE SONT PAS des demandes (à exclure)
+    const notPhotoPatterns = [
+      /j'ai (une|des|la|les) (photo|image)/i, // "J'ai une photo"
+      /(ma|mes|cette|ces) (photo|image)/i, // "Ma photo"
+      /la photo (de|que|qui)/i, // "La photo de..."
+      /sur (la|une|cette) (photo|image)/i, // "Sur la photo..."
+      /(parle|parlait|parler) (de|d'une) (photo|image)/i, // "Je parle de photo"
+    ]
+    
+    // Vérifier si c'est une vraie demande
+    const matchesRequest = photoRequestPatterns.some(pattern => pattern.test(lastUserMessageLower))
+    const matchesExclusion = notPhotoPatterns.some(pattern => pattern.test(lastUserMessageLower))
+    
+    const isPhotoRequest = isDM && matchesRequest && !matchesExclusion
     
     // Detect photo categories from the message
     const photoCategories = isPhotoRequest ? detectPhotoCategories(lastUserMessage) : []

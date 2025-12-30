@@ -62,8 +62,10 @@ export default function AuthModal({ isOpen, onClose, initialView = 'register' }:
         })
         if (signInError) throw signInError
       }
+      
+      // Close modal and reload page to update auth state
       onClose()
-      router.refresh()
+      window.location.reload()
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue')
     } finally {

@@ -294,8 +294,19 @@ export default function DMPage() {
       const hasSpecificCategory = photoCategories.length > 0
       const isConfirmation = shouldSendPhoto && ['maintenant', 'oui', 'ok', 'vas-y', 'celle', 'la première', 'la deuxième', 'd\'accord', 'je veux'].some(word => contentLower.includes(word))
       
+      console.log('📸 Photo check:', { 
+        shouldSendPhoto, 
+        photoCategories, 
+        hasSpecificCategory, 
+        isConfirmation,
+        modelId: model?.id,
+        contactId: contact?.id,
+        userId: session?.user?.id
+      })
+      
       // Envoie la photo si catégorie spécifique OU confirmation après dialogue
       if ((hasSpecificCategory || isConfirmation) && shouldSendPhoto && model?.id) {
+        console.log('✅ Sending photo request...')
         // Wait a bit for more realism
         setTimeout(async () => {
           try {
@@ -313,8 +324,16 @@ export default function DMPage() {
               })
             })
 
+            console.log('📸 Photo API response status:', photoResponse.status)
+            
+            if (!photoResponse.ok) {
+              const errorData = await photoResponse.json()
+              console.error('❌ Photo API error:', errorData)
+            }
+            
             if (photoResponse.ok) {
               const photoData = await photoResponse.json()
+              console.log('✅ Photo sent:', photoData)
               
               // Add the photo message to the chat
               const photoMessage: Message = {
@@ -414,7 +433,7 @@ export default function DMPage() {
         {/* Chat Header */}
         <header className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-ginger-bg/95 backdrop-blur-xl">
           <div className="flex items-center gap-4">
-            <Link href="/contacts" className="lg:hidden p-2 -ml-2 text-zinc-400 hover:text-white">
+            <Link href={`/${locale}`} className="lg:hidden p-2 -ml-2 text-zinc-400 hover:text-white">
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <button onClick={() => setShowAvatarModal(true)} className="cursor-pointer">

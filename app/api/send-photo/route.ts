@@ -1,19 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
+import { createAdminClient } from '@/lib/supabase'
 import { filterPhotosByCategory } from '@/lib/photo-categories'
 
 export async function POST(req: NextRequest) {
   try {
     const { modelId, contactId, userId, categories = [] } = await req.json()
 
+    console.log('📸 Send-photo API called:', { modelId, contactId, userId, categories })
+
     if (!modelId || !contactId || !userId) {
+      console.log('❌ Missing parameters')
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }
       )
     }
 
-    const supabase = createServerClient()
+    const supabase = createAdminClient()
 
     // 1. Récupérer le modèle et son dossier de photos
     const { data: model, error: modelError } = await supabase
@@ -22,7 +25,10 @@ export async function POST(req: NextRequest) {
       .eq('id', modelId)
       .single()
 
+    console.log('📁 Model data:', model, 'Error:', modelError)
+
     if (modelError || !model) {
+      console.log('❌ Model not found')
       return NextResponse.json(
         { error: 'Model not found' },
         { status: 404 }
@@ -30,11 +36,14 @@ export async function POST(req: NextRequest) {
     }
 
     if (!model.photo_folder_path) {
+      console.log('❌ No photo_folder_path configured')
       return NextResponse.json(
         { error: 'No photo folder configured for this model' },
         { status: 404 }
       )
     }
+
+    console.log('📂 Listing files in:', model.photo_folder_path)
 
     // 2. Lister les fichiers du dossier dans Supabase Storage
     const { data: files, error: storageError } = await supabase
@@ -45,7 +54,12 @@ export async function POST(req: NextRequest) {
         sortBy: { column: 'name', order: 'asc' }
       })
 
+    console.log('📷 Files found:', files?.length, 'Error:', storageError)
+    console.log('📷 Raw files data:', JSON.stringify(files, null, 2))
+    console.log('📷 Storage error details:', JSON.stringify(storageError, null, 2))
+
     if (storageError || !files || files.length === 0) {
+      console.log('❌ No files in folder:', storageError)
       return NextResponse.json(
         { error: 'No photos available in folder' },
         { status: 404 }
