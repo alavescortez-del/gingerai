@@ -7,27 +7,42 @@ const languageNames: Record<string, string> = {
   de: 'Deutsch'
 }
 
-// Cache du contexte pour éviter de le régénérer à chaque message
-let cachedContext: { context: ContextAwareness; timestamp: number } | null = null
-const CONTEXT_CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
+// Cache du contexte par heure pour éviter les changements incohérents
+// Le contexte reste FIXE pendant toute l'heure (ex: si l'activité est "déjeuner" à 12h, ça reste "déjeuner" jusqu'à 13h)
+const contextCache: Map<number, ContextAwareness> = new Map()
 
 /**
  * Obtient ou génère le contexte temporel
+ * Le contexte est FIXE pour une heure donnée (pas de changement aléatoire en pleine conversation)
  */
 export function getOrGenerateContext(userHour: number): ContextAwareness {
-  const now = Date.now()
-  
-  // Si le cache est valide et l'heure n'a pas changé de plus de 1h, réutiliser
-  if (cachedContext && 
-      (now - cachedContext.timestamp) < CONTEXT_CACHE_DURATION &&
-      Math.abs(cachedContext.context.hour - userHour) <= 1) {
-    return cachedContext.context
+  // Si on a déjà un contexte pour cette heure, le réutiliser (COHÉRENCE !)
+  if (contextCache.has(userHour)) {
+    return contextCache.get(userHour)!
   }
   
-  // Sinon, générer un nouveau contexte
+  // Sinon, générer un nouveau contexte et le cacher
   const context = generateContext(userHour)
-  cachedContext = { context, timestamp: now }
+  contextCache.set(userHour, context)
+  
+  // Nettoyer les anciennes heures (garder uniquement l'heure actuelle et les 2 précédentes)
+  const keysToDelete: number[] = []
+  contextCache.forEach((_, key) => {
+    if (key < userHour - 2 || key > userHour) {
+      keysToDelete.push(key)
+    }
+  })
+  keysToDelete.forEach(key => contextCache.delete(key))
+  
   return context
+}
+
+/**
+ * Force le rafraîchissement du contexte (à utiliser quand on change d'heure)
+ */
+export function refreshContext(userHour: number): ContextAwareness {
+  contextCache.delete(userHour)
+  return getOrGenerateContext(userHour)
 }
 
 export function buildSystemPrompt(model: Model, scenario: Scenario, phase: number, locale: string = 'fr'): string {

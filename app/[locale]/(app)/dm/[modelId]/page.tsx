@@ -253,9 +253,12 @@ export default function DMPage() {
 
       const data = await response.json()
       const aiContent = data.content
-      // Note: shouldSendPhoto est maintenant un dialogue de confirmation, pas un envoi automatique
-      // La photo sera envoyée quand l'utilisateur répond au choix proposé
+      const shouldSendPhoto = data.shouldSendPhoto
       const photoCategories = data.photoCategories || []
+      
+      // Logique d'envoi de photo :
+      // - Si photoCategories.length > 0 : L'utilisateur a spécifié une catégorie → Envoyer directement
+      // - Si shouldSendPhoto mais pas de catégorie : L'IA propose un choix → Pas d'envoi automatique
 
       // Update local counter
       setUserProfile((prev: any) => ({
@@ -284,12 +287,15 @@ export default function DMPage() {
         content: aiContent
       })
 
-      // Détection de confirmation de choix photo (mots-clés qui indiquent que l'utilisateur a choisi)
+      // Envoie la photo si :
+      // 1. L'utilisateur a spécifié une catégorie (photoCategories.length > 0)
+      // 2. OU l'utilisateur confirme son choix après le dialogue (mots-clés de confirmation)
       const contentLower = content.toLowerCase()
-      const isPhotoConfirmation = ['maintenant', 'oui', 'ok', 'vas-y', 'envoie', 'celle', 'la première', 'la deuxième', 'sport', 'pyjama', 'canapé', 'douche', 'lingerie', 'nue', 'nude'].some(word => contentLower.includes(word))
+      const hasSpecificCategory = photoCategories.length > 0
+      const isConfirmation = shouldSendPhoto && ['maintenant', 'oui', 'ok', 'vas-y', 'celle', 'la première', 'la deuxième', 'd\'accord', 'je veux'].some(word => contentLower.includes(word))
       
-      // Envoie la photo seulement si l'utilisateur confirme un choix ET qu'il y a des catégories détectées
-      if (isPhotoConfirmation && photoCategories.length > 0 && model?.id) {
+      // Envoie la photo si catégorie spécifique OU confirmation après dialogue
+      if ((hasSpecificCategory || isConfirmation) && shouldSendPhoto && model?.id) {
         // Wait a bit for more realism
         setTimeout(async () => {
           try {

@@ -152,13 +152,27 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // If user requested a photo, use contextual confirmation dialogue
+    // If user requested a photo
     if (isPhotoRequest) {
-      const photoConfirmationPrompt = buildPhotoConfirmationPrompt(userHour)
-      apiMessages.push({
-        role: 'system',
-        content: photoConfirmationPrompt
-      })
+      // Si l'utilisateur a spécifié une catégorie (sport, lingerie, etc.) → Répondre avec excitation et envoyer
+      // Si pas de catégorie spécifique → Proposer un dialogue de confirmation
+      if (photoCategories.length > 0) {
+        // L'utilisateur sait ce qu'il veut → Répondre brièvement et envoyer la photo
+        apiMessages.push({
+          role: 'system',
+          content: `DIRECTIVE PHOTO: L'utilisateur veut une photo spécifique (catégorie: ${photoCategories.join(', ')}). 
+Réponds TRÈS brièvement avec excitation (1 phrase MAX) pour dire que tu lui envoies.
+EXEMPLES: "Mmh, celle-là va te plaire 😏", "Regarde ce que j'ai pour toi 🔥", "Tiens, rien que pour toi 💋"
+NE PROPOSE PAS D'AUTRE CHOIX, la photo va être envoyée automatiquement après ta réponse.`
+        })
+      } else {
+        // Pas de catégorie spécifique → Proposer un choix basé sur le contexte actuel
+        const photoConfirmationPrompt = buildPhotoConfirmationPrompt(userHour)
+        apiMessages.push({
+          role: 'system',
+          content: photoConfirmationPrompt
+        })
+      }
     }
 
     if (!process.env.OPENROUTER_API_KEY) {
