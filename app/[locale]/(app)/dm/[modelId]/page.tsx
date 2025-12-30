@@ -348,7 +348,7 @@ export default function DMPage() {
   if (loading) return <div className="h-screen flex items-center justify-center bg-ginger-bg"><div className="w-12 h-12 border-4 border-ginger-primary/30 border-t-ginger-primary rounded-full animate-spin" /></div>
 
   return (
-    <div className="h-screen flex bg-ginger-bg overflow-hidden font-sans relative z-20">
+    <div className="h-[calc(100vh-64px)] flex bg-ginger-bg overflow-hidden font-sans relative z-20">
       {/* Background effects bloqués pour éviter le scroll global */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="blob-pink top-[-20%] left-[-10%] w-[600px] h-[600px]" />
