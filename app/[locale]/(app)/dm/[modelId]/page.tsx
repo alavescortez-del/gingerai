@@ -251,7 +251,8 @@ export default function DMPage() {
       if (!response.ok) throw new Error('Chat API error')
 
       const data = await response.json()
-      let aiContent = data.content
+      const aiContent = data.content
+      const shouldSendPhoto = data.shouldSendPhoto
 
       // Update local counter
       setUserProfile((prev: any) => ({
@@ -259,17 +260,11 @@ export default function DMPage() {
         daily_messages_count: (prev?.daily_messages_count || 0) + 1
       }))
 
-      const shouldSendPPV = Math.random() < 0.15 && content.toLowerCase().includes('photo')
-      
-      if (shouldSendPPV) aiContent += '\n\n📸 *envoie une photo*'
-
       const aiMessage: Message = {
         id: crypto.randomUUID(),
         contact_id: contact.id,
         role: 'assistant',
         content: aiContent,
-        media_url: shouldSendPPV ? '/images/ppv-placeholder.jpg' : undefined,
-        is_blurred: shouldSendPPV,
         created_at: new Date().toISOString()
       }
       
@@ -283,10 +278,65 @@ export default function DMPage() {
       await supabase.from('messages').insert({
         contact_id: contact.id,
         role: 'assistant',
-        content: aiContent,
-        media_url: shouldSendPPV ? '/images/ppv-placeholder.jpg' : undefined,
-        is_blurred: shouldSendPPV
+        content: aiContent
       })
+
+      // If user requested a photo, send one after the text message
+      if (shouldSendPhoto && model?.id) {
+        // Wait a bit for more realism
+        setTimeout(async () => {
+          try {
+            const photoResponse = await fetch('/api/send-photo', {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {})
+              },
+              body: JSON.stringify({
+                modelId: model.id,
+                contactId: contact.id,
+                userId: session?.user?.id
+              })
+            })
+
+            if (photoResponse.ok) {
+              const photoData = await photoResponse.json()
+              
+              // Add the photo message to the chat
+              const photoMessage: Message = {
+                id: crypto.randomUUID(),
+                contact_id: contact.id,
+                role: 'assistant',
+                content: '📸',
+                media_url: photoData.photoUrl,
+                is_blurred: false,
+                created_at: new Date().toISOString()
+              }
+              
+              addMessage(photoMessage)
+
+              // Update photo counter
+              setUserProfile((prev: any) => ({
+                ...prev,
+                daily_photos_count: (prev?.daily_photos_count || 0) + 1
+              }))
+
+              // Increment photo usage counter
+              try {
+                await supabase.rpc('increment_usage', { 
+                  user_id: session?.user?.id, 
+                  inc_messages: 0, 
+                  inc_photos: 1 
+                })
+              } catch (rpcError) {
+                console.error('RPC Error:', rpcError)
+              }
+            }
+          } catch (photoError) {
+            console.error('Error sending photo:', photoError)
+          }
+        }, 1500) // 1.5 second delay for realism
+      }
 
     } catch (error) {
       console.error('Error sending message:', error)

@@ -17,6 +17,7 @@ export interface Model {
   avatar_url: string
   show_video?: string
   chat_avatar_url?: string
+  photo_folder_path?: string
   persona_prompt: string
   speaking_style: string
   personality_traits: {

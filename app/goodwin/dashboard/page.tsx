@@ -16,6 +16,7 @@ interface Model {
   avatar_url: string
   show_video?: string
   chat_avatar_url?: string
+  photo_folder_path?: string
   persona_prompt: string
   speaking_style: string
 }
@@ -126,6 +127,7 @@ export default function AdminDashboard() {
       avatar_url: form.avatar.value,
       show_video: form.show_video.value,
       chat_avatar_url: form.chat_avatar.value,
+      photo_folder_path: form.photo_folder.value || null,
       persona_prompt: form.persona.value,
       speaking_style: form.style.value,
       personality_traits: { dominance: 5, playfulness: 5, sensuality: 5 }
@@ -391,6 +393,11 @@ export default function AdminDashboard() {
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-zinc-500">URL Photo Chat (Spécifique)</label>
                   <input name="chat_avatar" defaultValue={editingModel?.chat_avatar_url} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="https://... (optionnel)" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">📸 Dossier Photos Supabase</label>
+                  <input name="photo_folder" defaultValue={editingModel?.photo_folder_path} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="models/emma/photos (optionnel)" />
+                  <p className="text-xs text-zinc-600">Chemin du dossier dans Supabase Storage contenant les photos à envoyer</p>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Persona AI (Prompt Système)</label>

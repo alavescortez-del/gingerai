@@ -88,14 +88,21 @@ export async function POST(request: NextRequest) {
       }, { status: 403 })
     }
 
-    // If AI is expected to send a photo (simplified check based on isUnlock or isTransition or content)
-    // For now, let's assume photos are requested explicitly in messages or by flags
+    // Detect photo requests with multiple keywords
     const lastUserMessage = messages[messages.length - 1]?.content.toLowerCase() || ''
-    const isPhotoRequest = lastUserMessage.includes('photo') || lastUserMessage.includes('image') || lastUserMessage.includes('voir')
+    const photoKeywords = [
+      'photo', 'image', 'pic', 'picture', 'voir', 'montre', 'envoie',
+      'selfie', 'nude', 'nue', 'corps', 'tenue', 'lingerie', 'outfit'
+    ]
+    const isPhotoRequest = isDM && photoKeywords.some(keyword => lastUserMessage.includes(keyword))
     
+    // Check photo limit if it's a photo request
     if (isPhotoRequest && (finalUserData.daily_photos_count || 0) >= limits.photos) {
-      // We don't block the message, but we might want to tell the AI not to send a photo
-      // Or we can block if it's strictly a photo request
+      return NextResponse.json({ 
+        error: 'LIMIT_REACHED', 
+        type: 'photos',
+        plan: userPlan 
+      }, { status: 403 })
     }
 
     // Build system prompt based on context
@@ -133,6 +140,14 @@ export async function POST(request: NextRequest) {
       apiMessages.push({
         role: 'system',
         content: `DIRECTIVE CRITIQUE: L'utilisateur vient de déclencher une action spécifique. RÉPONDS PAR 5 MOTS MAXIMUM. Ta réponse doit être ultra-courte, sexy et montrer ton excitation immédiate. EXEMPLES: "Oh oui, j'adore ça...", "C'est tellement bon...", "Encore, s'il te plaît..."`
+      })
+    }
+
+    // If user requested a photo, guide AI to respond with excitement
+    if (isPhotoRequest) {
+      apiMessages.push({
+        role: 'system',
+        content: `DIRECTIVE SPÉCIALE: L'utilisateur te demande une photo. Réponds avec enthousiasme et suggère que tu cherches une photo sexy à lui envoyer. Sois courte, directe et excitante. EXEMPLES: "Mmh, laisse-moi te trouver quelque chose de sexy 😏", "Attends, je cherche la photo parfaite pour toi...", "Oh j'ai exactement ce qu'il te faut 🔥"`
       })
     }
 
@@ -178,20 +193,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Increment usage counters
-    const isAiPhoto = content.includes('📸') || content.includes('*envoie une photo*')
-    
+    // Increment usage counters (photos will be incremented when actually sent)
     try {
       await supabase.rpc('increment_usage', { 
         user_id: user.id, 
         inc_messages: 1, 
-        inc_photos: isAiPhoto ? 1 : 0 
+        inc_photos: 0 
       })
     } catch (rpcError) {
       console.error('RPC Error (non-blocking):', rpcError)
     }
 
-    return NextResponse.json({ content })
+    return NextResponse.json({ 
+      content,
+      shouldSendPhoto: isPhotoRequest // Flag to trigger photo sending from frontend
+    })
 
   } catch (error) {
     console.error('Chat API error:', error)
