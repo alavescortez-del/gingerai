@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
       unlockedAction = '',
       isActionTrigger = false,
       locale = 'fr',
-      userHour = new Date().getHours() // Heure locale de l'utilisateur
+      userHour = new Date().getHours(), // Heure locale de l'utilisateur
+      lastPhotoContext = null // Contexte de la dernière photo envoyée
     } = body
 
     if (!messages || messages.length === 0) {
@@ -158,6 +159,13 @@ export async function POST(request: NextRequest) {
       systemPrompt = buildDMPrompt(model, locale, userHour)
     } else {
       systemPrompt = buildSystemPrompt(model, scenario, phase, locale)
+    }
+
+    // Ajouter le contexte de la dernière photo si disponible
+    if (lastPhotoContext && isDM) {
+      systemPrompt += `\n\n📸 DERNIÈRE PHOTO ENVOYÉE: Tu as récemment envoyé une photo. Voici ce qu'elle montre: ${lastPhotoContext}
+Si l'utilisateur pose une question sur cette photo ou fait un commentaire dessus, tu peux y répondre naturellement en te référant à ce que tu sais de la photo.
+Exemples de questions possibles: "Elle est où cette photo ?", "C'est quoi ta tenue ?", "T'es sexy dessus", etc.`
     }
 
     // Get current context for potential photo dialogue

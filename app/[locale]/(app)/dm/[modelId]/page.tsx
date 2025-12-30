@@ -234,6 +234,21 @@ export default function DMPage() {
       const { data: { session } } = await supabase.auth.getSession()
       const accessToken = session?.access_token
 
+      // Récupérer le contexte de la dernière photo envoyée (si récente)
+      let lastPhotoContext = null
+      try {
+        const storedContext = localStorage.getItem(`lastPhotoContext_${contact.id}`)
+        if (storedContext) {
+          const parsed = JSON.parse(storedContext)
+          // Contexte valide pendant 30 minutes
+          if (Date.now() - parsed.timestamp < 30 * 60 * 1000) {
+            lastPhotoContext = parsed.context
+          }
+        }
+      } catch (e) {
+        console.log('No photo context found')
+      }
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 
@@ -245,7 +260,8 @@ export default function DMPage() {
           model,
           isDM: true,
           locale,
-          userHour: new Date().getHours() // Envoie l'heure locale de l'utilisateur
+          userHour: new Date().getHours(), // Envoie l'heure locale de l'utilisateur
+          lastPhotoContext // Contexte de la dernière photo pour répondre aux questions
         })
       })
 
@@ -404,6 +420,60 @@ export default function DMPage() {
                 })
               } catch (rpcError) {
                 console.error('RPC Error:', rpcError)
+              }
+
+              // 🔥 Appeler l'API Vision pour analyser la photo et générer un commentaire
+              try {
+                console.log('👁️ Calling Vision API...')
+                const visionResponse = await fetch('/api/vision', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    photoUrl: photoData.photoUrl,
+                    modelName: model.name,
+                    modelPersonality: model.persona_prompt || ''
+                  })
+                })
+
+                if (visionResponse.ok) {
+                  const visionData = await visionResponse.json()
+                  console.log('👁️ Vision response:', visionData)
+
+                  if (visionData.success && visionData.comment) {
+                    // Ajouter le commentaire de la photo
+                    const commentMessage: Message = {
+                      id: crypto.randomUUID(),
+                      contact_id: contact.id,
+                      role: 'assistant',
+                      content: visionData.comment,
+                      created_at: new Date().toISOString()
+                    }
+                    
+                    // Petit délai pour que ça paraisse naturel
+                    setTimeout(() => {
+                      addMessage(commentMessage)
+                      
+                      // Sauvegarder en DB
+                      supabase.from('messages').insert({
+                        contact_id: contact.id,
+                        role: 'assistant',
+                        content: visionData.comment
+                      })
+
+                      // Stocker le contexte de la photo pour les questions futures
+                      if (visionData.context) {
+                        localStorage.setItem(`lastPhotoContext_${contact.id}`, JSON.stringify({
+                          url: photoData.photoUrl,
+                          context: visionData.context,
+                          timestamp: Date.now()
+                        }))
+                      }
+                    }, 800)
+                  }
+                }
+              } catch (visionError) {
+                console.error('Vision API error:', visionError)
+                // Pas grave si la vision échoue, la photo est quand même envoyée
               }
             }
           } catch (photoError) {
