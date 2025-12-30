@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     // 2. Lister les fichiers du dossier dans Supabase Storage
     const { data: files, error: storageError } = await supabase
       .storage
-      .from('models')
+      .from('models-ia')
       .list(model.photo_folder_path, {
         limit: 100,
         sortBy: { column: 'name', order: 'asc' }
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
     // 6. Obtenir l'URL publique de la photo
     const { data: publicUrlData } = supabase
       .storage
-      .from('models')
+      .from('models-ia')
       .getPublicUrl(photoPath)
 
     const photoUrl = publicUrlData.publicUrl
