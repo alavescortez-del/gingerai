@@ -8,32 +8,40 @@ export interface PhotoCategory {
 // Mapping des catégories
 export const PHOTO_CATEGORIES: Record<string, PhotoCategory> = {
   sport: {
-    keywords: ['sport', 'fitness', 'gym', 'salle', 'muscu', 'musculation', 'workout', 'training', 'exercice', 'entraînement'],
-    fileKeywords: ['workout', 'gym', 'fitness', 'sport', 'training', 'exercise']
+    keywords: ['sport', 'fitness', 'gym', 'salle', 'muscu', 'musculation', 'workout', 'training', 'exercice', 'entraînement', 'legging', 'yoga', 'pilates', 'jogging', 'running', 'course'],
+    fileKeywords: ['workout', 'gym', 'fitness', 'sport', 'training', 'exercise', 'legging', 'yoga', 'jogging']
   },
   lingerie: {
-    keywords: ['lingerie', 'sous-vêtement', 'dentelle', 'nuisette', 'déshabillé'],
-    fileKeywords: ['lingerie', 'underwear', 'lace', 'bra', 'panties']
+    keywords: ['lingerie', 'sous-vêtement', 'dentelle', 'nuisette', 'déshabillé', 'soutien-gorge', 'culotte', 'string', 'body', 'guêpière', 'porte-jarretelles'],
+    fileKeywords: ['lingerie', 'underwear', 'lace', 'bra', 'panties', 'thong', 'body', 'string']
   },
   plage: {
-    keywords: ['plage', 'beach', 'bikini', 'maillot', 'mer', 'ocean', 'piscine', 'pool'],
-    fileKeywords: ['beach', 'bikini', 'pool', 'swimsuit', 'ocean', 'sea']
+    keywords: ['plage', 'beach', 'bikini', 'maillot', 'mer', 'ocean', 'piscine', 'pool', 'vacances', 'bronzé', 'soleil'],
+    fileKeywords: ['beach', 'bikini', 'pool', 'swimsuit', 'ocean', 'sea', 'plage', 'piscine']
   },
   chambre: {
-    keywords: ['chambre', 'lit', 'bed', 'bedroom', 'couché', 'allongé'],
-    fileKeywords: ['bedroom', 'bed', 'room']
+    keywords: ['chambre', 'lit', 'bed', 'bedroom', 'couché', 'allongé', 'pyjama', 'dodo', 'dormir'],
+    fileKeywords: ['bedroom', 'bed', 'room', 'pyjama', 'sleep']
   },
   nue: {
-    keywords: ['nue', 'nude', 'nue', 'sans vêtement', 'toute nue', 'seins', 'poitrine', 'fesses', 'cul', 'chatte', 'pussy'],
-    fileKeywords: ['nude', 'naked', 'topless', 'ass', 'boobs', 'tits', 'pussy', 'breasts']
+    keywords: ['nue', 'nude', 'sans vêtement', 'toute nue', 'seins', 'poitrine', 'fesses', 'cul', 'chatte', 'pussy', 'nichons', 'tétons', 'boobs'],
+    fileKeywords: ['nude', 'naked', 'topless', 'ass', 'boobs', 'tits', 'pussy', 'breasts', 'butt', 'booty']
   },
   tenue: {
-    keywords: ['tenue', 'robe', 'dress', 'jupe', 'skirt', 'outfit', 'habillée'],
-    fileKeywords: ['dress', 'skirt', 'outfit', 'clothes']
+    keywords: ['tenue', 'robe', 'dress', 'jupe', 'skirt', 'outfit', 'habillée', 'soirée', 'élégante', 'classe'],
+    fileKeywords: ['dress', 'skirt', 'outfit', 'clothes', 'elegant', 'robe', 'jupe']
   },
   douche: {
-    keywords: ['douche', 'shower', 'salle de bain', 'bathroom', 'bain', 'bath', 'mouillé'],
+    keywords: ['douche', 'shower', 'salle de bain', 'bathroom', 'bain', 'bath', 'mouillé', 'mouillée'],
     fileKeywords: ['shower', 'bathroom', 'bath', 'wet']
+  },
+  selfie: {
+    keywords: ['selfie', 'miroir', 'mirror', 'visage', 'face', 'tête'],
+    fileKeywords: ['selfie', 'mirror', 'face', 'miror']
+  },
+  sexy: {
+    keywords: ['sexy', 'hot', 'chaude', 'coquine', 'sensuelle', 'provocante', 'aguicheuse'],
+    fileKeywords: ['sexy', 'hot', 'sensual', 'provocative']
   }
 }
 

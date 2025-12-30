@@ -129,6 +129,14 @@ export async function POST(request: NextRequest) {
     
     const isPhotoRequest = isDM && matchesRequest && !matchesExclusion
     
+    console.log('📸 Photo detection:', {
+      message: lastUserMessageLower,
+      matchesRequest,
+      matchesExclusion,
+      isDM,
+      isPhotoRequest
+    })
+    
     // Detect photo categories from the message
     const photoCategories = isPhotoRequest ? detectPhotoCategories(lastUserMessage) : []
     
@@ -220,7 +228,7 @@ NE PROPOSE PAS D'AUTRE CHOIX, la photo va être envoyée automatiquement après 
         'X-Title': 'Sugarush',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-001', // Modèle ultra-rapide et permissif
+        model: 'meta-llama/llama-3.1-70b-instruct', // Modèle ultra-rapide et permissif
         messages: apiMessages,
         temperature: 0.9,
         max_tokens: 150, // Réduit pour des réponses courtes style WhatsApp

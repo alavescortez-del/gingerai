@@ -79,11 +79,19 @@ export async function POST(req: NextRequest) {
     }
 
     // Filtrer par catégories si spécifiées
+    console.log('🏷️ Categories received:', categories)
+    console.log('📁 All image files:', imageFiles.map(f => f.name))
+    
     if (categories && categories.length > 0) {
       const categoryFilteredFiles = filterPhotosByCategory(imageFiles, categories)
+      console.log('🔍 Filtered files:', categoryFilteredFiles.map(f => f.name))
+      
       // Si des photos correspondent aux catégories, les utiliser
       if (categoryFilteredFiles.length > 0) {
         imageFiles = categoryFilteredFiles
+        console.log('✅ Using filtered files:', imageFiles.length)
+      } else {
+        console.log('⚠️ No matching files, using all images')
       }
       // Sinon, garder toutes les photos (fallback)
     }
