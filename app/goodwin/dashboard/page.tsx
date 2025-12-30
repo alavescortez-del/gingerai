@@ -38,6 +38,43 @@ interface Scenario {
   is_premium: boolean
 }
 
+// Helper function to extract folder path from Supabase Storage URL
+function extractFolderPath(input: string): string | null {
+  if (!input || input.trim() === '') return null;
+  
+  // If it's already a simple path (no http), return as is
+  if (!input.startsWith('http')) {
+    return input.trim();
+  }
+  
+  // Extract path from Supabase Storage URL
+  // Pattern: https://.../storage/v1/object/public/models-ia/Lily/Photos/filename.webp
+  // We want: Lily/Photos
+  
+  try {
+    const url = new URL(input);
+    const pathParts = url.pathname.split('/');
+    
+    // Find the bucket name index (models-ia)
+    const bucketIndex = pathParts.indexOf('models-ia');
+    
+    if (bucketIndex === -1 || bucketIndex >= pathParts.length - 2) {
+      // Can't find bucket or not enough path parts
+      return null;
+    }
+    
+    // Extract everything between bucket and filename (last part)
+    const folderParts = pathParts.slice(bucketIndex + 1, pathParts.length - 1);
+    
+    if (folderParts.length === 0) return null;
+    
+    return folderParts.join('/');
+  } catch (error) {
+    console.error('Error extracting folder path:', error);
+    return null;
+  }
+}
+
 // Translation helper function
 async function translateTexts(texts: { field: string; value: string }[]): Promise<Record<string, Record<string, string>>> {
   try {
@@ -118,6 +155,10 @@ export default function AdminDashboard() {
       { field: 'description', value: description }
     ]);
     
+    // Extract folder path from URL or use direct path
+    const photoFolderInput = form.photo_folder.value;
+    const extractedPath = extractFolderPath(photoFolderInput);
+    
     const modelData = {
       name: form.name.value,
       age: parseInt(form.age.value),
@@ -127,7 +168,7 @@ export default function AdminDashboard() {
       avatar_url: form.avatar.value,
       show_video: form.show_video.value,
       chat_avatar_url: form.chat_avatar.value,
-      photo_folder_path: form.photo_folder.value || null,
+      photo_folder_path: extractedPath,
       persona_prompt: form.persona.value,
       speaking_style: form.style.value,
       personality_traits: { dominance: 5, playfulness: 5, sensuality: 5 }
@@ -395,9 +436,9 @@ export default function AdminDashboard() {
                   <input name="chat_avatar" defaultValue={editingModel?.chat_avatar_url} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="https://... (optionnel)" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">📸 Dossier Photos Supabase</label>
-                  <input name="photo_folder" defaultValue={editingModel?.photo_folder_path} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="models/emma/photos (optionnel)" />
-                  <p className="text-xs text-zinc-600">Chemin du dossier dans Supabase Storage contenant les photos à envoyer</p>
+                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">📸 URL Dossier Photos</label>
+                  <input name="photo_folder" defaultValue={editingModel?.photo_folder_path} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="Colle l'URL d'une photo du dossier : https://...supabase.co/.../Lily/Photos/..." />
+                  <p className="text-xs text-zinc-600">💡 Copie l'URL d'une photo depuis Supabase Storage, le chemin du dossier sera extrait automatiquement</p>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Persona AI (Prompt Système)</label>
