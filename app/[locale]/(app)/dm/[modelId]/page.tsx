@@ -253,6 +253,7 @@ export default function DMPage() {
       const data = await response.json()
       const aiContent = data.content
       const shouldSendPhoto = data.shouldSendPhoto
+      const photoCategories = data.photoCategories || []
 
       // Update local counter
       setUserProfile((prev: any) => ({
@@ -295,7 +296,8 @@ export default function DMPage() {
               body: JSON.stringify({
                 modelId: model.id,
                 contactId: contact.id,
-                userId: session?.user?.id
+                userId: session?.user?.id,
+                categories: photoCategories
               })
             })
 
@@ -466,7 +468,7 @@ export default function DMPage() {
                 <button 
                   type="button" 
                   onClick={() => {
-                    setInput("Envoie-moi une photo sexy 😏")
+                    setInput("Envoie-moi une photo ")
                   }}
                   className="p-2 text-zinc-500 hover:text-pink-400 transition-colors"
                   title="Demander une photo"

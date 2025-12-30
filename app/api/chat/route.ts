@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { buildSystemPrompt, buildDMPrompt } from '@/lib/prompts'
 import { createClient } from '@supabase/supabase-js'
+import { detectPhotoCategories } from '@/lib/photo-categories'
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
@@ -89,12 +90,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Detect photo requests with multiple keywords
-    const lastUserMessage = messages[messages.length - 1]?.content.toLowerCase() || ''
+    const lastUserMessage = messages[messages.length - 1]?.content || ''
+    const lastUserMessageLower = lastUserMessage.toLowerCase()
     const photoKeywords = [
       'photo', 'image', 'pic', 'picture', 'voir', 'montre', 'envoie',
       'selfie', 'nude', 'nue', 'corps', 'tenue', 'lingerie', 'outfit'
     ]
-    const isPhotoRequest = isDM && photoKeywords.some(keyword => lastUserMessage.includes(keyword))
+    const isPhotoRequest = isDM && photoKeywords.some(keyword => lastUserMessageLower.includes(keyword))
+    
+    // Detect photo categories from the message
+    const photoCategories = isPhotoRequest ? detectPhotoCategories(lastUserMessage) : []
     
     // Check photo limit if it's a photo request
     if (isPhotoRequest && (finalUserData.daily_photos_count || 0) >= limits.photos) {
@@ -206,7 +211,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ 
       content,
-      shouldSendPhoto: isPhotoRequest // Flag to trigger photo sending from frontend
+      shouldSendPhoto: isPhotoRequest, // Flag to trigger photo sending from frontend
+      photoCategories: photoCategories // Categories detected in user's request
     })
 
   } catch (error) {

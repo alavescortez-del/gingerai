@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
+import { filterPhotosByCategory } from '@/lib/photo-categories'
 
 export async function POST(req: NextRequest) {
   try {
-    const { modelId, contactId, userId } = await req.json()
+    const { modelId, contactId, userId, categories = [] } = await req.json()
 
     if (!modelId || !contactId || !userId) {
       return NextResponse.json(
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Filtrer pour ne garder que les images
-    const imageFiles = files.filter(file => 
+    let imageFiles = files.filter(file => 
       file.name.match(/\.(jpg|jpeg|png|webp|gif)$/i)
     )
 
@@ -61,6 +62,16 @@ export async function POST(req: NextRequest) {
         { error: 'No image files found in folder' },
         { status: 404 }
       )
+    }
+
+    // Filtrer par catégories si spécifiées
+    if (categories && categories.length > 0) {
+      const categoryFilteredFiles = filterPhotosByCategory(imageFiles, categories)
+      // Si des photos correspondent aux catégories, les utiliser
+      if (categoryFilteredFiles.length > 0) {
+        imageFiles = categoryFilteredFiles
+      }
+      // Sinon, garder toutes les photos (fallback)
     }
 
     // 3. Récupérer les photos déjà envoyées à cet utilisateur pour ce modèle
