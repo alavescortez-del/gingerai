@@ -63,19 +63,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch user plan and current usage
-    const { data: userData, error: userError } = await supabase
+    // Utilise maybeSingle() pour éviter les erreurs si l'utilisateur n'existe pas encore
+    const { data: userData } = await supabase
       .from('users')
       .select('plan, daily_messages_count, daily_photos_count')
       .eq('id', user.id)
-      .single()
-
-    if (userError) {
-      console.error('User fetch error:', userError)
-      // If user not found in users table, use defaults
-      const defaultUserData = { plan: 'free', daily_messages_count: 0, daily_photos_count: 0 }
-      // Continue with defaults instead of failing
-    }
+      .maybeSingle()
     
+    // Si l'utilisateur n'existe pas dans la table, utiliser les valeurs par défaut
     const finalUserData = userData || { plan: 'free', daily_messages_count: 0, daily_photos_count: 0 }
 
     const userPlan = (finalUserData.plan || 'free') as keyof typeof PLAN_LIMITS
