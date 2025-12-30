@@ -244,7 +244,8 @@ export default function DMPage() {
           messages: [...chatHistory, { role: 'user', content }],
           model,
           isDM: true,
-          locale
+          locale,
+          userHour: new Date().getHours() // Envoie l'heure locale de l'utilisateur
         })
       })
 
@@ -252,7 +253,8 @@ export default function DMPage() {
 
       const data = await response.json()
       const aiContent = data.content
-      const shouldSendPhoto = data.shouldSendPhoto
+      // Note: shouldSendPhoto est maintenant un dialogue de confirmation, pas un envoi automatique
+      // La photo sera envoyée quand l'utilisateur répond au choix proposé
       const photoCategories = data.photoCategories || []
 
       // Update local counter
@@ -282,8 +284,12 @@ export default function DMPage() {
         content: aiContent
       })
 
-      // If user requested a photo, send one after the text message
-      if (shouldSendPhoto && model?.id) {
+      // Détection de confirmation de choix photo (mots-clés qui indiquent que l'utilisateur a choisi)
+      const contentLower = content.toLowerCase()
+      const isPhotoConfirmation = ['maintenant', 'oui', 'ok', 'vas-y', 'envoie', 'celle', 'la première', 'la deuxième', 'sport', 'pyjama', 'canapé', 'douche', 'lingerie', 'nue', 'nude'].some(word => contentLower.includes(word))
+      
+      // Envoie la photo seulement si l'utilisateur confirme un choix ET qu'il y a des catégories détectées
+      if (isPhotoConfirmation && photoCategories.length > 0 && model?.id) {
         // Wait a bit for more realism
         setTimeout(async () => {
           try {

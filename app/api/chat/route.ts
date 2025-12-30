@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { buildSystemPrompt, buildDMPrompt } from '@/lib/prompts'
+import { buildSystemPrompt, buildDMPrompt, buildPhotoConfirmationPrompt, getCurrentContext } from '@/lib/prompts'
 import { createClient } from '@supabase/supabase-js'
 import { detectPhotoCategories } from '@/lib/photo-categories'
 
@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
       isUnlock = false, 
       unlockedAction = '',
       isActionTrigger = false,
-      locale = 'fr'
+      locale = 'fr',
+      userHour = new Date().getHours() // Heure locale de l'utilisateur
     } = body
 
     if (!messages || messages.length === 0) {
@@ -113,10 +114,13 @@ export async function POST(request: NextRequest) {
     // Build system prompt based on context
     let systemPrompt: string
     if (isDM) {
-      systemPrompt = buildDMPrompt(model, locale)
+      systemPrompt = buildDMPrompt(model, locale, userHour)
     } else {
       systemPrompt = buildSystemPrompt(model, scenario, phase, locale)
     }
+
+    // Get current context for potential photo dialogue
+    const currentContext = getCurrentContext(userHour)
 
     // Prepare messages for API
     const apiMessages: ChatMessage[] = [
@@ -148,11 +152,12 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // If user requested a photo, guide AI to respond with excitement
+    // If user requested a photo, use contextual confirmation dialogue
     if (isPhotoRequest) {
+      const photoConfirmationPrompt = buildPhotoConfirmationPrompt(userHour)
       apiMessages.push({
         role: 'system',
-        content: `DIRECTIVE SPÉCIALE: L'utilisateur te demande une photo. Réponds avec enthousiasme et suggère que tu cherches une photo sexy à lui envoyer. Sois courte, directe et excitante. EXEMPLES: "Mmh, laisse-moi te trouver quelque chose de sexy 😏", "Attends, je cherche la photo parfaite pour toi...", "Oh j'ai exactement ce qu'il te faut 🔥"`
+        content: photoConfirmationPrompt
       })
     }
 
