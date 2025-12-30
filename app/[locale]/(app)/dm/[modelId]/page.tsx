@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, useRouter } from 'next/navigation'
 import { 
   ArrowLeft, 
-  Image as ImageIcon, Lock, Search, 
+  Camera, Lock, Search, 
   Info, ChevronRight, MessageSquare,
   User, Heart, Star, Languages, Briefcase, 
   Smile, Zap, Settings, X, Send, Sparkles
@@ -465,10 +465,13 @@ export default function DMPage() {
               <div className="flex items-center pr-2 md:pr-3">
                 <button 
                   type="button" 
+                  onClick={() => {
+                    setInput("Envoie-moi une photo sexy 😏")
+                  }}
                   className="p-2 text-zinc-500 hover:text-pink-400 transition-colors"
-                  title="Envoyer une photo"
+                  title="Demander une photo"
                 >
-                  <ImageIcon className="w-5 h-5" />
+                  <Camera className="w-5 h-5" />
                 </button>
               </div>
             </div>
