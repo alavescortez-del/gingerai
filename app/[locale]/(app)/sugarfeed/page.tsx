@@ -150,7 +150,7 @@ export default function SugarFeedPage() {
             <p className="text-zinc-500">{t('empty.description')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
+          <div className="grid grid-cols-3 md:grid-cols-4 gap-1.5 md:gap-3">
             {drops.map((drop, index) => {
               const isLocked = !isPremium && index >= FREE_POSTS_LIMIT
               const canClick = isAuthenticated && (isPremium || index < FREE_POSTS_LIMIT)

@@ -166,19 +166,55 @@ export default function ModelProfilePage() {
       </div>
 
       {/* Hero Profile Card */}
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-4 md:py-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/10 p-6 md:p-8"
+          className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/10 p-4 md:p-8"
         >
-          {/* Glow effect */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl" />
+          {/* Glow effect - hidden on mobile */}
+          <div className="hidden md:block absolute top-0 right-0 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl" />
+          <div className="hidden md:block absolute bottom-0 left-0 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl" />
           
-          <div className="relative flex flex-col md:flex-row items-center gap-6 md:gap-8">
+          {/* Mobile Layout: 2 colonnes */}
+          <div className="relative flex md:hidden items-center gap-4">
+            {/* Avatar - gauche */}
+            <div className="shrink-0 w-[72px] h-[72px] rounded-full border-2 border-white/20 overflow-hidden">
+              <Image
+                src={model.avatar_url}
+                alt={model.name}
+                width={72}
+                height={72}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Info - droite */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1.5">
+                <h1 className="text-lg font-black text-white truncate">{model.name}</h1>
+                <Link
+                  href={`/${locale}/dm/${model.id}`}
+                  className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 transition-colors text-pink-400 text-xs font-bold"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  DM
+                </Link>
+              </div>
+              
+              {/* Stats compacts */}
+              <div className="flex items-center gap-3 text-xs">
+                <span><strong className="text-white">{drops.length}</strong> <span className="text-white/50">posts</span></span>
+                <span><strong className="text-white">{formatCount(model.followers_count || 0)}</strong> <span className="text-white/50">fans</span></span>
+                <span><strong className="text-pink-400">{formatCount(drops.reduce((acc, d) => acc + d.likes_count, 0))}</strong> <span className="text-white/50">❤️</span></span>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Layout: original */}
+          <div className="relative hidden md:flex items-center gap-8">
             {/* Avatar */}
-            <div className="shrink-0 w-[100px] h-[100px] md:w-[136px] md:h-[136px] rounded-full border-2 border-white/20 overflow-hidden">
+            <div className="shrink-0 w-[136px] h-[136px] rounded-full border-2 border-white/20 overflow-hidden">
               <Image
                 src={model.avatar_url}
                 alt={model.name}
@@ -189,20 +225,20 @@ export default function ModelProfilePage() {
             </div>
 
             {/* Info */}
-            <div className="flex-1 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                <h1 className="text-2xl md:text-3xl font-black text-white">{model.name}</h1>
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-black text-white">{model.name}</h1>
                 <Link
                   href={`/${locale}/dm/${model.id}`}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white text-sm font-medium"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  <span className="hidden sm:inline">DM</span>
+                  DM
                 </Link>
               </div>
               
-              {/* Stats simples */}
-              <div className="flex items-center justify-center md:justify-start gap-5 mb-3 text-sm">
+              {/* Stats */}
+              <div className="flex items-center gap-5 mb-3 text-sm">
                 <span><strong className="text-white">{drops.length}</strong> <span className="text-white/60">publications</span></span>
                 <span><strong className="text-white">{formatCount(model.followers_count || 0)}</strong> <span className="text-white/60">fans</span></span>
                 <span><strong className="text-pink-400">{formatCount(drops.reduce((acc, d) => acc + d.likes_count, 0))}</strong> <span className="text-white/60">j'aime</span></span>
