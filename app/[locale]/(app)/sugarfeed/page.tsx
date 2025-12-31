@@ -130,14 +130,14 @@ export default function SugarFeedPage() {
             <p className="text-zinc-500">{t('empty.description')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
             {drops.map((drop, index) => (
               <motion.div
                 key={drop.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="relative aspect-square group cursor-pointer"
+                className="relative aspect-[3/4] group cursor-pointer"
                 onClick={() => setSelectedDrop(drop)}
               >
                 {/* Media */}
@@ -193,80 +193,82 @@ export default function SugarFeedPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative max-w-lg w-full bg-zinc-900 rounded-2xl overflow-hidden"
+            className="relative w-full max-w-sm md:max-w-md bg-zinc-900 rounded-2xl overflow-hidden max-h-[85vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center gap-3 p-4 border-b border-white/10">
+            <div className="flex items-center gap-3 p-3 border-b border-white/10 shrink-0">
               <Link href={`/${locale}/sugarfeed/${selectedDrop.model_id}`}>
-                <div className="w-10 h-10 rounded-full overflow-hidden">
+                <div className="w-8 h-8 rounded-full overflow-hidden">
                   <Image
                     src={selectedDrop.model?.avatar_url || ''}
                     alt={selectedDrop.model?.name || ''}
-                    width={40}
-                    height={40}
+                    width={32}
+                    height={32}
                     className="object-cover"
                   />
                 </div>
               </Link>
-              <div>
+              <div className="flex-1">
                 <Link href={`/${locale}/sugarfeed/${selectedDrop.model_id}`}>
-                  <p className="font-bold text-white hover:underline">{selectedDrop.model?.name}</p>
+                  <p className="font-bold text-white text-sm hover:underline">{selectedDrop.model?.name}</p>
                 </Link>
-                <p className="text-xs text-zinc-500">
-                  {new Date(selectedDrop.created_at).toLocaleDateString()}
-                </p>
+              </div>
+              <button 
+                onClick={() => setSelectedDrop(null)}
+                className="text-white/60 hover:text-white text-xl"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Media - avec hauteur limitée */}
+            <div className="relative flex-1 min-h-0">
+              <div className="relative w-full h-full max-h-[60vh]">
+                {selectedDrop.media_type === 'video' ? (
+                  <video
+                    src={selectedDrop.media_url}
+                    className="w-full h-full object-contain bg-black"
+                    controls
+                    autoPlay
+                    loop
+                  />
+                ) : (
+                  <Image
+                    src={selectedDrop.media_url}
+                    alt={selectedDrop.caption || 'Drop'}
+                    fill
+                    className="object-contain"
+                  />
+                )}
               </div>
             </div>
 
-            {/* Media */}
-            <div className="relative aspect-square">
-              {selectedDrop.media_type === 'video' ? (
-                <video
-                  src={selectedDrop.media_url}
-                  className="w-full h-full object-cover"
-                  controls
-                  autoPlay
-                  loop
-                />
-              ) : (
-                <Image
-                  src={selectedDrop.media_url}
-                  alt={selectedDrop.caption || 'Drop'}
-                  fill
-                  className="object-cover"
-                />
-              )}
-            </div>
-
             {/* Actions */}
-            <div className="p-4">
-              <div className="flex items-center gap-4 mb-3">
+            <div className="p-3 border-t border-white/10 shrink-0">
+              <div className="flex items-center gap-4 mb-2">
                 <button
                   onClick={() => handleLike(selectedDrop.id)}
                   className="transition-transform hover:scale-110"
                 >
                   <Heart 
-                    className={`w-7 h-7 ${selectedDrop.is_liked ? 'text-red-500' : 'text-white'}`}
+                    className={`w-6 h-6 ${selectedDrop.is_liked ? 'text-red-500' : 'text-white'}`}
                     fill={selectedDrop.is_liked ? 'currentColor' : 'none'}
                   />
                 </button>
                 <button className="transition-transform hover:scale-110">
-                  <MessageCircle className="w-7 h-7 text-white" />
+                  <MessageCircle className="w-6 h-6 text-white" />
                 </button>
               </div>
-              <p className="text-sm font-bold text-white mb-1">
+              <p className="text-xs font-bold text-white">
                 {formatCount(selectedDrop.likes_count)} {t('likes')}
               </p>
               {selectedDrop.caption && (
-                <p className="text-sm text-zinc-300">
-                  <span className="font-bold text-white mr-2">{selectedDrop.model?.name}</span>
+                <p className="text-xs text-zinc-300 mt-1 line-clamp-2">
+                  <span className="font-bold text-white mr-1">{selectedDrop.model?.name}</span>
                   {selectedDrop.caption}
                 </p>
               )}
-              <p className="text-xs text-zinc-500 mt-2">
-                {t('viewComments', { count: selectedDrop.comments_count })}
-              </p>
             </div>
           </motion.div>
         </div>

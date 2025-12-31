@@ -327,81 +327,78 @@ export default function ModelProfilePage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative max-w-lg w-full rounded-3xl overflow-hidden"
+            className="relative w-full max-w-sm md:max-w-md rounded-2xl overflow-hidden max-h-[85vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Gradient border */}
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-500 to-purple-500 rounded-3xl" />
-            <div className="relative m-[2px] bg-zinc-900 rounded-3xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-500 to-purple-500 rounded-2xl" />
+            <div className="relative m-[2px] bg-zinc-900 rounded-2xl overflow-hidden flex flex-col max-h-[calc(85vh-4px)]">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-white/10">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-pink-500">
+              <div className="flex items-center justify-between p-3 border-b border-white/10 shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-pink-500">
                     <Image
                       src={model.avatar_url}
                       alt={model.name}
-                      width={40}
-                      height={40}
+                      width={32}
+                      height={32}
                       className="object-cover"
                     />
                   </div>
-                  <div>
-                    <p className="font-bold text-white">{model.name}</p>
-                    <p className="text-xs text-zinc-500">
-                      {new Date(selectedDrop.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
-                    </p>
-                  </div>
+                  <p className="font-bold text-white text-sm">{model.name}</p>
                 </div>
                 <button 
                   onClick={() => setSelectedDrop(null)}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  className="text-white/60 hover:text-white text-xl"
                 >
-                  <X className="w-5 h-5 text-white" />
+                  ×
                 </button>
               </div>
 
-              {/* Media */}
-              <div className="relative aspect-[3/4]">
-                {selectedDrop.media_type === 'video' ? (
-                  <video
-                    src={selectedDrop.media_url}
-                    className="w-full h-full object-cover"
-                    controls
-                    autoPlay
-                    loop
-                  />
-                ) : (
-                  <Image
-                    src={selectedDrop.media_url}
-                    alt={selectedDrop.caption || 'Drop'}
-                    fill
-                    className="object-cover"
-                  />
-                )}
+              {/* Media - avec hauteur limitée */}
+              <div className="relative flex-1 min-h-0">
+                <div className="relative w-full h-full max-h-[60vh]">
+                  {selectedDrop.media_type === 'video' ? (
+                    <video
+                      src={selectedDrop.media_url}
+                      className="w-full h-full object-contain bg-black"
+                      controls
+                      autoPlay
+                      loop
+                    />
+                  ) : (
+                    <Image
+                      src={selectedDrop.media_url}
+                      alt={selectedDrop.caption || 'Drop'}
+                      fill
+                      className="object-contain"
+                    />
+                  )}
+                </div>
               </div>
 
               {/* Actions */}
-              <div className="p-4">
-                <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 border-t border-white/10 shrink-0">
+                <div className="flex items-center gap-4 mb-2">
                   <button
                     onClick={() => handleLike(selectedDrop.id)}
                     className="transition-transform hover:scale-110"
                   >
                     <Heart 
-                      className={`w-7 h-7 ${selectedDrop.is_liked ? 'text-pink-500' : 'text-white'}`}
+                      className={`w-6 h-6 ${selectedDrop.is_liked ? 'text-pink-500' : 'text-white'}`}
                       fill={selectedDrop.is_liked ? 'currentColor' : 'none'}
                     />
                   </button>
                   <button className="transition-transform hover:scale-110">
-                    <MessageCircle className="w-7 h-7 text-white" />
+                    <MessageCircle className="w-6 h-6 text-white" />
                   </button>
                 </div>
-                <p className="text-sm font-bold text-white mb-1">
+                <p className="text-xs font-bold text-white">
                   {formatCount(selectedDrop.likes_count)} j'aime
                 </p>
                 {selectedDrop.caption && (
-                  <p className="text-sm text-zinc-300">
-                    <span className="font-bold text-white mr-2">{model.name}</span>
+                  <p className="text-xs text-zinc-300 mt-1 line-clamp-2">
+                    <span className="font-bold text-white mr-1">{model.name}</span>
                     {selectedDrop.caption}
                   </p>
                 )}
