@@ -55,11 +55,11 @@ export default function SubscriptionsPage() {
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
           
           {/* Colonne gauche - Image du modèle */}
-          <div className="hidden lg:block w-[280px] shrink-0">
+          <div className="hidden lg:block w-[350px] shrink-0 self-start sticky top-8">
             <img 
-              src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Lily/Photos/promote-lily.webp" 
+              src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Lily/promote-lily.webp" 
               alt="Model"
-              className="w-full rounded-3xl object-cover"
+              className="w-full h-auto rounded-3xl object-cover shadow-2xl"
               onError={(e) => {
                 console.error('Image error:', e)
                 setImageError(true)
