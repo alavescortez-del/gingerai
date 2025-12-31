@@ -158,19 +158,14 @@ export default function ModelProfilePage() {
           
           <div className="relative flex flex-col md:flex-row items-center gap-6 md:gap-8">
             {/* Avatar */}
-            <div className="relative shrink-0">
-              <div className="w-[100px] h-[100px] md:w-[136px] md:h-[136px] rounded-full border-2 border-white/20 overflow-hidden">
-                <Image
-                  src={model.avatar_url}
-                  alt={model.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              {/* Badge vérifié */}
-              <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center border-2 border-black">
-                <span className="text-xs">✓</span>
-              </div>
+            <div className="shrink-0 w-[100px] h-[100px] md:w-[136px] md:h-[136px] rounded-full border-2 border-white/20 overflow-hidden">
+              <Image
+                src={model.avatar_url}
+                alt={model.name}
+                width={136}
+                height={136}
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Info */}
