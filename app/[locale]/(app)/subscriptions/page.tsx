@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Check, Zap, Sparkles, Flame, Shield, Clock } from 'lucide-react'
+import { Check, Zap, Sparkles, Flame, Shield, Clock, CreditCard, EyeOff, ShieldCheck, Lock, BadgeCheck } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Button from '@/components/ui/Button'
 import { useState } from 'react'
@@ -98,31 +98,85 @@ export default function SubscriptionsPage() {
           ))}
         </div>
 
+        {/* Section réassurance - Textes importants */}
+        <div className="max-w-3xl mx-auto mb-12">
+          <div className="glass rounded-3xl p-6 md:p-8 border border-white/5">
+            <div className="space-y-4">
+              {/* Transaction discrète */}
+              <div className="flex items-start gap-4">
+                <div className="shrink-0 w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                  <EyeOff className="w-5 h-5 text-green-500" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm">{t('reassurance.discreet')}</p>
+                  <p className="text-zinc-500 text-xs mt-0.5">{t('reassurance.discreetDesc')}</p>
+                </div>
+              </div>
+
+              {/* Pas de frais cachés */}
+              <div className="flex items-start gap-4">
+                <div className="shrink-0 w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                  <BadgeCheck className="w-5 h-5 text-green-500" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm">{t('reassurance.noHidden')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Trust Badges */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto pt-10 border-t border-white/5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto pt-10 border-t border-white/5">
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-zinc-400">
-              <Shield className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/10 flex items-center justify-center border border-green-500/20">
+              <ShieldCheck className="w-7 h-7 text-green-500" />
             </div>
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{t('trust.secure')}</p>
+            <div>
+              <p className="text-xs font-bold text-white">{t('trust.antivirus')}</p>
+              <p className="text-[10px] text-zinc-500">{t('trust.antivirusDesc')}</p>
+            </div>
           </div>
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-zinc-400">
-              <Zap className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center border border-blue-500/20">
+              <Lock className="w-7 h-7 text-blue-500" />
             </div>
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{t('trust.instant')}</p>
+            <div>
+              <p className="text-xs font-bold text-white">{t('trust.privacy')}</p>
+              <p className="text-[10px] text-zinc-500">{t('trust.privacyDesc')}</p>
+            </div>
           </div>
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-zinc-400">
-              <Clock className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 flex items-center justify-center border border-purple-500/20">
+              <Clock className="w-7 h-7 text-purple-500" />
             </div>
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{t('trust.cancel')}</p>
+            <div>
+              <p className="text-xs font-bold text-white">{t('trust.cancel')}</p>
+              <p className="text-[10px] text-zinc-500">{t('trust.cancelDesc')}</p>
+            </div>
           </div>
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-zinc-400">
-              <Sparkles className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500/20 to-pink-600/10 flex items-center justify-center border border-pink-500/20">
+              <Zap className="w-7 h-7 text-pink-500" />
             </div>
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{t('trust.noCensorship')}</p>
+            <div>
+              <p className="text-xs font-bold text-white">{t('trust.instant')}</p>
+              <p className="text-[10px] text-zinc-500">{t('trust.instantDesc')}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer réassurance */}
+        <div className="text-center mt-10 pt-6 border-t border-white/5">
+          <div className="flex items-center justify-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-zinc-600" />
+              <span className="text-xs text-zinc-500">{t('trust.cards')}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-zinc-600" />
+              <span className="text-xs text-zinc-500">{t('trust.ssl')}</span>
+            </div>
           </div>
         </div>
       </div>

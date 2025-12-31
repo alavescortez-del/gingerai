@@ -204,11 +204,22 @@
         ]
       }
     },
+    "reassurance": {
+      "discreet": "Aucune transaction en lien avec un contenu Adulte sur votre relevé bancaire",
+      "discreetDesc": "Le nom affiché sera discret et neutre sur votre relevé",
+      "noHidden": "Pas de frais cachés • Annulez l'abonnement à tout moment"
+    },
     "trust": {
-      "secure": "100% Sécurisé",
+      "antivirus": "Antivirus Sécurisé",
+      "antivirusDesc": "Protection maximale",
+      "privacy": "Confidentialité Bancaire",
+      "privacyDesc": "Données protégées",
+      "cancel": "Annulation Libre",
+      "cancelDesc": "Sans engagement",
       "instant": "Accès Instantané",
-      "cancel": "Annulation Facile",
-      "noCensorship": "Zéro Censure"
+      "instantDesc": "Activation immédiate",
+      "cards": "Visa, Mastercard acceptées",
+      "ssl": "Paiement SSL 256-bit"
     }
   },
   "planLimit": {

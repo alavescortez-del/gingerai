@@ -161,13 +161,6 @@ export async function POST(request: NextRequest) {
       systemPrompt = buildSystemPrompt(model, scenario, phase, locale)
     }
 
-    // Ajouter le contexte de la dernière photo si disponible
-    if (lastPhotoContext && isDM) {
-      systemPrompt += `\n\n📸 DERNIÈRE PHOTO ENVOYÉE: Tu as récemment envoyé une photo. Voici ce qu'elle montre: ${lastPhotoContext}
-Si l'utilisateur pose une question sur cette photo ou fait un commentaire dessus, tu peux y répondre naturellement en te référant à ce que tu sais de la photo.
-Exemples de questions possibles: "Elle est où cette photo ?", "C'est quoi ta tenue ?", "T'es sexy dessus", etc.`
-    }
-
     // Get current context for potential photo dialogue
     const currentContext = getCurrentContext(userHour)
 
@@ -239,7 +232,7 @@ NE PROPOSE PAS D'AUTRE CHOIX, la photo va être envoyée automatiquement après 
         'X-Title': 'Sugarush',
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.1-70b-instruct', // Modèle ultra-rapide et permissif
+        model: 'google/gemini-2.0-flash-001', // Modèle ultra-rapide et permissif
         messages: apiMessages,
         temperature: 0.9,
         max_tokens: 150, // Réduit pour des réponses courtes style WhatsApp

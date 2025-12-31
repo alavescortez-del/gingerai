@@ -204,11 +204,22 @@
         ]
       }
     },
+    "reassurance": {
+      "discreet": "Keine Erwachseneninhalte-Transaktion auf Ihrem Kontoauszug",
+      "discreetDesc": "Der angezeigte Name wird diskret und neutral auf Ihrem Auszug sein",
+      "noHidden": "Keine versteckten Gebühren • Kündigen Sie Ihr Abonnement jederzeit"
+    },
     "trust": {
-      "secure": "100% Sicher",
+      "antivirus": "Sicherer Antivirus",
+      "antivirusDesc": "Maximaler Schutz",
+      "privacy": "Bankvertraulichkeit",
+      "privacyDesc": "Geschützte Daten",
+      "cancel": "Freie Kündigung",
+      "cancelDesc": "Ohne Verpflichtung",
       "instant": "Sofortiger Zugang",
-      "cancel": "Einfache Kündigung",
-      "noCensorship": "Keine Zensur"
+      "instantDesc": "Sofortige Aktivierung",
+      "cards": "Visa, Mastercard akzeptiert",
+      "ssl": "SSL 256-Bit Zahlung"
     }
   },
   "planLimit": {

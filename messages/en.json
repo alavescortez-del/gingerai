@@ -204,11 +204,22 @@
         ]
       }
     },
+    "reassurance": {
+      "discreet": "No Adult content-related transaction on your bank statement",
+      "discreetDesc": "The displayed name will be discreet and neutral on your statement",
+      "noHidden": "No hidden fees • Cancel your subscription anytime"
+    },
     "trust": {
-      "secure": "100% Secure",
+      "antivirus": "Secure Antivirus",
+      "antivirusDesc": "Maximum protection",
+      "privacy": "Bank Privacy",
+      "privacyDesc": "Protected data",
+      "cancel": "Free Cancellation",
+      "cancelDesc": "No commitment",
       "instant": "Instant Access",
-      "cancel": "Easy Cancellation",
-      "noCensorship": "Zero Censorship"
+      "instantDesc": "Immediate activation",
+      "cards": "Visa, Mastercard accepted",
+      "ssl": "SSL 256-bit payment"
     }
   },
   "planLimit": {
