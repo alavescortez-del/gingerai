@@ -1,47 +1,49 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Check, CreditCard, Landmark, Bitcoin, EyeOff, BadgeCheck, ShieldCheck, Lock } from 'lucide-react'
+import { Check, CreditCard, Landmark, ShieldCheck, Lock } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useState } from 'react'
-import Image from 'next/image'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 
-type PlanId = 'quarterly' | 'monthly'
+type PlanId = 'soft' | 'unleashed'
 
 export default function SubscriptionsPage() {
   const t = useTranslations('subscriptions')
-  const [selectedPlan, setSelectedPlan] = useState<PlanId>('quarterly')
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>('soft')
+  const [modelImages, setModelImages] = useState<string[]>([])
+
+  // Charger des images de modèles aléatoires
+  useEffect(() => {
+    const fetchModels = async () => {
+      const { data } = await supabase.from('models').select('avatar_url').limit(2)
+      if (data && data.length > 0) {
+        setModelImages(data.map(m => m.avatar_url))
+      }
+    }
+    fetchModels()
+  }, [])
 
   const plans = [
     {
-      id: 'quarterly' as PlanId,
-      duration: '3 mois',
-      pricePerMonth: '7',
+      id: 'soft' as PlanId,
+      name: t('plans.soft.name'),
+      pricePerMonth: '9',
       priceCents: '99',
-      originalPrice: '12,99',
-      discount: '-40%',
-      totalPrice: '47.88',
-      billing: 'Paiement annuel facturé €47.88'
+      popular: true
     },
     {
-      id: 'monthly' as PlanId,
-      duration: '1 mois',
+      id: 'unleashed' as PlanId,
+      name: t('plans.unleashed.name'),
       pricePerMonth: '12',
       priceCents: '99',
-      originalPrice: null,
-      discount: null,
-      totalPrice: '12.99',
-      billing: null
+      popular: false
     }
   ]
 
-  const features = [
-    'Recevez 100 jetons GRATUITS / mois',
-    'Suppression du flou des images',
-    'Génération d\'images',
-    'Appels téléphoniques IA',
-    'Temps de réponse rapide'
-  ]
+  const softFeatures = t.raw('plans.soft.features') as string[]
+  const unleashedFeatures = t.raw('plans.unleashed.features') as string[]
+  const currentFeatures = selectedPlan === 'soft' ? softFeatures : unleashedFeatures
 
   return (
     <div className="min-h-screen bg-ginger-bg py-8 px-4">
@@ -51,21 +53,23 @@ export default function SubscriptionsPage() {
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
           
           {/* Colonne gauche - Image du modèle */}
-          <div className="hidden lg:block w-[300px] shrink-0">
-            <div className="relative">
+          {modelImages[0] && (
+            <div className="hidden lg:block w-[280px] shrink-0">
               <img 
-                src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Lily/Profil/lily-student-profil-1.webp" 
+                src={modelImages[0]} 
                 alt="Model"
-                className="w-full rounded-3xl object-cover"
+                className="w-full rounded-3xl object-cover aspect-[3/4]"
               />
-              <div className="absolute top-4 left-4 bg-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold">
-                Jusqu'à <span className="text-yellow-300">70%</span> de réduction sur le premier abonnement
-              </div>
             </div>
-          </div>
+          )}
 
           {/* Colonne centrale - Choix abonnement + Paiement */}
           <div className="flex-1 max-w-md mx-auto lg:mx-0">
+            
+            {/* Titre */}
+            <h1 className="text-2xl font-black text-white uppercase mb-6 text-center lg:text-left">
+              {t('title')} <span className="gradient-text">{t('titleHighlight')}</span>
+            </h1>
             
             {/* Sélection des offres - Style radio */}
             <div className="space-y-3 mb-6">
@@ -93,10 +97,10 @@ export default function SubscriptionsPage() {
                     {/* Info plan */}
                     <div className="text-left">
                       <div className="flex items-center gap-2">
-                        <span className="text-white font-bold">{plan.duration}</span>
-                        {plan.discount && (
-                          <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">
-                            OFFRE {plan.discount}
+                        <span className="text-white font-bold">{plan.name}</span>
+                        {plan.popular && (
+                          <span className="bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+                            {t('popular')}
                           </span>
                         )}
                       </div>
@@ -106,9 +110,6 @@ export default function SubscriptionsPage() {
                   {/* Prix */}
                   <div className="text-right">
                     <div className="flex items-baseline gap-1">
-                      {plan.originalPrice && (
-                        <span className="text-zinc-500 line-through text-sm">€{plan.originalPrice}</span>
-                      )}
                       <span className="text-white text-2xl font-black">€{plan.pricePerMonth}</span>
                       <span className="text-zinc-400 text-sm">,{plan.priceCents}</span>
                       <span className="text-zinc-500 text-xs">/mois</span>
@@ -171,19 +172,16 @@ export default function SubscriptionsPage() {
               </button>
             </div>
 
-            {/* Texte facturation */}
-            {selectedPlan === 'quarterly' && (
-              <p className="text-center text-zinc-500 text-xs mt-4">
-                Paiement annuel facturé €47.88
-              </p>
-            )}
           </div>
 
           {/* Colonne droite - Features + Image */}
           <div className="hidden lg:block w-[280px] shrink-0">
-            {/* Features */}
+            {/* Features dynamiques selon le plan */}
             <div className="space-y-3 mb-6">
-              {features.map((feature, i) => (
+              <h3 className="text-white font-bold text-sm mb-4">
+                {selectedPlan === 'soft' ? t('plans.soft.name') : t('plans.unleashed.name')} inclut :
+              </h3>
+              {currentFeatures.map((feature, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-pink-500/20 flex items-center justify-center">
                     <Check className="w-3 h-3 text-pink-500" />
@@ -194,13 +192,13 @@ export default function SubscriptionsPage() {
             </div>
 
             {/* Deuxième image */}
-            <div className="relative">
+            {modelImages[1] && (
               <img 
-                src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Mia/Profil/mia-rebel-profil-1.webp" 
+                src={modelImages[1]} 
                 alt="Model 2"
-                className="w-full rounded-3xl object-cover"
+                className="w-full rounded-3xl object-cover aspect-[3/4]"
               />
-            </div>
+            )}
           </div>
         </div>
 
