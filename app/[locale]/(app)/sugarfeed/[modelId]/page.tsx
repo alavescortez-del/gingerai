@@ -157,10 +157,9 @@ export default function ModelProfilePage() {
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl" />
           
           <div className="relative flex flex-col md:flex-row items-center gap-6 md:gap-10">
-            {/* Avatar avec glow */}
+            {/* Avatar */}
             <div className="relative shrink-0">
-              <div className="absolute -inset-2 bg-gradient-to-br from-pink-500 via-rose-500 to-purple-500 rounded-full blur-md opacity-60" />
-              <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white/20 overflow-hidden shadow-2xl">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white/20 overflow-hidden shadow-2xl">
                 <Image
                   src={model.avatar_url}
                   alt={model.name}
@@ -271,7 +270,7 @@ export default function ModelProfilePage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.05 }}
-                className="relative aspect-square group cursor-pointer"
+                className="relative aspect-[3/4] group cursor-pointer"
                 onClick={() => setSelectedDrop({ ...drop, model })}
               >
                 {/* Card avec bordure dégradée */}
@@ -376,7 +375,7 @@ export default function ModelProfilePage() {
               </div>
 
               {/* Media */}
-              <div className="relative aspect-square">
+              <div className="relative aspect-[3/4]">
                 {selectedDrop.media_type === 'video' ? (
                   <video
                     src={selectedDrop.media_url}
