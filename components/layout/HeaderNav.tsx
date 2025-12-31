@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 import { supabase } from '@/lib/supabase'
 import { useGameStore } from '@/lib/stores/gameStore'
 import { motion } from 'framer-motion'
-import { Home, Film, Users, Zap, LogOut, LogIn, UserPlus, Flame } from 'lucide-react'
+import { Home, Film, Users, Zap, LogOut, LogIn, UserPlus, Gem } from 'lucide-react'
 import AuthModal from '@/components/auth/AuthModal'
 import LanguageSelector from '@/components/ui/LanguageSelector'
 import { locales } from '@/i18n/request'
@@ -16,7 +16,7 @@ const navItems = [
   { href: '/', labelKey: 'home', icon: Home },
   { href: '/scenarios', labelKey: 'scenarios', icon: Film },
   { href: '/contacts', labelKey: 'contacts', icon: Users },
-  { href: '/subscriptions', labelKey: 'subscriptions', icon: Flame, isPremium: true },
+  { href: '/subscriptions', labelKey: 'premium', icon: Gem, isPremium: true },
 ]
 
 export default function HeaderNav() {
