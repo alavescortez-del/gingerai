@@ -24,14 +24,14 @@ export default function SubscriptionsPage() {
   }))
 
   return (
-    <div className="min-h-screen bg-ginger-bg py-20 px-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-16 space-y-4">
+    <div className="min-h-screen bg-ginger-bg py-10 md:py-16 px-4 md:px-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header - Plus compact */}
+        <div className="text-center mb-8 md:mb-10 space-y-2">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter"
+            className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter"
           >
             {t('title')} <span className="gradient-text">{t('titleHighlight')}</span>
           </motion.h1>
@@ -39,57 +39,57 @@ export default function SubscriptionsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-zinc-400 text-lg max-w-2xl mx-auto"
+            className="text-zinc-400 text-sm md:text-base max-w-xl mx-auto"
           >
             {t('subtitle')}
           </motion.p>
         </div>
 
-        {/* Plans Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mb-20">
+        {/* Plans Grid - Plus compact */}
+        <div className="grid md:grid-cols-3 gap-4 md:gap-6 mb-10">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 * (index + 1) }}
-              className={`relative glass rounded-[40px] p-8 flex flex-col border transition-all duration-500 ${
+              className={`relative glass rounded-3xl p-5 md:p-6 flex flex-col border transition-all duration-500 ${
                 plan.highlight 
-                  ? 'border-pink-500/50 shadow-2xl shadow-pink-500/10 scale-105 z-10' 
+                  ? 'border-pink-500/50 shadow-xl shadow-pink-500/10 md:scale-105 z-10' 
                   : 'border-white/5 hover:border-white/10'
               }`}
             >
               {plan.badge && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-pink-600 text-white text-[10px] font-black uppercase tracking-widest">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-pink-600 text-white text-[9px] font-black uppercase tracking-widest">
                   {plan.badge}
                 </div>
               )}
 
-              <div className="mb-8">
-                <h3 className="text-2xl font-black text-white mb-2 uppercase">{plan.name}</h3>
-                <p className="text-zinc-500 text-sm">{plan.description}</p>
+              <div className="mb-4">
+                <h3 className="text-lg md:text-xl font-black text-white mb-1 uppercase">{plan.name}</h3>
+                <p className="text-zinc-500 text-xs">{plan.description}</p>
               </div>
 
-              <div className="mb-8 flex items-baseline gap-1">
-                <span className="text-5xl font-black text-white">{plan.price}€</span>
-                <span className="text-zinc-500 font-bold uppercase text-xs">{t('perMonth')}</span>
+              <div className="mb-4 flex items-baseline gap-1">
+                <span className="text-3xl md:text-4xl font-black text-white">{plan.price}€</span>
+                <span className="text-zinc-500 font-bold uppercase text-[10px]">{t('perMonth')}</span>
               </div>
 
-              <div className="flex-1 space-y-4 mb-10">
+              <div className="flex-1 space-y-2 mb-5">
                 {plan.features.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${plan.id === 'unleashed' ? 'bg-pink-500/20' : 'bg-white/5'}`}>
-                      <Check className={`w-3 h-3 ${plan.id === 'unleashed' ? 'text-pink-500' : 'text-zinc-400'}`} />
+                  <div key={i} className="flex items-start gap-2">
+                    <div className={`shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${plan.id === 'unleashed' ? 'bg-pink-500/20' : 'bg-white/5'}`}>
+                      <Check className={`w-2.5 h-2.5 ${plan.id === 'unleashed' ? 'text-pink-500' : 'text-zinc-400'}`} />
                     </div>
-                    <span className="text-sm text-zinc-300 font-medium">{feature}</span>
+                    <span className="text-xs text-zinc-300 font-medium">{feature}</span>
                   </div>
                 ))}
               </div>
 
               <Button
                 variant={plan.highlight ? 'primary' : 'outline'}
-                className={`w-full py-6 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${
-                  plan.id === 'unleashed' ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-none shadow-xl shadow-pink-600/20' : ''
+                className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${
+                  plan.id === 'unleashed' ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-none shadow-lg shadow-pink-600/20' : ''
                 }`}
               >
                 {plan.buttonText}
@@ -98,84 +98,81 @@ export default function SubscriptionsPage() {
           ))}
         </div>
 
-        {/* Section réassurance - Textes importants */}
-        <div className="max-w-3xl mx-auto mb-12">
-          <div className="glass rounded-3xl p-6 md:p-8 border border-white/5">
-            <div className="space-y-4">
+        {/* Section réassurance - Plus compact */}
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="glass rounded-2xl p-4 md:p-5 border border-white/5">
+            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
               {/* Transaction discrète */}
-              <div className="flex items-start gap-4">
-                <div className="shrink-0 w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                  <EyeOff className="w-5 h-5 text-green-500" />
+              <div className="flex items-center gap-3 flex-1">
+                <div className="shrink-0 w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <EyeOff className="w-4 h-4 text-green-500" />
                 </div>
-                <div>
-                  <p className="text-white font-bold text-sm">{t('reassurance.discreet')}</p>
-                  <p className="text-zinc-500 text-xs mt-0.5">{t('reassurance.discreetDesc')}</p>
-                </div>
+                <p className="text-white font-medium text-xs">{t('reassurance.discreet')}</p>
               </div>
+
+              <div className="hidden md:block w-px h-8 bg-white/10" />
 
               {/* Pas de frais cachés */}
-              <div className="flex items-start gap-4">
-                <div className="shrink-0 w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                  <BadgeCheck className="w-5 h-5 text-green-500" />
+              <div className="flex items-center gap-3 flex-1">
+                <div className="shrink-0 w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <BadgeCheck className="w-4 h-4 text-green-500" />
                 </div>
-                <div>
-                  <p className="text-white font-bold text-sm">{t('reassurance.noHidden')}</p>
-                </div>
+                <p className="text-white font-medium text-xs">{t('reassurance.noHidden')}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Trust Badges */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto pt-10 border-t border-white/5">
-          <div className="flex flex-col items-center text-center space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/10 flex items-center justify-center border border-green-500/20">
-              <ShieldCheck className="w-7 h-7 text-green-500" />
+        {/* Trust Badges - Plus compact */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto pt-6 border-t border-white/5">
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/10 flex items-center justify-center border border-green-500/20">
+              <ShieldCheck className="w-5 h-5 text-green-500" />
             </div>
             <div>
-              <p className="text-xs font-bold text-white">{t('trust.antivirus')}</p>
-              <p className="text-[10px] text-zinc-500">{t('trust.antivirusDesc')}</p>
+              <p className="text-[10px] font-bold text-white">{t('trust.antivirus')}</p>
+              <p className="text-[9px] text-zinc-500">{t('trust.antivirusDesc')}</p>
             </div>
           </div>
-          <div className="flex flex-col items-center text-center space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center border border-blue-500/20">
-              <Lock className="w-7 h-7 text-blue-500" />
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center border border-blue-500/20">
+              <Lock className="w-5 h-5 text-blue-500" />
             </div>
             <div>
-              <p className="text-xs font-bold text-white">{t('trust.privacy')}</p>
-              <p className="text-[10px] text-zinc-500">{t('trust.privacyDesc')}</p>
+              <p className="text-[10px] font-bold text-white">{t('trust.privacy')}</p>
+              <p className="text-[9px] text-zinc-500">{t('trust.privacyDesc')}</p>
             </div>
           </div>
-          <div className="flex flex-col items-center text-center space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 flex items-center justify-center border border-purple-500/20">
-              <Clock className="w-7 h-7 text-purple-500" />
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 flex items-center justify-center border border-purple-500/20">
+              <Clock className="w-5 h-5 text-purple-500" />
             </div>
             <div>
-              <p className="text-xs font-bold text-white">{t('trust.cancel')}</p>
-              <p className="text-[10px] text-zinc-500">{t('trust.cancelDesc')}</p>
+              <p className="text-[10px] font-bold text-white">{t('trust.cancel')}</p>
+              <p className="text-[9px] text-zinc-500">{t('trust.cancelDesc')}</p>
             </div>
           </div>
-          <div className="flex flex-col items-center text-center space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500/20 to-pink-600/10 flex items-center justify-center border border-pink-500/20">
-              <Zap className="w-7 h-7 text-pink-500" />
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-600/10 flex items-center justify-center border border-pink-500/20">
+              <Zap className="w-5 h-5 text-pink-500" />
             </div>
             <div>
-              <p className="text-xs font-bold text-white">{t('trust.instant')}</p>
-              <p className="text-[10px] text-zinc-500">{t('trust.instantDesc')}</p>
+              <p className="text-[10px] font-bold text-white">{t('trust.instant')}</p>
+              <p className="text-[9px] text-zinc-500">{t('trust.instantDesc')}</p>
             </div>
           </div>
         </div>
 
-        {/* Footer réassurance */}
-        <div className="text-center mt-10 pt-6 border-t border-white/5">
-          <div className="flex items-center justify-center gap-6 flex-wrap">
-            <div className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-zinc-600" />
-              <span className="text-xs text-zinc-500">{t('trust.cards')}</span>
+        {/* Footer réassurance - Plus compact */}
+        <div className="text-center mt-6 pt-4 border-t border-white/5">
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <CreditCard className="w-4 h-4 text-zinc-600" />
+              <span className="text-[10px] text-zinc-500">{t('trust.cards')}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-zinc-600" />
-              <span className="text-xs text-zinc-500">{t('trust.ssl')}</span>
+            <div className="flex items-center gap-1.5">
+              <Shield className="w-4 h-4 text-zinc-600" />
+              <span className="text-[10px] text-zinc-500">{t('trust.ssl')}</span>
             </div>
           </div>
         </div>
