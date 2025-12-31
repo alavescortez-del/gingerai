@@ -1,180 +1,233 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Check, Zap, Sparkles, Flame, Shield, Clock, CreditCard, EyeOff, ShieldCheck, Lock, BadgeCheck } from 'lucide-react'
+import { Check, CreditCard, Landmark, Bitcoin, EyeOff, BadgeCheck, ShieldCheck, Lock } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import Button from '@/components/ui/Button'
 import { useState } from 'react'
+import Image from 'next/image'
 
-const PLAN_IDS = ['free', 'soft', 'unleashed'] as const
+type PlanId = 'quarterly' | 'monthly'
 
 export default function SubscriptionsPage() {
   const t = useTranslations('subscriptions')
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>('quarterly')
 
-  const plans = PLAN_IDS.map((id, index) => ({
-    id,
-    name: t(`plans.${id}.name`),
-    price: id === 'free' ? '0' : id === 'soft' ? '9,99' : '12,99',
-    description: t(`plans.${id}.desc`),
-    features: t.raw(`plans.${id}.features`) as string[],
-    buttonText: id === 'free' ? t('currentPlan') : `${t('choosePlan')} ${t(`plans.${id}.name`)}`,
-    highlight: id === 'soft',
-    badge: id === 'soft' ? t('popular') : undefined,
-  }))
+  const plans = [
+    {
+      id: 'quarterly' as PlanId,
+      duration: '3 mois',
+      pricePerMonth: '7',
+      priceCents: '99',
+      originalPrice: '12,99',
+      discount: '-40%',
+      totalPrice: '47.88',
+      billing: 'Paiement annuel facturé €47.88'
+    },
+    {
+      id: 'monthly' as PlanId,
+      duration: '1 mois',
+      pricePerMonth: '12',
+      priceCents: '99',
+      originalPrice: null,
+      discount: null,
+      totalPrice: '12.99',
+      billing: null
+    }
+  ]
+
+  const features = [
+    'Recevez 100 jetons GRATUITS / mois',
+    'Suppression du flou des images',
+    'Génération d\'images',
+    'Appels téléphoniques IA',
+    'Temps de réponse rapide'
+  ]
 
   return (
-    <div className="min-h-screen bg-ginger-bg py-10 md:py-16 px-4 md:px-6">
+    <div className="min-h-screen bg-ginger-bg py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header - Plus compact */}
-        <div className="text-center mb-8 md:mb-10 space-y-2">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter"
-          >
-            {t('title')} <span className="gradient-text">{t('titleHighlight')}</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-zinc-400 text-sm md:text-base max-w-xl mx-auto"
-          >
-            {t('subtitle')}
-          </motion.p>
-        </div>
-
-        {/* Plans Grid - Plus compact */}
-        <div className="grid md:grid-cols-3 gap-4 md:gap-6 mb-10">
-          {plans.map((plan, index) => (
-            <motion.div
-              key={plan.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * (index + 1) }}
-              className={`relative glass rounded-3xl p-5 md:p-6 flex flex-col border transition-all duration-500 ${
-                plan.highlight 
-                  ? 'border-pink-500/50 shadow-xl shadow-pink-500/10 md:scale-105 z-10' 
-                  : 'border-white/5 hover:border-white/10'
-              }`}
-            >
-              {plan.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-pink-600 text-white text-[9px] font-black uppercase tracking-widest">
-                  {plan.badge}
-                </div>
-              )}
-
-              <div className="mb-4">
-                <h3 className="text-lg md:text-xl font-black text-white mb-1 uppercase">{plan.name}</h3>
-                <p className="text-zinc-500 text-xs">{plan.description}</p>
+        
+        {/* Layout principal - 2 colonnes sur desktop */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+          
+          {/* Colonne gauche - Image du modèle */}
+          <div className="hidden lg:block w-[300px] shrink-0">
+            <div className="relative">
+              <img 
+                src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Lily/Profil/lily-student-profil-1.webp" 
+                alt="Model"
+                className="w-full rounded-3xl object-cover"
+              />
+              <div className="absolute top-4 left-4 bg-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold">
+                Jusqu'à <span className="text-yellow-300">70%</span> de réduction sur le premier abonnement
               </div>
+            </div>
+          </div>
 
-              <div className="mb-4 flex items-baseline gap-1">
-                <span className="text-3xl md:text-4xl font-black text-white">{plan.price}€</span>
-                <span className="text-zinc-500 font-bold uppercase text-[10px]">{t('perMonth')}</span>
-              </div>
-
-              <div className="flex-1 space-y-2 mb-5">
-                {plan.features.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <div className={`shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${plan.id === 'unleashed' ? 'bg-pink-500/20' : 'bg-white/5'}`}>
-                      <Check className={`w-2.5 h-2.5 ${plan.id === 'unleashed' ? 'text-pink-500' : 'text-zinc-400'}`} />
+          {/* Colonne centrale - Choix abonnement + Paiement */}
+          <div className="flex-1 max-w-md mx-auto lg:mx-0">
+            
+            {/* Sélection des offres - Style radio */}
+            <div className="space-y-3 mb-6">
+              {plans.map((plan) => (
+                <motion.button
+                  key={plan.id}
+                  onClick={() => setSelectedPlan(plan.id)}
+                  className={`w-full p-4 rounded-2xl border-2 transition-all duration-200 flex items-center justify-between ${
+                    selectedPlan === plan.id
+                      ? 'border-pink-500 bg-pink-500/10'
+                      : 'border-white/10 bg-white/5 hover:border-white/20'
+                  }`}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Radio button */}
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      selectedPlan === plan.id ? 'border-pink-500' : 'border-zinc-500'
+                    }`}>
+                      {selectedPlan === plan.id && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-pink-500" />
+                      )}
                     </div>
-                    <span className="text-xs text-zinc-300 font-medium">{feature}</span>
+                    
+                    {/* Info plan */}
+                    <div className="text-left">
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-bold">{plan.duration}</span>
+                        {plan.discount && (
+                          <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+                            OFFRE {plan.discount}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                ))}
+
+                  {/* Prix */}
+                  <div className="text-right">
+                    <div className="flex items-baseline gap-1">
+                      {plan.originalPrice && (
+                        <span className="text-zinc-500 line-through text-sm">€{plan.originalPrice}</span>
+                      )}
+                      <span className="text-white text-2xl font-black">€{plan.pricePerMonth}</span>
+                      <span className="text-zinc-400 text-sm">,{plan.priceCents}</span>
+                      <span className="text-zinc-500 text-xs">/mois</span>
+                    </div>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+
+            {/* Réassurances - Textes verts */}
+            <div className="space-y-2 mb-6">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span className="text-zinc-300 text-xs">Aucune transaction en lien avec un contenu Adulte sur votre relevé bancaire</span>
               </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span className="text-zinc-300 text-xs">Pas de frais cachés • Annulez l'abonnement à tout moment</span>
+              </div>
+            </div>
 
-              <Button
-                variant={plan.highlight ? 'primary' : 'outline'}
-                className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${
-                  plan.id === 'unleashed' ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-none shadow-lg shadow-pink-600/20' : ''
-                }`}
-              >
-                {plan.buttonText}
-              </Button>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Section réassurance - Plus compact */}
-        <div className="max-w-2xl mx-auto mb-8">
-          <div className="glass rounded-2xl p-4 md:p-5 border border-white/5">
-            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-              {/* Transaction discrète */}
-              <div className="flex items-center gap-3 flex-1">
-                <div className="shrink-0 w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <EyeOff className="w-4 h-4 text-green-500" />
+            {/* Boutons de paiement */}
+            <div className="space-y-3">
+              {/* Carte bancaire */}
+              <button className="w-full py-4 px-6 bg-gradient-to-r from-pink-600 to-rose-600 rounded-2xl text-white font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-opacity shadow-lg shadow-pink-600/20">
+                <span>Payer avec Carte Bancaire</span>
+                <div className="flex items-center gap-1">
+                  <div className="bg-white rounded px-1 py-0.5">
+                    <span className="text-blue-600 font-bold text-xs">VISA</span>
+                  </div>
+                  <div className="bg-white rounded px-1 py-0.5">
+                    <div className="flex">
+                      <div className="w-3 h-3 rounded-full bg-red-500 -mr-1" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                    </div>
+                  </div>
                 </div>
-                <p className="text-white font-medium text-xs">{t('reassurance.discreet')}</p>
-              </div>
+              </button>
 
-              <div className="hidden md:block w-px h-8 bg-white/10" />
+              {/* Virement bancaire */}
+              <button className="w-full py-4 px-6 bg-zinc-800 border border-white/10 rounded-2xl text-white font-bold flex items-center justify-center gap-3 hover:bg-zinc-700 transition-colors">
+                <span>Paiement Bancaire Instantané</span>
+                <Landmark className="w-5 h-5" />
+              </button>
 
-              {/* Pas de frais cachés */}
-              <div className="flex items-center gap-3 flex-1">
-                <div className="shrink-0 w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <BadgeCheck className="w-4 h-4 text-green-500" />
+              {/* Crypto */}
+              <button className="w-full py-4 px-6 bg-zinc-800 border border-white/10 rounded-2xl text-white font-bold flex items-center justify-center gap-3 hover:bg-zinc-700 transition-colors">
+                <span>Payer avec</span>
+                <div className="flex items-center gap-1">
+                  <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">₿</span>
+                  </div>
+                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">Ξ</span>
+                  </div>
+                  <div className="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">Ł</span>
+                  </div>
                 </div>
-                <p className="text-white font-medium text-xs">{t('reassurance.noHidden')}</p>
-              </div>
+              </button>
+            </div>
+
+            {/* Texte facturation */}
+            {selectedPlan === 'quarterly' && (
+              <p className="text-center text-zinc-500 text-xs mt-4">
+                Paiement annuel facturé €47.88
+              </p>
+            )}
+          </div>
+
+          {/* Colonne droite - Features + Image */}
+          <div className="hidden lg:block w-[280px] shrink-0">
+            {/* Features */}
+            <div className="space-y-3 mb-6">
+              {features.map((feature, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-pink-500/20 flex items-center justify-center">
+                    <Check className="w-3 h-3 text-pink-500" />
+                  </div>
+                  <span className="text-zinc-300 text-sm">{feature}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Deuxième image */}
+            <div className="relative">
+              <img 
+                src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Mia/Profil/mia-rebel-profil-1.webp" 
+                alt="Model 2"
+                className="w-full rounded-3xl object-cover"
+              />
             </div>
           </div>
         </div>
 
-        {/* Trust Badges - Plus compact */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto pt-6 border-t border-white/5">
-          <div className="flex flex-col items-center text-center space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/10 flex items-center justify-center border border-green-500/20">
+        {/* Footer - Trust badges */}
+        <div className="mt-12 pt-8 border-t border-white/5">
+          <div className="flex flex-wrap items-center justify-center gap-8">
+            <div className="flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-green-500" />
+              <div>
+                <p className="text-white text-xs font-bold">Antivirus</p>
+                <p className="text-zinc-500 text-[10px]">Sécurisé</p>
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] font-bold text-white">{t('trust.antivirus')}</p>
-              <p className="text-[9px] text-zinc-500">{t('trust.antivirusDesc')}</p>
-            </div>
-          </div>
-          <div className="flex flex-col items-center text-center space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center border border-blue-500/20">
+            <div className="flex items-center gap-2">
               <Lock className="w-5 h-5 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-white">{t('trust.privacy')}</p>
-              <p className="text-[9px] text-zinc-500">{t('trust.privacyDesc')}</p>
-            </div>
-          </div>
-          <div className="flex flex-col items-center text-center space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 flex items-center justify-center border border-purple-500/20">
-              <Clock className="w-5 h-5 text-purple-500" />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-white">{t('trust.cancel')}</p>
-              <p className="text-[9px] text-zinc-500">{t('trust.cancelDesc')}</p>
+              <div>
+                <p className="text-white text-xs font-bold">Confidentialité</p>
+                <p className="text-zinc-500 text-[10px]">bancaire</p>
+              </div>
             </div>
           </div>
-          <div className="flex flex-col items-center text-center space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-600/10 flex items-center justify-center border border-pink-500/20">
-              <Zap className="w-5 h-5 text-pink-500" />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-white">{t('trust.instant')}</p>
-              <p className="text-[9px] text-zinc-500">{t('trust.instantDesc')}</p>
-            </div>
-          </div>
-        </div>
 
-        {/* Footer réassurance - Plus compact */}
-        <div className="text-center mt-6 pt-4 border-t border-white/5">
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <CreditCard className="w-4 h-4 text-zinc-600" />
-              <span className="text-[10px] text-zinc-500">{t('trust.cards')}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Shield className="w-4 h-4 text-zinc-600" />
-              <span className="text-[10px] text-zinc-500">{t('trust.ssl')}</span>
-            </div>
-          </div>
+          {/* Mentions légales */}
+          <p className="text-center text-zinc-600 text-[10px] mt-6">
+            EverAI Limited, Nr. C107181, 56 Central Business Centre,<br />
+            Triq is-Soll, Santa Venera SVR 1833, Malta
+          </p>
         </div>
       </div>
     </div>
