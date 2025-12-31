@@ -2,17 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Drop, Model } from '@/types/database'
-import { Heart, MessageCircle, Play, ArrowLeft, MessageSquare, Sparkles, ImageIcon, Film, X } from 'lucide-react'
+import { Heart, MessageCircle, Play, ArrowLeft, MessageSquare, Sparkles, ImageIcon, Film, X, Lock } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export default function ModelProfilePage() {
   const t = useTranslations('sugarfeed')
   const params = useParams()
+  const router = useRouter()
   const locale = params.locale as string
   const modelId = params.modelId as string
   
@@ -21,12 +22,31 @@ export default function ModelProfilePage() {
   const [loading, setLoading] = useState(true)
   const [selectedDrop, setSelectedDrop] = useState<Drop | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
+  const [userPlan, setUserPlan] = useState<string>('free')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [activeTab, setActiveTab] = useState<'all' | 'dropsy'>('all')
+
+  const isPremium = userPlan === 'soft' || userPlan === 'unleashed'
+  const FREE_POSTS_LIMIT = 3
 
   useEffect(() => {
     const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) setUserId(user.id)
+      if (user) {
+        setUserId(user.id)
+        setIsAuthenticated(true)
+        
+        // Get user plan
+        const { data: userData } = await supabase
+          .from('users')
+          .select('plan')
+          .eq('id', user.id)
+          .single()
+        
+        if (userData) {
+          setUserPlan(userData.plan || 'free')
+        }
+      }
 
       const { data: modelData } = await supabase
         .from('models')
@@ -250,70 +270,102 @@ export default function ModelProfilePage() {
           </motion.div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-            {displayedDrops.map((drop, index) => (
-              <motion.div
-                key={drop.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
-                className="relative aspect-[3/4] group cursor-pointer"
-                onClick={() => setSelectedDrop({ ...drop, model })}
-              >
-                {/* Card avec bordure dégradée */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-pink-500/50 to-purple-500/50 p-[1px]">
-                  <div className="w-full h-full rounded-2xl overflow-hidden bg-zinc-900">
-                    {drop.media_type === 'video' ? (
-                      <>
-                        <video
+            {displayedDrops.map((drop, index) => {
+              const isLocked = !isPremium && index >= FREE_POSTS_LIMIT
+              const canClick = isAuthenticated && (isPremium || index < FREE_POSTS_LIMIT)
+              
+              return (
+                <motion.div
+                  key={drop.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`relative aspect-[3/4] group ${canClick ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      router.push(`/${locale}?auth=register`)
+                    } else if (canClick) {
+                      setSelectedDrop({ ...drop, model })
+                    } else {
+                      router.push(`/${locale}/subscriptions`)
+                    }
+                  }}
+                >
+                  {/* Card avec bordure dégradée */}
+                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br from-pink-500/50 to-purple-500/50 p-[1px] ${isLocked ? 'blur-lg' : ''}`}>
+                    <div className="w-full h-full rounded-2xl overflow-hidden bg-zinc-900">
+                      {drop.media_type === 'video' ? (
+                        <>
+                          <video
+                            src={drop.media_url}
+                            className="w-full h-full object-cover"
+                            muted
+                            loop
+                            playsInline
+                            onMouseEnter={(e) => !isLocked && e.currentTarget.play()}
+                            onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
+                          />
+                          {/* Badge vidéo */}
+                          <div className="absolute top-3 right-3 bg-purple-500 p-2 rounded-xl shadow-lg">
+                            <Play className="w-4 h-4 text-white" fill="white" />
+                          </div>
+                        </>
+                      ) : (
+                        <Image
                           src={drop.media_url}
-                          className="w-full h-full object-cover"
-                          muted
-                          loop
-                          playsInline
-                          onMouseEnter={(e) => e.currentTarget.play()}
-                          onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
+                          alt={drop.caption || 'Drop'}
+                          fill
+                          className="object-cover"
                         />
-                        {/* Badge vidéo */}
-                        <div className="absolute top-3 right-3 bg-purple-500 p-2 rounded-xl shadow-lg">
-                          <Play className="w-4 h-4 text-white" fill="white" />
-                        </div>
-                      </>
-                    ) : (
-                      <Image
-                        src={drop.media_url}
-                        alt={drop.caption || 'Drop'}
-                        fill
-                        className="object-cover"
-                      />
-                    )}
+                      )}
 
-                    {/* Hover Overlay avec stats */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1.5 text-white">
-                          <Heart className="w-5 h-5 text-pink-400" fill="currentColor" />
-                          <span className="font-bold text-sm">{formatCount(drop.likes_count)}</span>
+                      {/* Hover Overlay avec stats (only for accessible posts) */}
+                      {canClick && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4">
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1.5 text-white">
+                              <Heart className="w-5 h-5 text-pink-400" fill="currentColor" />
+                              <span className="font-bold text-sm">{formatCount(drop.likes_count)}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-white">
+                              <MessageCircle className="w-5 h-5 text-blue-400" />
+                              <span className="font-bold text-sm">{formatCount(drop.comments_count)}</span>
+                            </div>
+                          </div>
+                          {drop.caption && (
+                            <p className="text-white/80 text-xs mt-2 line-clamp-2">{drop.caption}</p>
+                          )}
                         </div>
-                        <div className="flex items-center gap-1.5 text-white">
-                          <MessageCircle className="w-5 h-5 text-blue-400" />
-                          <span className="font-bold text-sm">{formatCount(drop.comments_count)}</span>
+                      )}
+
+                      {/* Pinned */}
+                      {drop.is_pinned && !isLocked && (
+                        <div className="absolute top-3 left-3 bg-amber-500 px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+                          📌
                         </div>
-                      </div>
-                      {drop.caption && (
-                        <p className="text-white/80 text-xs mt-2 line-clamp-2">{drop.caption}</p>
                       )}
                     </div>
-
-                    {/* Pinned */}
-                    {drop.is_pinned && (
-                      <div className="absolute top-3 left-3 bg-amber-500 px-2 py-1 rounded-full text-xs font-bold shadow-lg">
-                        📌
-                      </div>
-                    )}
                   </div>
-                </div>
-              </motion.div>
-            ))}
+
+                  {/* Lock Overlay for non-premium */}
+                  {isLocked && (
+                    <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center mb-2">
+                        <Lock className="w-6 h-6 text-white" />
+                      </div>
+                      <p className="text-white font-bold text-sm">Premium</p>
+                    </div>
+                  )}
+
+                  {/* Not authenticated overlay */}
+                  {!isAuthenticated && !isLocked && (
+                    <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <p className="text-white font-bold text-sm text-center px-2">Inscris-toi pour voir</p>
+                    </div>
+                  )}
+                </motion.div>
+              )
+            })}
           </div>
         )}
       </div>

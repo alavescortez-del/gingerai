@@ -2,29 +2,49 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Drop } from '@/types/database'
-import { Heart, MessageCircle, Play, Grid3X3 } from 'lucide-react'
+import { Heart, MessageCircle, Play, Grid3X3, Lock, Gem } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export default function SugarFeedPage() {
   const t = useTranslations('sugarfeed')
   const params = useParams()
+  const router = useRouter()
   const locale = params.locale as string
   
   const [drops, setDrops] = useState<Drop[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedDrop, setSelectedDrop] = useState<Drop | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
+  const [userPlan, setUserPlan] = useState<string>('free')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  const isPremium = userPlan === 'soft' || userPlan === 'unleashed'
+  const FREE_POSTS_LIMIT = 3
 
   useEffect(() => {
     const fetchData = async () => {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) setUserId(user.id)
+      if (user) {
+        setUserId(user.id)
+        setIsAuthenticated(true)
+        
+        // Get user plan
+        const { data: userData } = await supabase
+          .from('users')
+          .select('plan')
+          .eq('id', user.id)
+          .single()
+        
+        if (userData) {
+          setUserPlan(userData.plan || 'free')
+        }
+      }
 
       // Fetch all drops with model info
       const { data: dropsData } = await supabase
@@ -131,55 +151,87 @@ export default function SugarFeedPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
-            {drops.map((drop, index) => (
-              <motion.div
-                key={drop.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="relative aspect-[3/4] group cursor-pointer"
-                onClick={() => setSelectedDrop(drop)}
-              >
-                {/* Media */}
-                <div className="absolute inset-0 bg-zinc-900 rounded-lg overflow-hidden">
-                  {drop.media_type === 'video' ? (
-                    <>
-                      <video
+            {drops.map((drop, index) => {
+              const isLocked = !isPremium && index >= FREE_POSTS_LIMIT
+              const canClick = isAuthenticated && (isPremium || index < FREE_POSTS_LIMIT)
+              
+              return (
+                <motion.div
+                  key={drop.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`relative aspect-[3/4] group ${canClick ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      router.push(`/${locale}?auth=register`)
+                    } else if (canClick) {
+                      setSelectedDrop(drop)
+                    } else {
+                      router.push(`/${locale}/subscriptions`)
+                    }
+                  }}
+                >
+                  {/* Media */}
+                  <div className={`absolute inset-0 bg-zinc-900 rounded-lg overflow-hidden ${isLocked ? 'blur-lg' : ''}`}>
+                    {drop.media_type === 'video' ? (
+                      <>
+                        <video
+                          src={drop.media_url}
+                          className="w-full h-full object-cover"
+                          muted
+                          loop
+                          playsInline
+                          onMouseEnter={(e) => !isLocked && e.currentTarget.play()}
+                          onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
+                        />
+                        <div className="absolute top-2 right-2">
+                          <Play className="w-5 h-5 text-white drop-shadow-lg" fill="white" />
+                        </div>
+                      </>
+                    ) : (
+                      <Image
                         src={drop.media_url}
-                        className="w-full h-full object-cover"
-                        muted
-                        loop
-                        playsInline
-                        onMouseEnter={(e) => e.currentTarget.play()}
-                        onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
+                        alt={drop.caption || 'Drop'}
+                        fill
+                        className="object-cover"
                       />
-                      <div className="absolute top-2 right-2">
-                        <Play className="w-5 h-5 text-white drop-shadow-lg" fill="white" />
-                      </div>
-                    </>
-                  ) : (
-                    <Image
-                      src={drop.media_url}
-                      alt={drop.caption || 'Drop'}
-                      fill
-                      className="object-cover"
-                    />
-                  )}
-                </div>
+                    )}
+                  </div>
 
-                {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-6">
-                  <div className="flex items-center gap-2 text-white font-bold">
-                    <Heart className="w-6 h-6" fill="white" />
-                    <span>{formatCount(drop.likes_count)}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-white font-bold">
-                    <MessageCircle className="w-6 h-6" fill="white" />
-                    <span>{formatCount(drop.comments_count)}</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                  {/* Lock Overlay for non-premium */}
+                  {isLocked && (
+                    <div className="absolute inset-0 rounded-lg flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center mb-2">
+                        <Lock className="w-6 h-6 text-white" />
+                      </div>
+                      <p className="text-white font-bold text-sm">Premium</p>
+                    </div>
+                  )}
+
+                  {/* Not authenticated overlay */}
+                  {!isAuthenticated && !isLocked && (
+                    <div className="absolute inset-0 rounded-lg flex flex-col items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <p className="text-white font-bold text-sm text-center px-2">Inscris-toi pour voir</p>
+                    </div>
+                  )}
+
+                  {/* Hover Overlay (only for accessible posts) */}
+                  {canClick && (
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-6">
+                      <div className="flex items-center gap-2 text-white font-bold">
+                        <Heart className="w-6 h-6" fill="white" />
+                        <span>{formatCount(drop.likes_count)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-white font-bold">
+                        <MessageCircle className="w-6 h-6" fill="white" />
+                        <span>{formatCount(drop.comments_count)}</span>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )
+            })}
           </div>
         )}
       </div>
