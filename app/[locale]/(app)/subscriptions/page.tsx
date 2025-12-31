@@ -53,15 +53,13 @@ export default function SubscriptionsPage() {
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
           
           {/* Colonne gauche - Image du modèle */}
-          {modelImages[0] && (
-            <div className="hidden lg:block w-[280px] shrink-0">
-              <img 
-                src={modelImages[0]} 
-                alt="Model"
-                className="w-full rounded-3xl object-cover aspect-[3/4]"
-              />
-            </div>
-          )}
+          <div className="hidden lg:block w-[280px] shrink-0">
+            <img 
+              src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Lily/Photos/promote-lily.webp" 
+              alt="Model"
+              className="w-full rounded-3xl object-cover"
+            />
+          </div>
 
           {/* Colonne centrale - Choix abonnement + Paiement */}
           <div className="flex-1 max-w-md mx-auto lg:mx-0">
@@ -220,12 +218,6 @@ export default function SubscriptionsPage() {
               </div>
             </div>
           </div>
-
-          {/* Mentions légales */}
-          <p className="text-center text-zinc-600 text-[10px] mt-6">
-            EverAI Limited, Nr. C107181, 56 Central Business Centre,<br />
-            Triq is-Soll, Santa Venera SVR 1833, Malta
-          </p>
         </div>
       </div>
     </div>
