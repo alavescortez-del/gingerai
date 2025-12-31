@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Check, CreditCard, Landmark, ShieldCheck, Lock } from 'lucide-react'
+import { Check, CreditCard, Landmark, ShieldCheck, Lock, Shield } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 
@@ -109,58 +109,67 @@ export default function SubscriptionsPage() {
               ))}
             </div>
 
-            {/* Réassurances - Textes verts */}
+            {/* Réassurances - Textes avec boucliers */}
             <div className="space-y-2 mb-6">
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-500" />
+              <div className="flex items-start gap-2">
+                <div className="shrink-0 w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center mt-0.5">
+                  <Shield className="w-3 h-3 text-green-500" />
+                </div>
                 <span className="text-zinc-300 text-xs">Aucune transaction en lien avec un contenu Adulte sur votre relevé bancaire</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-500" />
+              <div className="flex items-start gap-2">
+                <div className="shrink-0 w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center mt-0.5">
+                  <Shield className="w-3 h-3 text-green-500" />
+                </div>
                 <span className="text-zinc-300 text-xs">Pas de frais cachés • Annulez l'abonnement à tout moment</span>
               </div>
             </div>
 
-            {/* Boutons de paiement */}
-            <div className="space-y-3">
+            {/* Boutons de paiement - Plus compacts */}
+            <div className="space-y-2">
               {/* Carte bancaire */}
-              <button className="w-full py-4 px-6 bg-gradient-to-r from-pink-600 to-rose-600 rounded-2xl text-white font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-opacity shadow-lg shadow-pink-600/20">
+              <button className="w-full py-3 px-5 bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-md shadow-pink-600/20">
                 <span>Payer avec Carte Bancaire</span>
                 <div className="flex items-center gap-1">
                   <div className="bg-white rounded px-1 py-0.5">
-                    <span className="text-blue-600 font-bold text-xs">VISA</span>
+                    <span className="text-blue-600 font-bold text-[10px]">VISA</span>
                   </div>
                   <div className="bg-white rounded px-1 py-0.5">
                     <div className="flex">
-                      <div className="w-3 h-3 rounded-full bg-red-500 -mr-1" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-500 -mr-1" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
                     </div>
                   </div>
                 </div>
               </button>
 
               {/* Virement bancaire */}
-              <button className="w-full py-4 px-6 bg-zinc-800 border border-white/10 rounded-2xl text-white font-bold flex items-center justify-center gap-3 hover:bg-zinc-700 transition-colors">
+              <button className="w-full py-3 px-5 bg-zinc-800 border border-white/10 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-zinc-700 transition-colors">
                 <span>Paiement Bancaire Instantané</span>
-                <Landmark className="w-5 h-5" />
+                <Landmark className="w-4 h-4" />
               </button>
 
               {/* Crypto */}
-              <button className="w-full py-4 px-6 bg-zinc-800 border border-white/10 rounded-2xl text-white font-bold flex items-center justify-center gap-3 hover:bg-zinc-700 transition-colors">
+              <button className="w-full py-3 px-5 bg-zinc-800 border border-white/10 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-zinc-700 transition-colors">
                 <span>Payer avec</span>
                 <div className="flex items-center gap-1">
-                  <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">₿</span>
+                  <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">₿</span>
                   </div>
-                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
-                    <span className="text-white text-[10px] font-bold">Ξ</span>
+                  <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
+                    <span className="text-white text-[9px] font-bold">Ξ</span>
                   </div>
-                  <div className="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center">
-                    <span className="text-white text-[10px] font-bold">Ł</span>
+                  <div className="w-5 h-5 rounded-full bg-gray-400 flex items-center justify-center">
+                    <span className="text-white text-[9px] font-bold">Ł</span>
                   </div>
                 </div>
               </button>
             </div>
+
+            {/* Info prélèvement */}
+            <p className="text-center text-zinc-500 text-xs mt-4">
+              Prélèvement mensuel • Renouvellement automatique • Résiliable à tout moment
+            </p>
 
           </div>
 
