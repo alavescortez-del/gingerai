@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
-import { Drop, Model } from '@/types/database'
+import { Drop } from '@/types/database'
 import { Heart, MessageCircle, Play, Grid3X3, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -16,7 +16,6 @@ export default function SugarFeedPage() {
   const locale = params.locale as string
   
   const [drops, setDrops] = useState<Drop[]>([])
-  const [models, setModels] = useState<Model[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedDrop, setSelectedDrop] = useState<Drop | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
@@ -26,14 +25,6 @@ export default function SugarFeedPage() {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser()
       if (user) setUserId(user.id)
-
-      // Fetch all models
-      const { data: modelsData } = await supabase
-        .from('models')
-        .select('*')
-        .order('name')
-
-      if (modelsData) setModels(modelsData)
 
       // Fetch all drops with model info
       const { data: dropsData } = await supabase
@@ -133,37 +124,7 @@ export default function SugarFeedPage() {
         </div>
       </div>
 
-      {/* Stories / Models Row */}
-      <div className="border-b border-white/5 bg-black/50">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-            {models.map((model) => (
-              <Link
-                key={model.id}
-                href={`/${locale}/sugarfeed/${model.id}`}
-                className="flex flex-col items-center gap-2 shrink-0"
-              >
-                <div className="relative">
-                  <div className="absolute -inset-1 bg-gradient-to-br from-pink-500 via-rose-500 to-fuchsia-500 rounded-full" />
-                  <div className="relative w-16 h-16 rounded-full border-2 border-black overflow-hidden">
-                    <Image
-                      src={model.avatar_url}
-                      alt={model.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-                <span className="text-xs text-zinc-400 font-medium truncate max-w-[70px]">
-                  {model.name}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Feed Grid */}
+      {/* Feed Grid - Masonry Style */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         {drops.length === 0 ? (
           <div className="text-center py-20">
@@ -222,23 +183,6 @@ export default function SugarFeedPage() {
                     <span>{formatCount(drop.comments_count)}</span>
                   </div>
                 </div>
-
-                {/* Model Avatar (bottom left) */}
-                <Link
-                  href={`/${locale}/sugarfeed/${drop.model_id}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="absolute bottom-2 left-2 z-10"
-                >
-                  <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-lg">
-                    <Image
-                      src={drop.model?.avatar_url || ''}
-                      alt={drop.model?.name || ''}
-                      width={32}
-                      height={32}
-                      className="object-cover"
-                    />
-                  </div>
-                </Link>
               </motion.div>
             ))}
           </div>
