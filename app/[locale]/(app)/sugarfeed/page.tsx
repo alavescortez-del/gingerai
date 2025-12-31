@@ -7,7 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Drop } from '@/types/database'
-import { Heart, MessageCircle, Play, Grid3X3, Sparkles } from 'lucide-react'
+import { Heart, MessageCircle, Play, Grid3X3 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export default function SugarFeedPage() {
@@ -106,20 +106,15 @@ export default function SugarFeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-gradient-to-b from-purple-950/50 via-black to-black">
       {/* Header */}
-      <div className="sticky top-16 z-30 bg-black/90 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-black text-white">SugarFeed</h1>
-                <p className="text-xs text-zinc-500">{t('subtitle')}</p>
-              </div>
-            </div>
+      <div className="sticky top-16 z-30 bg-gradient-to-r from-purple-900/80 via-pink-900/80 to-rose-900/80 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+              Sugar<span className="text-pink-400">Feed</span>
+            </h1>
+            <p className="text-sm text-white/60 mt-1">{t('subtitle')}</p>
           </div>
         </div>
       </div>
