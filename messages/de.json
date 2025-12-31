@@ -26,11 +26,27 @@
     "home": "Startseite",
     "scenarios": "Szenarien",
     "contacts": "Kontakte",
+    "sugarfeed": "SugarFeed",
     "subscriptions": "Abonnements",
     "premium": "Premium",
     "login": "Anmelden",
     "register": "Registrieren",
     "logout": "Abmelden"
+  },
+  "sugarfeed": {
+    "subtitle": "Die neuesten Momente deiner Models",
+    "posts": "Beiträge",
+    "followers": "Follower",
+    "likes": "Gefällt mir",
+    "message": "Nachricht",
+    "follow": "Folgen",
+    "viewComments": "Alle {count} Kommentare ansehen",
+    "empty": {
+      "title": "Keine Beiträge",
+      "description": "Die Models haben noch keine Inhalte geteilt"
+    },
+    "noPosts": "Keine Beiträge",
+    "noReels": "Keine Dropsy"
   },
   "home": {
     "hero": {

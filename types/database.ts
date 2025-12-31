@@ -18,6 +18,8 @@ export interface Model {
   show_video?: string
   chat_avatar_url?: string
   photo_folder_path?: string
+  bio?: string
+  followers_count?: number
   persona_prompt: string
   speaking_style: string
   personality_traits: {
@@ -109,6 +111,42 @@ export interface CreditTransaction {
   type: 'purchase' | 'spend' | 'bonus'
   description: string
   created_at: string
+}
+
+// SugarFeed Types
+export interface Drop {
+  id: string
+  model_id: string
+  media_url: string
+  media_type: 'image' | 'video'
+  caption?: string
+  likes_count: number
+  comments_count: number
+  is_pinned: boolean
+  created_at: string
+  updated_at: string
+  model?: Model
+  is_liked?: boolean
+}
+
+export interface DropLike {
+  id: string
+  drop_id: string
+  user_id: string
+  created_at: string
+}
+
+export interface DropComment {
+  id: string
+  drop_id: string
+  user_id: string
+  content: string
+  created_at: string
+  updated_at: string
+  user?: {
+    id: string
+    email: string
+  }
 }
 
 export type Database = {

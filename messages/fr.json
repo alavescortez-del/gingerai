@@ -26,11 +26,27 @@
     "home": "Accueil",
     "scenarios": "Scénarios",
     "contacts": "Contacts",
+    "sugarfeed": "SugarFeed",
     "subscriptions": "Abonnements",
     "premium": "Premium",
     "login": "Connexion",
     "register": "S'inscrire",
     "logout": "Déconnexion"
+  },
+  "sugarfeed": {
+    "subtitle": "Les derniers moments de tes modèles",
+    "posts": "Publications",
+    "followers": "Followers",
+    "likes": "J'aime",
+    "message": "Message",
+    "follow": "Suivre",
+    "viewComments": "Voir les {count} commentaires",
+    "empty": {
+      "title": "Aucune publication",
+      "description": "Les modèles n'ont pas encore partagé de contenu"
+    },
+    "noPosts": "Aucune publication",
+    "noReels": "Aucun Dropsy"
   },
   "home": {
     "hero": {
