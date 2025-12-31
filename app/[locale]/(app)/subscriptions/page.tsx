@@ -56,22 +56,15 @@ export default function SubscriptionsPage() {
           
           {/* Colonne gauche - Image du modèle */}
           <div className="hidden lg:block w-[280px] shrink-0">
-            {!imageError ? (
-              <div className="relative w-full h-[400px]">
-                <Image 
-                  src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Lily/Photos/promote-lily.webp" 
-                  alt="Model"
-                  fill
-                  className="rounded-3xl object-cover"
-                  onError={() => setImageError(true)}
-                  unoptimized
-                />
-              </div>
-            ) : (
-              <div className="w-full h-[400px] bg-zinc-800 rounded-3xl flex items-center justify-center">
-                <span className="text-zinc-500 text-sm">Image non disponible</span>
-              </div>
-            )}
+            <img 
+              src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Lily/Photos/promote-lily.webp" 
+              alt="Model"
+              className="w-full rounded-3xl object-cover"
+              onError={(e) => {
+                console.error('Image error:', e)
+                setImageError(true)
+              }}
+            />
           </div>
 
           {/* Colonne centrale - Choix abonnement + Paiement */}
