@@ -269,7 +269,7 @@ export default function ModelProfilePage() {
             </p>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+          <div className="grid grid-cols-3 gap-2 md:gap-4">
             {displayedDrops.map((drop, index) => {
               const isLocked = !isPremium && index >= FREE_POSTS_LIMIT
               const canClick = isAuthenticated && (isPremium || index < FREE_POSTS_LIMIT)
