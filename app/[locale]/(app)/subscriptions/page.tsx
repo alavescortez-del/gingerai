@@ -5,6 +5,7 @@ import { Check, CreditCard, Landmark, ShieldCheck, Lock } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import Image from 'next/image'
 
 type PlanId = 'soft' | 'unleashed'
 
@@ -12,6 +13,7 @@ export default function SubscriptionsPage() {
   const t = useTranslations('subscriptions')
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('soft')
   const [modelImages, setModelImages] = useState<string[]>([])
+  const [imageError, setImageError] = useState(false)
 
   // Charger des images de modèles aléatoires
   useEffect(() => {
@@ -54,11 +56,22 @@ export default function SubscriptionsPage() {
           
           {/* Colonne gauche - Image du modèle */}
           <div className="hidden lg:block w-[280px] shrink-0">
-            <img 
-              src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Lily/Photos/promote-lily.webp" 
-              alt="Model"
-              className="w-full rounded-3xl object-cover"
-            />
+            {!imageError ? (
+              <div className="relative w-full h-[400px]">
+                <Image 
+                  src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Lily/Photos/promote-lily.webp" 
+                  alt="Model"
+                  fill
+                  className="rounded-3xl object-cover"
+                  onError={() => setImageError(true)}
+                  unoptimized
+                />
+              </div>
+            ) : (
+              <div className="w-full h-[400px] bg-zinc-800 rounded-3xl flex items-center justify-center">
+                <span className="text-zinc-500 text-sm">Image non disponible</span>
+              </div>
+            )}
           </div>
 
           {/* Colonne centrale - Choix abonnement + Paiement */}
@@ -191,11 +204,15 @@ export default function SubscriptionsPage() {
 
             {/* Deuxième image */}
             {modelImages[1] && (
-              <img 
-                src={modelImages[1]} 
-                alt="Model 2"
-                className="w-full rounded-3xl object-cover aspect-[3/4]"
-              />
+              <div className="relative w-full h-[350px]">
+                <Image 
+                  src={modelImages[1]} 
+                  alt="Model 2"
+                  fill
+                  className="rounded-3xl object-cover"
+                  unoptimized
+                />
+              </div>
             )}
           </div>
         </div>
