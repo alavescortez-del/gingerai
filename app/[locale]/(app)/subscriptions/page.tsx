@@ -3,28 +3,14 @@
 import { motion } from 'framer-motion'
 import { Check, CreditCard, Landmark, ShieldCheck, Lock } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
-import Image from 'next/image'
+import { useState } from 'react'
 
 type PlanId = 'soft' | 'unleashed'
 
 export default function SubscriptionsPage() {
   const t = useTranslations('subscriptions')
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('soft')
-  const [modelImages, setModelImages] = useState<string[]>([])
   const [imageError, setImageError] = useState(false)
-
-  // Charger des images de modèles aléatoires
-  useEffect(() => {
-    const fetchModels = async () => {
-      const { data } = await supabase.from('models').select('avatar_url').limit(2)
-      if (data && data.length > 0) {
-        setModelImages(data.map(m => m.avatar_url))
-      }
-    }
-    fetchModels()
-  }, [])
 
   const plans = [
     {
@@ -196,17 +182,11 @@ export default function SubscriptionsPage() {
             </div>
 
             {/* Deuxième image */}
-            {modelImages[1] && (
-              <div className="relative w-full h-[350px]">
-                <Image 
-                  src={modelImages[1]} 
-                  alt="Model 2"
-                  fill
-                  className="rounded-3xl object-cover"
-                  unoptimized
-                />
-              </div>
-            )}
+            <img 
+              src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Emma/emma-promote.webp" 
+              alt="Model Emma"
+              className="w-full h-auto rounded-3xl object-cover shadow-2xl"
+            />
           </div>
         </div>
 
