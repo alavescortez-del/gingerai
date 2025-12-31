@@ -167,9 +167,27 @@ export default function SubscriptionsPage() {
             </div>
 
             {/* Info prélèvement */}
-            <p className="text-center text-zinc-500 text-xs mt-4">
+            <p className="text-center text-zinc-500 text-xs mt-4 mb-6">
               Prélèvement mensuel • Renouvellement automatique • Résiliable à tout moment
             </p>
+
+            {/* Trust badges - Style Candy.ai */}
+            <div className="flex items-center justify-center gap-8 pt-4">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-2">
+                  <ShieldCheck className="w-7 h-7 text-white" />
+                </div>
+                <p className="text-white text-xs font-bold">Antivirus</p>
+                <p className="text-zinc-500 text-[10px]">Sécurisé</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-2">
+                  <Lock className="w-7 h-7 text-white" />
+                </div>
+                <p className="text-white text-xs font-bold">Confidentialité</p>
+                <p className="text-zinc-500 text-[10px]">bancaire</p>
+              </div>
+            </div>
 
           </div>
 
@@ -196,26 +214,6 @@ export default function SubscriptionsPage() {
               alt="Model Emma"
               className="w-full h-auto rounded-3xl object-cover shadow-2xl"
             />
-          </div>
-        </div>
-
-        {/* Footer - Trust badges */}
-        <div className="mt-12 pt-8 border-t border-white/5">
-          <div className="flex flex-wrap items-center justify-center gap-8">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-green-500" />
-              <div>
-                <p className="text-white text-xs font-bold">Antivirus</p>
-                <p className="text-zinc-500 text-[10px]">Sécurisé</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Lock className="w-5 h-5 text-blue-500" />
-              <div>
-                <p className="text-white text-xs font-bold">Confidentialité</p>
-                <p className="text-zinc-500 text-[10px]">bancaire</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
