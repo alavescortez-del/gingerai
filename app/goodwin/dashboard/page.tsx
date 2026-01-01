@@ -46,11 +46,26 @@ interface Drop {
   media_url: string
   media_type: 'image' | 'video'
   caption?: string
+  tags?: string[]
   likes_count: number
   comments_count: number
   is_pinned: boolean
   created_at: string
 }
+
+// Tags suggérés pour les publications
+const SUGGESTED_TAGS = [
+  // Corps
+  'fesses', 'seins', 'jambes', 'pieds', 'dos', 'ventre', 'visage',
+  // Tenues
+  'lingerie', 'bikini', 'legging', 'robe', 'jupe', 'crop-top', 'nude', 'sous-vêtements',
+  // Activités
+  'workout', 'yoga', 'selfie', 'miroir', 'plage', 'piscine', 'douche', 'lit',
+  // Style
+  'sexy', 'cute', 'provocant', 'naturel', 'artistique',
+  // Couleurs
+  'noir', 'blanc', 'rouge', 'rose', 'bleu', 'vert',
+]
 
 // Translation helper function
 async function translateTexts(texts: { field: string; value: string }[]): Promise<Record<string, Record<string, string>>> {
@@ -96,10 +111,21 @@ export default function AdminDashboard() {
   const [editingScenario, setEditingScenario] = useState<Scenario | null>(null)
   const [editingDrop, setEditingDrop] = useState<Drop | null>(null)
   const [translating, setTranslating] = useState(false)
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [customTag, setCustomTag] = useState('')
 
   useEffect(() => {
     checkAdmin()
   }, [])
+
+  // Load tags when editing a drop
+  useEffect(() => {
+    if (editingDrop?.tags) {
+      setSelectedTags(editingDrop.tags)
+    } else {
+      setSelectedTags([])
+    }
+  }, [editingDrop])
 
   const checkAdmin = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -265,6 +291,7 @@ export default function AdminDashboard() {
       media_url: form.media_url.value,
       media_type: form.media_type.value,
       caption: form.caption.value || null,
+      tags: selectedTags.length > 0 ? selectedTags : null,
       is_pinned: form.is_pinned?.checked || false
     };
 
@@ -282,7 +309,24 @@ export default function AdminDashboard() {
     } else {
       setShowDropModal(false);
       setEditingDrop(null);
+      setSelectedTags([]);
+      setCustomTag('');
       loadData();
+    }
+  }
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag) 
+        : [...prev, tag]
+    );
+  }
+
+  const addCustomTag = () => {
+    if (customTag.trim() && !selectedTags.includes(customTag.trim().toLowerCase())) {
+      setSelectedTags(prev => [...prev, customTag.trim().toLowerCase()]);
+      setCustomTag('');
     }
   }
 
@@ -581,6 +625,19 @@ export default function AdminDashboard() {
                             )}
                           </div>
                         </div>
+                        {/* Tags display */}
+                        {drop.tags && drop.tags.length > 0 && (
+                          <div className="px-3 py-2 border-t border-white/5 flex flex-wrap gap-1">
+                            {drop.tags.slice(0, 4).map(tag => (
+                              <span key={tag} className="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 text-[10px] font-medium">
+                                {tag}
+                              </span>
+                            ))}
+                            {drop.tags.length > 4 && (
+                              <span className="px-2 py-0.5 text-zinc-500 text-[10px]">+{drop.tags.length - 4}</span>
+                            )}
+                          </div>
+                        )}
                         <div className="p-3 flex gap-2">
                           <button 
                             onClick={() => { setEditingDrop(drop); setShowDropModal(true); }}
@@ -721,11 +778,11 @@ export default function AdminDashboard() {
         {/* Drop Modal */}
         {(showDropModal || editingDrop) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6 text-white">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowDropModal(false); setEditingDrop(null); }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-zinc-900 w-full max-w-xl rounded-3xl border border-white/10 p-10 overflow-y-auto max-h-[90vh]">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowDropModal(false); setEditingDrop(null); setSelectedTags([]); setCustomTag(''); }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-zinc-900 w-full max-w-2xl rounded-3xl border border-white/10 p-10 overflow-y-auto max-h-[90vh]">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-black">{editingDrop ? 'Modifier la publication' : 'Nouvelle publication'}</h2>
-                <button onClick={() => { setShowDropModal(false); setEditingDrop(null); }} className="p-2 rounded-full hover:bg-white/5"><X className="w-5 h-5" /></button>
+                <button onClick={() => { setShowDropModal(false); setEditingDrop(null); setSelectedTags([]); setCustomTag(''); }} className="p-2 rounded-full hover:bg-white/5"><X className="w-5 h-5" /></button>
               </div>
               <p className="text-sm text-zinc-500 mb-6">Pour : <span className="text-pink-400 font-bold">{selectedModel?.name}</span></p>
               <form className="space-y-5" onSubmit={handleSaveDrop}>
@@ -756,6 +813,65 @@ export default function AdminDashboard() {
                   <label className="text-xs font-bold text-zinc-500">Légende (optionnel)</label>
                   <textarea name="caption" defaultValue={editingDrop?.caption || ''} rows={2} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" />
                 </div>
+                
+                {/* Tags Section */}
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-zinc-500">🏷️ Tags (pour le tri et la personnalisation)</label>
+                  
+                  {/* Selected tags */}
+                  {selectedTags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedTags.map(tag => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => toggleTag(tag)}
+                          className="px-3 py-1.5 rounded-full bg-pink-500 text-white text-xs font-bold flex items-center gap-1.5 hover:bg-pink-400 transition-all"
+                        >
+                          {tag}
+                          <X className="w-3 h-3" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Suggested tags */}
+                  <div className="bg-zinc-800/50 rounded-xl p-4 border border-white/5">
+                    <p className="text-xs text-zinc-500 mb-3">Tags suggérés :</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {SUGGESTED_TAGS.filter(t => !selectedTags.includes(t)).map(tag => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => toggleTag(tag)}
+                          className="px-2.5 py-1 rounded-full bg-zinc-700 text-zinc-300 text-xs font-medium hover:bg-zinc-600 hover:text-white transition-all"
+                        >
+                          + {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Custom tag input */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={customTag}
+                      onChange={(e) => setCustomTag(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomTag(); } }}
+                      placeholder="Ajouter un tag personnalisé..."
+                      className="flex-1 bg-zinc-800 border border-white/5 rounded-xl px-4 py-2 focus:border-pink-500 outline-none text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={addCustomTag}
+                      className="px-4 py-2 rounded-xl bg-zinc-700 hover:bg-zinc-600 font-bold text-sm transition-all"
+                    >
+                      Ajouter
+                    </button>
+                  </div>
+                </div>
+                
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" name="is_pinned" defaultChecked={editingDrop?.is_pinned} className="w-5 h-5 rounded border-white/10 bg-zinc-800 text-amber-500" />
                   <span className="font-bold text-sm">📌 Épingler en haut</span>

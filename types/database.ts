@@ -120,6 +120,7 @@ export interface Drop {
   media_url: string
   media_type: 'image' | 'video'
   caption?: string
+  tags?: string[]
   likes_count: number
   comments_count: number
   is_pinned: boolean
