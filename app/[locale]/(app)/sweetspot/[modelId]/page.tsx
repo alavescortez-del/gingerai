@@ -1,17 +1,27 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Drop, Model } from '@/types/database'
-import { Heart, MessageCircle, Play, ArrowLeft, MessageSquare, Sparkles, ImageIcon, Film, X, Lock } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { Heart, MessageCircle, Play, ArrowLeft, MessageSquare, Sparkles, ImageIcon, Film, X, Lock, ChevronLeft, ChevronRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+// Fonction pour mélanger un tableau (Fisher-Yates shuffle)
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
 
 export default function ModelProfilePage() {
-  const t = useTranslations('sugarfeed')
+  const t = useTranslations('sweetspot')
   const params = useParams()
   const router = useRouter()
   const locale = params.locale as string
@@ -20,7 +30,7 @@ export default function ModelProfilePage() {
   const [model, setModel] = useState<Model | null>(null)
   const [drops, setDrops] = useState<Drop[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedDrop, setSelectedDrop] = useState<Drop | null>(null)
+  const [selectedDropIndex, setSelectedDropIndex] = useState<number | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const [userPlan, setUserPlan] = useState<string>('free')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -29,6 +39,13 @@ export default function ModelProfilePage() {
   const isPremium = userPlan === 'soft' || userPlan === 'unleashed'
   const FREE_POSTS_LIMIT = 3
 
+  // Filtrer selon l'onglet actif
+  const displayedDrops = activeTab === 'all' 
+    ? drops 
+    : drops.filter(d => d.media_type === 'video')
+
+  const selectedDrop = selectedDropIndex !== null ? displayedDrops[selectedDropIndex] : null
+
   useEffect(() => {
     const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -36,7 +53,6 @@ export default function ModelProfilePage() {
         setUserId(user.id)
         setIsAuthenticated(true)
         
-        // Get user plan
         const { data: userData } = await supabase
           .from('users')
           .select('plan')
@@ -60,8 +76,6 @@ export default function ModelProfilePage() {
         .from('drops')
         .select('*')
         .eq('model_id', modelId)
-        .order('is_pinned', { ascending: false })
-        .order('created_at', { ascending: false })
 
       if (dropsData && user) {
         const { data: likes } = await supabase
@@ -71,12 +85,22 @@ export default function ModelProfilePage() {
 
         const likedDropIds = new Set(likes?.map(l => l.drop_id) || [])
         
-        setDrops(dropsData.map(drop => ({
+        // Séparer les épinglés du reste, mélanger le reste
+        const pinnedDrops = dropsData.filter(d => d.is_pinned).map(drop => ({
+          ...drop,
+          is_liked: likedDropIds.has(drop.id)
+        }))
+        const otherDrops = shuffleArray(dropsData.filter(d => !d.is_pinned).map(drop => ({
           ...drop,
           is_liked: likedDropIds.has(drop.id)
         })))
+        
+        setDrops([...pinnedDrops, ...otherDrops])
       } else if (dropsData) {
-        setDrops(dropsData)
+        // Séparer les épinglés du reste, mélanger le reste
+        const pinnedDrops = dropsData.filter(d => d.is_pinned)
+        const otherDrops = shuffleArray(dropsData.filter(d => !d.is_pinned))
+        setDrops([...pinnedDrops, ...otherDrops])
       }
 
       setLoading(false)
@@ -84,6 +108,43 @@ export default function ModelProfilePage() {
 
     fetchData()
   }, [modelId])
+
+  // Navigation clavier
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedDropIndex === null) return
+      
+      if (e.key === 'ArrowLeft') {
+        navigatePrev()
+      } else if (e.key === 'ArrowRight') {
+        navigateNext()
+      } else if (e.key === 'Escape') {
+        setSelectedDropIndex(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedDropIndex, displayedDrops.length])
+
+  const navigateNext = useCallback(() => {
+    if (selectedDropIndex === null) return
+    const nextIndex = selectedDropIndex + 1
+    if (nextIndex < displayedDrops.length) {
+      const isNextLocked = !isPremium && nextIndex >= FREE_POSTS_LIMIT
+      if (!isNextLocked) {
+        setSelectedDropIndex(nextIndex)
+      }
+    }
+  }, [selectedDropIndex, displayedDrops.length, isPremium])
+
+  const navigatePrev = useCallback(() => {
+    if (selectedDropIndex === null) return
+    const prevIndex = selectedDropIndex - 1
+    if (prevIndex >= 0) {
+      setSelectedDropIndex(prevIndex)
+    }
+  }, [selectedDropIndex])
 
   const handleLike = async (dropId: string) => {
     if (!userId) return
@@ -103,9 +164,6 @@ export default function ModelProfilePage() {
           ? { ...d, is_liked: false, likes_count: d.likes_count - 1 }
           : d
       ))
-      if (selectedDrop?.id === dropId) {
-        setSelectedDrop({ ...selectedDrop, is_liked: false, likes_count: selectedDrop.likes_count - 1 })
-      }
     } else {
       await supabase
         .from('drop_likes')
@@ -116,9 +174,6 @@ export default function ModelProfilePage() {
           ? { ...d, is_liked: true, likes_count: d.likes_count + 1 }
           : d
       ))
-      if (selectedDrop?.id === dropId) {
-        setSelectedDrop({ ...selectedDrop, is_liked: true, likes_count: selectedDrop.likes_count + 1 })
-      }
     }
   }
 
@@ -128,14 +183,10 @@ export default function ModelProfilePage() {
     return count.toString()
   }
 
-  // Publications = tout, Dropsy = vidéos uniquement
-  const videoDrops = drops.filter(d => d.media_type === 'video')
-  const displayedDrops = activeTab === 'all' ? drops : videoDrops
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-950/50 via-fuchsia-950/30 to-black flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-pink-500/30 border-t-pink-500 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-950/50 via-fuchsia-950/30 to-black">
+        <div className="w-10 h-10 border-2 border-pink-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -154,12 +205,12 @@ export default function ModelProfilePage() {
       <div className="sticky top-16 z-30 bg-gradient-to-r from-purple-900/80 via-pink-900/80 to-rose-900/80 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-5xl mx-auto px-4 py-3">
           <div className="flex items-center gap-4">
-            <Link href={`/${locale}/sugarfeed`} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+            <Link href={`/${locale}/sweetspot`} className="p-2 hover:bg-white/10 rounded-full transition-colors">
               <ArrowLeft className="w-5 h-5 text-white" />
             </Link>
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-pink-400" />
-              <span className="font-black text-white">SugarFeed</span>
+              <span className="font-black text-white">SweetSpot</span>
             </div>
           </div>
         </div>
@@ -178,7 +229,6 @@ export default function ModelProfilePage() {
           
           {/* Mobile Layout: 2 colonnes */}
           <div className="relative flex md:hidden items-center gap-4">
-            {/* Avatar - gauche */}
             <div className="shrink-0 w-[72px] h-[72px] rounded-full border-2 border-white/20 overflow-hidden">
               <Image
                 src={model.avatar_url}
@@ -188,8 +238,6 @@ export default function ModelProfilePage() {
                 className="w-full h-full object-cover"
               />
             </div>
-
-            {/* Info - droite */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1.5">
                 <h1 className="text-lg font-black text-white truncate">{model.name}</h1>
@@ -201,8 +249,6 @@ export default function ModelProfilePage() {
                   DM
                 </Link>
               </div>
-              
-              {/* Stats compacts */}
               <div className="flex items-center gap-3 text-xs">
                 <span><strong className="text-white">{drops.length}</strong> <span className="text-white/50">posts</span></span>
                 <span><strong className="text-white">{formatCount(model.followers_count || 0)}</strong> <span className="text-white/50">fans</span></span>
@@ -211,9 +257,8 @@ export default function ModelProfilePage() {
             </div>
           </div>
 
-          {/* Desktop Layout: original */}
+          {/* Desktop Layout */}
           <div className="relative hidden md:flex items-center gap-8">
-            {/* Avatar */}
             <div className="shrink-0 w-[136px] h-[136px] rounded-full border-2 border-white/20 overflow-hidden">
               <Image
                 src={model.avatar_url}
@@ -223,8 +268,6 @@ export default function ModelProfilePage() {
                 className="w-full h-full object-cover"
               />
             </div>
-
-            {/* Info */}
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-black text-white">{model.name}</h1>
@@ -236,14 +279,11 @@ export default function ModelProfilePage() {
                   DM
                 </Link>
               </div>
-              
-              {/* Stats */}
               <div className="flex items-center gap-5 mb-3 text-sm">
                 <span><strong className="text-white">{drops.length}</strong> <span className="text-white/60">publications</span></span>
                 <span><strong className="text-white">{formatCount(model.followers_count || 0)}</strong> <span className="text-white/60">fans</span></span>
                 <span><strong className="text-pink-400">{formatCount(drops.reduce((acc, d) => acc + d.likes_count, 0))}</strong> <span className="text-white/60">j'aime</span></span>
               </div>
-
               {model.bio && (
                 <p className="text-white/70 text-sm max-w-lg">{model.bio}</p>
               )}
@@ -252,7 +292,7 @@ export default function ModelProfilePage() {
         </motion.div>
       </div>
 
-      {/* Tabs style Sugarush */}
+      {/* Tabs */}
       <div className="max-w-5xl mx-auto px-4 mb-6">
         <div className="flex gap-3">
           <button
@@ -277,12 +317,12 @@ export default function ModelProfilePage() {
           >
             <Film className="w-4 h-4" />
             Dropsy
-            <span className="text-xs opacity-70">({videoDrops.length})</span>
+            <span className="text-xs opacity-70">({drops.filter(d => d.media_type === 'video').length})</span>
           </button>
         </div>
       </div>
 
-      {/* Grid avec style unique */}
+      {/* Grid */}
       <div className="max-w-5xl mx-auto px-4 pb-12">
         {displayedDrops.length === 0 ? (
           <motion.div 
@@ -315,19 +355,18 @@ export default function ModelProfilePage() {
                   key={drop.id}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: Math.min(index * 0.03, 0.3) }}
                   className={`relative aspect-[3/4] group ${canClick ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                   onClick={() => {
                     if (!isAuthenticated) {
                       router.push(`/${locale}?auth=register`)
                     } else if (canClick) {
-                      setSelectedDrop({ ...drop, model })
+                      setSelectedDropIndex(index)
                     } else {
                       router.push(`/${locale}/subscriptions`)
                     }
                   }}
                 >
-                  {/* Card avec bordure dégradée */}
                   <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br from-pink-500/50 to-purple-500/50 p-[1px] ${isLocked ? 'blur-lg' : ''}`}>
                     <div className="w-full h-full rounded-2xl overflow-hidden bg-zinc-900">
                       {drop.media_type === 'video' ? (
@@ -341,7 +380,6 @@ export default function ModelProfilePage() {
                             onMouseEnter={(e) => !isLocked && e.currentTarget.play()}
                             onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
                           />
-                          {/* Badge vidéo */}
                           <div className="absolute top-3 right-3 bg-purple-500 p-2 rounded-xl shadow-lg">
                             <Play className="w-4 h-4 text-white" fill="white" />
                           </div>
@@ -355,7 +393,7 @@ export default function ModelProfilePage() {
                         />
                       )}
 
-                      {/* Hover Overlay avec stats (only for accessible posts) */}
+                      {/* Hover Overlay */}
                       {canClick && (
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4">
                           <div className="flex items-center gap-4">
@@ -383,7 +421,7 @@ export default function ModelProfilePage() {
                     </div>
                   </div>
 
-                  {/* Lock Overlay for non-premium */}
+                  {/* Lock Overlay */}
                   {isLocked && (
                     <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center mb-2">
@@ -406,95 +444,136 @@ export default function ModelProfilePage() {
         )}
       </div>
 
-      {/* Modal Drop */}
-      {selectedDrop && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
-          onClick={() => setSelectedDrop(null)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative w-full max-w-sm md:max-w-md rounded-2xl overflow-hidden max-h-[85vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
+      {/* Full Screen Modal with Navigation */}
+      <AnimatePresence>
+        {selectedDrop && selectedDropIndex !== null && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+            onClick={() => setSelectedDropIndex(null)}
           >
-            {/* Gradient border */}
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-500 to-purple-500 rounded-2xl" />
-            <div className="relative m-[2px] bg-zinc-900 rounded-2xl overflow-hidden flex flex-col max-h-[calc(85vh-4px)]">
+            {/* Close button */}
+            <button 
+              onClick={() => setSelectedDropIndex(null)}
+              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+
+            {/* Navigation Previous */}
+            {selectedDropIndex > 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); navigatePrev(); }}
+                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 text-white" />
+              </button>
+            )}
+
+            {/* Navigation Next */}
+            {selectedDropIndex < displayedDrops.length - 1 && (isPremium || selectedDropIndex + 1 < FREE_POSTS_LIMIT) && (
+              <button
+                onClick={(e) => { e.stopPropagation(); navigateNext(); }}
+                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <ChevronRight className="w-6 h-6 md:w-8 md:h-8 text-white" />
+              </button>
+            )}
+
+            {/* Content */}
+            <motion.div
+              key={selectedDrop.id}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full max-w-lg mx-auto h-full flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* Header */}
-              <div className="flex items-center justify-between p-3 border-b border-white/10 shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-pink-500">
-                    <Image
-                      src={model.avatar_url}
-                      alt={model.name}
-                      width={32}
-                      height={32}
-                      className="object-cover"
-                    />
-                  </div>
-                  <p className="font-bold text-white text-sm">{model.name}</p>
+              <div className="flex items-center gap-3 p-4 shrink-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-pink-500">
+                  <Image
+                    src={model.avatar_url}
+                    alt={model.name}
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                  />
                 </div>
-                <button 
-                  onClick={() => setSelectedDrop(null)}
-                  className="text-white/60 hover:text-white text-xl"
-                >
-                  ×
-                </button>
+                <div className="flex-1">
+                  <p className="font-bold text-white">{model.name}</p>
+                </div>
+                {/* Counter */}
+                <span className="text-white/50 text-sm">
+                  {selectedDropIndex + 1} / {isPremium ? displayedDrops.length : Math.min(displayedDrops.length, FREE_POSTS_LIMIT)}
+                </span>
               </div>
 
-              {/* Media - avec hauteur limitée */}
-              <div className="relative flex-1 min-h-0">
-                <div className="relative w-full h-full max-h-[60vh]">
-                  {selectedDrop.media_type === 'video' ? (
-                    <video
-                      src={selectedDrop.media_url}
-                      className="w-full h-full object-contain bg-black"
-                      controls
-                      autoPlay
-                      loop
-                    />
-                  ) : (
+              {/* Media */}
+              <div className="flex-1 flex items-center justify-center min-h-0 px-4">
+                {selectedDrop.media_type === 'video' ? (
+                  <video
+                    src={selectedDrop.media_url}
+                    className="max-w-full max-h-full object-contain rounded-lg"
+                    controls
+                    autoPlay
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <div className="relative w-full h-full max-h-[70vh]">
                     <Image
                       src={selectedDrop.media_url}
                       alt={selectedDrop.caption || 'Drop'}
                       fill
                       className="object-contain"
                     />
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
               {/* Actions */}
-              <div className="p-3 border-t border-white/10 shrink-0">
+              <div className="p-4 shrink-0">
                 <div className="flex items-center gap-4 mb-2">
                   <button
                     onClick={() => handleLike(selectedDrop.id)}
-                    className="transition-transform hover:scale-110"
+                    className="transition-transform hover:scale-110 active:scale-95"
                   >
                     <Heart 
-                      className={`w-6 h-6 ${selectedDrop.is_liked ? 'text-pink-500' : 'text-white'}`}
+                      className={`w-7 h-7 ${selectedDrop.is_liked ? 'text-red-500' : 'text-white'}`}
                       fill={selectedDrop.is_liked ? 'currentColor' : 'none'}
                     />
                   </button>
                   <button className="transition-transform hover:scale-110">
-                    <MessageCircle className="w-6 h-6 text-white" />
+                    <MessageCircle className="w-7 h-7 text-white" />
                   </button>
                 </div>
-                <p className="text-xs font-bold text-white">
-                  {formatCount(selectedDrop.likes_count)} j'aime
+                <p className="text-sm font-bold text-white">
+                  {formatCount(selectedDrop.likes_count)} {t('likes')}
                 </p>
                 {selectedDrop.caption && (
-                  <p className="text-xs text-zinc-300 mt-1 line-clamp-2">
+                  <p className="text-sm text-zinc-300 mt-1">
                     <span className="font-bold text-white mr-1">{model.name}</span>
                     {selectedDrop.caption}
                   </p>
                 )}
+                {selectedDrop.tags && selectedDrop.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {selectedDrop.tags.map(tag => (
+                      <span key={tag} className="px-2 py-0.5 rounded-full bg-white/10 text-white/70 text-xs">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
+            </motion.div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   )
 }

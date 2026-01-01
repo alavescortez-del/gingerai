@@ -16,7 +16,7 @@ const navItems = [
   { href: '/', labelKey: 'home', icon: Home },
   { href: '/scenarios', labelKey: 'scenarios', icon: Film },
   { href: '/contacts', labelKey: 'contacts', icon: Users },
-  { href: '/sugarfeed', labelKey: 'sugarfeed', icon: Sparkles },
+  { href: '/sweetspot', labelKey: 'sweetspot', icon: Sparkles },
   { href: '/subscriptions', labelKey: 'premium', icon: Gem, isPremium: true },
 ]
 

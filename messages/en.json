@@ -26,14 +26,14 @@
     "home": "Home",
     "scenarios": "Scenarios",
     "contacts": "Contacts",
-    "sugarfeed": "SugarFeed",
+    "sweetspot": "SweetSpot",
     "subscriptions": "Subscriptions",
     "premium": "Premium",
     "login": "Login",
     "register": "Sign up",
     "logout": "Logout"
   },
-  "sugarfeed": {
+  "sweetspot": {
     "subtitle": "Latest moments from your models",
     "posts": "Posts",
     "followers": "Followers",

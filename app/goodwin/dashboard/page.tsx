@@ -101,7 +101,7 @@ export default function AdminDashboard() {
   
   // Vue actuelle
   const [selectedModel, setSelectedModel] = useState<Model | null>(null)
-  const [modelTab, setModelTab] = useState<'infos' | 'scenarios' | 'sugarfeed'>('infos')
+  const [modelTab, setModelTab] = useState<'infos' | 'scenarios' | 'sweetspot'>('infos')
   
   // Modals
   const [showModelModal, setShowModelModal] = useState(false)
@@ -466,13 +466,13 @@ export default function AdminDashboard() {
                 <span className="text-xs opacity-60">({modelScenarios.length})</span>
               </button>
               <button 
-                onClick={() => setModelTab('sugarfeed')}
+                onClick={() => setModelTab('sweetspot')}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all ${
-                  modelTab === 'sugarfeed' ? 'bg-white text-black' : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+                  modelTab === 'sweetspot' ? 'bg-white text-black' : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <Sparkles className="w-4 h-4" />
-                SugarFeed
+                SweetSpot
                 <span className="text-xs opacity-60">({modelDrops.length})</span>
               </button>
             </div>
@@ -576,10 +576,10 @@ export default function AdminDashboard() {
               </>
             )}
 
-            {modelTab === 'sugarfeed' && (
+            {modelTab === 'sweetspot' && (
               <>
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-black">SugarFeed de {selectedModel.name}</h2>
+                  <h2 className="text-xl font-black">SweetSpot de {selectedModel.name}</h2>
                   <button 
                     onClick={() => { setEditingDrop(null); setShowDropModal(true); }}
                     className="flex items-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-2 rounded-xl font-bold hover:opacity-90 transition-all"
@@ -689,7 +689,7 @@ export default function AdminDashboard() {
                   <input name="description" defaultValue={editingModel?.description} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="Ex: Étudiante espiègle..." required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-zinc-500">Bio SugarFeed</label>
+                  <label className="text-xs font-bold text-zinc-500">Bio SweetSpot</label>
                   <textarea name="bio" defaultValue={editingModel?.bio} rows={2} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" placeholder="Bio courte..." />
                 </div>
                 <div className="grid grid-cols-2 gap-5">

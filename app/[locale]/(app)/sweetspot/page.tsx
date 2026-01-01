@@ -1,24 +1,34 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Drop } from '@/types/database'
-import { Heart, MessageCircle, Play, Grid3X3, Lock, Gem } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { Heart, MessageCircle, Play, Grid3X3, Lock, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
-export default function SugarFeedPage() {
-  const t = useTranslations('sugarfeed')
+// Fonction pour mélanger un tableau (Fisher-Yates shuffle)
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
+export default function SweetSpotPage() {
+  const t = useTranslations('sweetspot')
   const params = useParams()
   const router = useRouter()
   const locale = params.locale as string
   
   const [drops, setDrops] = useState<Drop[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedDrop, setSelectedDrop] = useState<Drop | null>(null)
+  const [selectedDropIndex, setSelectedDropIndex] = useState<number | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const [userPlan, setUserPlan] = useState<string>('free')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -26,15 +36,15 @@ export default function SugarFeedPage() {
   const isPremium = userPlan === 'soft' || userPlan === 'unleashed'
   const FREE_POSTS_LIMIT = 3
 
+  const selectedDrop = selectedDropIndex !== null ? drops[selectedDropIndex] : null
+
   useEffect(() => {
     const fetchData = async () => {
-      // Get current user
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setUserId(user.id)
         setIsAuthenticated(true)
         
-        // Get user plan
         const { data: userData } = await supabase
           .from('users')
           .select('plan')
@@ -46,17 +56,14 @@ export default function SugarFeedPage() {
         }
       }
 
-      // Fetch all drops with model info
       const { data: dropsData } = await supabase
         .from('drops')
         .select(`
           *,
           model:models(*)
         `)
-        .order('created_at', { ascending: false })
 
       if (dropsData && user) {
-        // Check which drops are liked by current user
         const { data: likes } = await supabase
           .from('drop_likes')
           .select('drop_id')
@@ -64,12 +71,15 @@ export default function SugarFeedPage() {
 
         const likedDropIds = new Set(likes?.map(l => l.drop_id) || [])
         
-        setDrops(dropsData.map(drop => ({
+        // Mélanger aléatoirement les drops
+        const shuffledDrops = shuffleArray(dropsData.map(drop => ({
           ...drop,
           is_liked: likedDropIds.has(drop.id)
         })))
+        setDrops(shuffledDrops)
       } else if (dropsData) {
-        setDrops(dropsData)
+        // Mélanger aléatoirement les drops
+        setDrops(shuffleArray(dropsData))
       }
 
       setLoading(false)
@@ -78,6 +88,44 @@ export default function SugarFeedPage() {
     fetchData()
   }, [])
 
+  // Navigation clavier
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedDropIndex === null) return
+      
+      if (e.key === 'ArrowLeft') {
+        navigatePrev()
+      } else if (e.key === 'ArrowRight') {
+        navigateNext()
+      } else if (e.key === 'Escape') {
+        setSelectedDropIndex(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedDropIndex, drops.length])
+
+  const navigateNext = useCallback(() => {
+    if (selectedDropIndex === null) return
+    const nextIndex = selectedDropIndex + 1
+    if (nextIndex < drops.length) {
+      // Vérifier si le prochain est accessible
+      const isNextLocked = !isPremium && nextIndex >= FREE_POSTS_LIMIT
+      if (!isNextLocked) {
+        setSelectedDropIndex(nextIndex)
+      }
+    }
+  }, [selectedDropIndex, drops.length, isPremium])
+
+  const navigatePrev = useCallback(() => {
+    if (selectedDropIndex === null) return
+    const prevIndex = selectedDropIndex - 1
+    if (prevIndex >= 0) {
+      setSelectedDropIndex(prevIndex)
+    }
+  }, [selectedDropIndex])
+
   const handleLike = async (dropId: string) => {
     if (!userId) return
 
@@ -85,7 +133,6 @@ export default function SugarFeedPage() {
     if (!drop) return
 
     if (drop.is_liked) {
-      // Unlike
       await supabase
         .from('drop_likes')
         .delete()
@@ -98,7 +145,6 @@ export default function SugarFeedPage() {
           : d
       ))
     } else {
-      // Like
       await supabase
         .from('drop_likes')
         .insert({ drop_id: dropId, user_id: userId })
@@ -132,14 +178,14 @@ export default function SugarFeedPage() {
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="text-center">
             <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-              Sugar<span className="text-pink-400">Feed</span>
+              Sweet<span className="text-pink-400">Spot</span>
             </h1>
             <p className="text-sm text-white/60 mt-1">{t('subtitle')}</p>
           </div>
         </div>
       </div>
 
-      {/* Feed Grid - Masonry Style */}
+      {/* Feed Grid */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         {drops.length === 0 ? (
           <div className="text-center py-20">
@@ -160,13 +206,13 @@ export default function SugarFeedPage() {
                   key={drop.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: Math.min(index * 0.03, 0.5) }}
                   className={`relative aspect-[3/4] group ${canClick ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                   onClick={() => {
                     if (!isAuthenticated) {
                       router.push(`/${locale}?auth=register`)
                     } else if (canClick) {
-                      setSelectedDrop(drop)
+                      setSelectedDropIndex(index)
                     } else {
                       router.push(`/${locale}/subscriptions`)
                     }
@@ -199,7 +245,7 @@ export default function SugarFeedPage() {
                     )}
                   </div>
 
-                  {/* Lock Overlay for non-premium */}
+                  {/* Lock Overlay */}
                   {isLocked && (
                     <div className="absolute inset-0 rounded-lg flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center mb-2">
@@ -216,7 +262,7 @@ export default function SugarFeedPage() {
                     </div>
                   )}
 
-                  {/* Hover Overlay (only for accessible posts) */}
+                  {/* Hover Overlay */}
                   {canClick && (
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-6">
                       <div className="flex items-center gap-2 text-white font-bold">
@@ -236,96 +282,140 @@ export default function SugarFeedPage() {
         )}
       </div>
 
-      {/* Drop Modal */}
-      {selectedDrop && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
-          onClick={() => setSelectedDrop(null)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative w-full max-w-sm md:max-w-md bg-zinc-900 rounded-2xl overflow-hidden max-h-[85vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
+      {/* Full Screen Modal with Navigation */}
+      <AnimatePresence>
+        {selectedDrop && selectedDropIndex !== null && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+            onClick={() => setSelectedDropIndex(null)}
           >
-            {/* Header */}
-            <div className="flex items-center gap-3 p-3 border-b border-white/10 shrink-0">
-              <Link href={`/${locale}/sugarfeed/${selectedDrop.model_id}`}>
-                <div className="w-8 h-8 rounded-full overflow-hidden">
-                  <Image
-                    src={selectedDrop.model?.avatar_url || ''}
-                    alt={selectedDrop.model?.name || ''}
-                    width={32}
-                    height={32}
-                    className="object-cover"
-                  />
-                </div>
-              </Link>
-              <div className="flex-1">
-                <Link href={`/${locale}/sugarfeed/${selectedDrop.model_id}`}>
-                  <p className="font-bold text-white text-sm hover:underline">{selectedDrop.model?.name}</p>
-                </Link>
-              </div>
-              <button 
-                onClick={() => setSelectedDrop(null)}
-                className="text-white/60 hover:text-white text-xl"
-              >
-                ×
-              </button>
-            </div>
+            {/* Close button */}
+            <button 
+              onClick={() => setSelectedDropIndex(null)}
+              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
 
-            {/* Media - avec hauteur limitée */}
-            <div className="relative flex-1 min-h-0">
-              <div className="relative w-full h-full max-h-[60vh]">
+            {/* Navigation Previous */}
+            {selectedDropIndex > 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); navigatePrev(); }}
+                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 text-white" />
+              </button>
+            )}
+
+            {/* Navigation Next */}
+            {selectedDropIndex < drops.length - 1 && (isPremium || selectedDropIndex + 1 < FREE_POSTS_LIMIT) && (
+              <button
+                onClick={(e) => { e.stopPropagation(); navigateNext(); }}
+                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <ChevronRight className="w-6 h-6 md:w-8 md:h-8 text-white" />
+              </button>
+            )}
+
+            {/* Content */}
+            <motion.div
+              key={selectedDrop.id}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full max-w-lg mx-auto h-full flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center gap-3 p-4 shrink-0">
+                <Link href={`/${locale}/sweetspot/${selectedDrop.model_id}`}>
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-pink-500">
+                    <Image
+                      src={selectedDrop.model?.avatar_url || ''}
+                      alt={selectedDrop.model?.name || ''}
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                    />
+                  </div>
+                </Link>
+                <div className="flex-1">
+                  <Link href={`/${locale}/sweetspot/${selectedDrop.model_id}`}>
+                    <p className="font-bold text-white hover:underline">{selectedDrop.model?.name}</p>
+                  </Link>
+                </div>
+                {/* Counter */}
+                <span className="text-white/50 text-sm">
+                  {selectedDropIndex + 1} / {isPremium ? drops.length : Math.min(drops.length, FREE_POSTS_LIMIT)}
+                </span>
+              </div>
+
+              {/* Media */}
+              <div className="flex-1 flex items-center justify-center min-h-0 px-4">
                 {selectedDrop.media_type === 'video' ? (
                   <video
                     src={selectedDrop.media_url}
-                    className="w-full h-full object-contain bg-black"
+                    className="max-w-full max-h-full object-contain rounded-lg"
                     controls
                     autoPlay
                     loop
+                    playsInline
                   />
                 ) : (
-                  <Image
-                    src={selectedDrop.media_url}
-                    alt={selectedDrop.caption || 'Drop'}
-                    fill
-                    className="object-contain"
-                  />
+                  <div className="relative w-full h-full max-h-[70vh]">
+                    <Image
+                      src={selectedDrop.media_url}
+                      alt={selectedDrop.caption || 'Drop'}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                 )}
               </div>
-            </div>
 
-            {/* Actions */}
-            <div className="p-3 border-t border-white/10 shrink-0">
-              <div className="flex items-center gap-4 mb-2">
-                <button
-                  onClick={() => handleLike(selectedDrop.id)}
-                  className="transition-transform hover:scale-110"
-                >
-                  <Heart 
-                    className={`w-6 h-6 ${selectedDrop.is_liked ? 'text-red-500' : 'text-white'}`}
-                    fill={selectedDrop.is_liked ? 'currentColor' : 'none'}
-                  />
-                </button>
-                <button className="transition-transform hover:scale-110">
-                  <MessageCircle className="w-6 h-6 text-white" />
-                </button>
-              </div>
-              <p className="text-xs font-bold text-white">
-                {formatCount(selectedDrop.likes_count)} {t('likes')}
-              </p>
-              {selectedDrop.caption && (
-                <p className="text-xs text-zinc-300 mt-1 line-clamp-2">
-                  <span className="font-bold text-white mr-1">{selectedDrop.model?.name}</span>
-                  {selectedDrop.caption}
+              {/* Actions */}
+              <div className="p-4 shrink-0">
+                <div className="flex items-center gap-4 mb-2">
+                  <button
+                    onClick={() => handleLike(selectedDrop.id)}
+                    className="transition-transform hover:scale-110 active:scale-95"
+                  >
+                    <Heart 
+                      className={`w-7 h-7 ${selectedDrop.is_liked ? 'text-red-500' : 'text-white'}`}
+                      fill={selectedDrop.is_liked ? 'currentColor' : 'none'}
+                    />
+                  </button>
+                  <button className="transition-transform hover:scale-110">
+                    <MessageCircle className="w-7 h-7 text-white" />
+                  </button>
+                </div>
+                <p className="text-sm font-bold text-white">
+                  {formatCount(selectedDrop.likes_count)} {t('likes')}
                 </p>
-              )}
-            </div>
+                {selectedDrop.caption && (
+                  <p className="text-sm text-zinc-300 mt-1">
+                    <span className="font-bold text-white mr-1">{selectedDrop.model?.name}</span>
+                    {selectedDrop.caption}
+                  </p>
+                )}
+                {selectedDrop.tags && selectedDrop.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {selectedDrop.tags.map(tag => (
+                      <span key={tag} className="px-2 py-0.5 rounded-full bg-white/10 text-white/70 text-xs">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   )
 }
-
