@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Film, Zap, Trash2, ChevronRight, Layout, Settings, X, Edit2, AlertCircle, Sparkles, Image, Video } from 'lucide-react'
+import { Plus, Trash2, ChevronLeft, Settings, X, Edit2, AlertCircle, Sparkles, Image, Video, Film, Users } from 'lucide-react'
 
 interface Model {
   id: string
@@ -19,6 +19,8 @@ interface Model {
   photo_folder_path?: string
   persona_prompt: string
   speaking_style: string
+  bio?: string
+  followers_count?: number
 }
 
 interface Scenario {
@@ -48,7 +50,6 @@ interface Drop {
   comments_count: number
   is_pinned: boolean
   created_at: string
-  model?: Model
 }
 
 // Translation helper function
@@ -77,12 +78,15 @@ export default function AdminDashboard() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
-  const [activeTab, setActiveTab] = useState<'models' | 'scenarios' | 'sugarfeed'>('models')
   
   // Data
   const [models, setModels] = useState<Model[]>([])
   const [scenarios, setScenarios] = useState<Scenario[]>([])
   const [drops, setDrops] = useState<Drop[]>([])
+  
+  // Vue actuelle
+  const [selectedModel, setSelectedModel] = useState<Model | null>(null)
+  const [modelTab, setModelTab] = useState<'infos' | 'scenarios' | 'sugarfeed'>('infos')
   
   // Modals
   const [showModelModal, setShowModelModal] = useState(false)
@@ -110,19 +114,19 @@ export default function AdminDashboard() {
 
   const loadData = async () => {
     setLoading(true)
-    const { data: m, error: me } = await supabase.from('models').select('*').order('created_at', { ascending: false })
-    const { data: s, error: se } = await supabase.from('scenarios').select('*').order('created_at', { ascending: false })
-    const { data: d, error: de } = await supabase.from('drops').select('*, model:models(*)').order('created_at', { ascending: false })
-    
-    if (me) console.error('Error fetching models:', me)
-    if (se) console.error('Error fetching scenarios:', se)
-    if (de) console.error('Error fetching drops:', de)
+    const { data: m } = await supabase.from('models').select('*').order('created_at', { ascending: false })
+    const { data: s } = await supabase.from('scenarios').select('*').order('created_at', { ascending: false })
+    const { data: d } = await supabase.from('drops').select('*').order('created_at', { ascending: false })
     
     setModels(m || [])
     setScenarios(s || [])
     setDrops(d || [])
     setLoading(false)
   }
+
+  // Filtrer les données pour le modèle sélectionné
+  const modelScenarios = scenarios.filter(s => s.model_id === selectedModel?.id)
+  const modelDrops = drops.filter(d => d.model_id === selectedModel?.id)
 
   // --- MODEL CRUD ---
   const handleSaveModel = async (e: React.FormEvent) => {
@@ -132,7 +136,6 @@ export default function AdminDashboard() {
     const form = e.target as any;
     const description = form.description.value;
     
-    // Auto-translate description
     const translations = await translateTexts([
       { field: 'description', value: description }
     ]);
@@ -144,11 +147,13 @@ export default function AdminDashboard() {
       description_en: translations.en?.description || description,
       description_de: translations.de?.description || description,
       avatar_url: form.avatar.value,
-      show_video: form.show_video.value,
-      chat_avatar_url: form.chat_avatar.value,
+      show_video: form.show_video.value || null,
+      chat_avatar_url: form.chat_avatar.value || null,
       photo_folder_path: form.photo_folder.value || null,
       persona_prompt: form.persona.value,
       speaking_style: form.style.value,
+      bio: form.bio?.value || null,
+      followers_count: parseInt(form.followers_count?.value) || 0,
       personality_traits: { dominance: 5, playfulness: 5, sensuality: 5 }
     };
 
@@ -156,6 +161,9 @@ export default function AdminDashboard() {
     if (editingModel) {
       const { error: err } = await supabase.from('models').update(modelData).eq('id', editingModel.id);
       error = err;
+      if (!err && selectedModel?.id === editingModel.id) {
+        setSelectedModel({ ...selectedModel, ...modelData } as Model);
+      }
     } else {
       const { error: err } = await supabase.from('models').insert(modelData);
       error = err;
@@ -173,16 +181,21 @@ export default function AdminDashboard() {
   }
 
   const handleDeleteModel = async (id: string) => {
-    if (confirm('Es-tu sûr de vouloir supprimer ce modèle ? Tous les scénarios liés seront supprimés.')) {
+    if (confirm('Es-tu sûr de vouloir supprimer ce modèle ? Tous les scénarios et publications liés seront supprimés.')) {
       const { error } = await supabase.from('models').delete().eq('id', id);
       if (error) alert('Erreur: ' + error.message);
-      else loadData();
+      else {
+        if (selectedModel?.id === id) setSelectedModel(null);
+        loadData();
+      }
     }
   }
 
   // --- SCENARIO CRUD ---
   const handleSaveScenario = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedModel) return;
+    
     setTranslating(true);
     
     const form = e.target as any;
@@ -190,7 +203,6 @@ export default function AdminDashboard() {
     const context = form.context.value;
     const description = form.description.value;
     
-    // Auto-translate title, context, and description
     const translations = await translateTexts([
       { field: 'title', value: title },
       { field: 'context', value: context },
@@ -198,7 +210,7 @@ export default function AdminDashboard() {
     ]);
     
     const scenarioData = {
-      model_id: form.model_id.value,
+      model_id: selectedModel.id,
       title: title,
       title_en: translations.en?.title || title,
       title_de: translations.de?.title || title,
@@ -236,7 +248,7 @@ export default function AdminDashboard() {
   const handleDeleteScenario = async (id: string) => {
     if (confirm('Supprimer ce scénario ?')) {
       const { error } = await supabase.from('scenarios').delete().eq('id', id);
-      if (error) alert('Erreur lors de la suppression: ' + error.message);
+      if (error) alert('Erreur: ' + error.message);
       else loadData();
     }
   }
@@ -244,10 +256,12 @@ export default function AdminDashboard() {
   // --- DROP CRUD ---
   const handleSaveDrop = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedModel) return;
+    
     const form = e.target as any;
     
     const dropData = {
-      model_id: form.model_id.value,
+      model_id: selectedModel.id,
       media_url: form.media_url.value,
       media_type: form.media_type.value,
       caption: form.caption.value || null,
@@ -292,33 +306,41 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-zinc-950 text-white">
       {/* Sidebar Admin */}
       <div className="fixed left-0 top-0 bottom-0 w-64 bg-zinc-900 border-r border-white/5 p-6">
-        <div className="flex items-center gap-2 mb-12">
-          <div className="w-8 h-8 rounded bg-pink-600 flex items-center justify-center font-black">G</div>
-          <span className="font-black tracking-tighter text-xl uppercase">Mecklips Admin</span>
+        <div className="flex items-center gap-2 mb-8">
+          <div className="w-8 h-8 rounded bg-pink-600 flex items-center justify-center font-black">S</div>
+          <span className="font-black tracking-tighter text-xl">Sugarush Admin</span>
         </div>
 
-        <nav className="space-y-2">
+        {/* Liste des modèles dans la sidebar */}
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Modèles</span>
           <button 
-            onClick={() => setActiveTab('models')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'models' ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/20' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}
+            onClick={() => { setEditingModel(null); setShowModelModal(true); }}
+            className="p-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 transition-all"
           >
-            <Settings className="w-5 h-5" />
-            Modèles
+            <Plus className="w-4 h-4" />
           </button>
-          <button 
-            onClick={() => setActiveTab('scenarios')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'scenarios' ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/20' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}
-          >
-            <Layout className="w-5 h-5" />
-            Scénarios
-          </button>
-          <button 
-            onClick={() => setActiveTab('sugarfeed')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'sugarfeed' ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/20' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}
-          >
-            <Sparkles className="w-5 h-5" />
-            SugarFeed
-          </button>
+        </div>
+
+        <nav className="space-y-1 max-h-[calc(100vh-220px)] overflow-y-auto">
+          {models.map(model => (
+            <button 
+              key={model.id}
+              onClick={() => { setSelectedModel(model); setModelTab('infos'); }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-left ${
+                selectedModel?.id === model.id 
+                  ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/20' 
+                  : 'text-zinc-400 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              <img src={model.avatar_url} alt={model.name} className="w-8 h-8 rounded-full object-cover" />
+              <span className="truncate">{model.name}</span>
+            </button>
+          ))}
+          
+          {models.length === 0 && (
+            <p className="text-zinc-600 text-sm text-center py-4">Aucun modèle</p>
+          )}
         </nav>
 
         <button 
@@ -330,311 +352,385 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="ml-64 p-12">
-        <header className="flex items-center justify-between mb-12">
-          <div>
-            <h1 className="text-4xl font-black mb-2 uppercase">
-              {activeTab === 'models' ? 'Gestion des Modèles' : activeTab === 'scenarios' ? 'Gestion des Scénarios' : 'SugarFeed'}
-            </h1>
-            <p className="text-zinc-500">Sugarush Content Management System</p>
+      <div className="ml-64 p-8">
+        {!selectedModel ? (
+          // Vue d'accueil sans modèle sélectionné
+          <div className="flex flex-col items-center justify-center min-h-[80vh]">
+            <Users className="w-20 h-20 text-zinc-700 mb-6" />
+            <h1 className="text-3xl font-black text-white mb-2">Bienvenue</h1>
+            <p className="text-zinc-500 mb-8">Sélectionne un modèle dans la sidebar ou crée-en un nouveau</p>
+            <button 
+              onClick={() => { setEditingModel(null); setShowModelModal(true); }}
+              className="flex items-center gap-2 bg-pink-600 text-white px-6 py-3 rounded-xl font-black hover:bg-pink-500 transition-all"
+            >
+              <Plus className="w-5 h-5" />
+              Créer un modèle
+            </button>
           </div>
-
-          <button 
-            onClick={() => {
-              if (activeTab === 'models') setShowModelModal(true)
-              else if (activeTab === 'scenarios') setShowScenarioModal(true)
-              else setShowDropModal(true)
-            }}
-            className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-xl font-black hover:scale-105 transition-all shadow-lg"
-          >
-            <Plus className="w-5 h-5" />
-            {activeTab === 'models' ? 'AJOUTER UN MODÈLE' : activeTab === 'scenarios' ? 'AJOUTER UN SCÉNARIO' : 'NOUVELLE PUBLICATION'}
-          </button>
-        </header>
-
-        {/* List View */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {activeTab === 'models' ? (
-            models.map(model => (
-              <div key={model.id} className="bg-zinc-900 rounded-2xl overflow-hidden border border-white/5 group hover:border-pink-500/50 transition-all flex flex-col">
-                <div className="aspect-square relative">
-                  <img src={model.avatar_url} alt={model.name} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <h3 className="text-lg font-black leading-tight">{model.name}, {model.age} ans</h3>
-                  </div>
-                </div>
-                <div className="p-3 flex gap-2 mt-auto">
-                  <button 
-                    onClick={() => setEditingModel(model)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 py-2 rounded-lg font-bold transition-all flex items-center justify-center gap-1 text-xs"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" /> Modif.
-                  </button>
-                  <button 
-                    onClick={() => handleDeleteModel(model.id)}
-                    className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 transition-all hover:text-white"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+        ) : (
+          // Vue du modèle sélectionné
+          <>
+            {/* Header du modèle */}
+            <header className="flex items-center gap-6 mb-8 pb-6 border-b border-white/10">
+              <button 
+                onClick={() => setSelectedModel(null)}
+                className="p-2 rounded-lg hover:bg-white/5 text-zinc-400 hover:text-white transition-all"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <img src={selectedModel.avatar_url} alt={selectedModel.name} className="w-16 h-16 rounded-2xl object-cover border-2 border-white/10" />
+              <div className="flex-1">
+                <h1 className="text-3xl font-black">{selectedModel.name}</h1>
+                <p className="text-zinc-500">{selectedModel.description}</p>
               </div>
-            ))
-          ) : activeTab === 'scenarios' ? (
-            scenarios.map(scenario => (
-              <div key={scenario.id} className="bg-zinc-900 rounded-2xl overflow-hidden border border-white/5 group hover:border-pink-500/50 transition-all flex flex-col">
-                <div className="aspect-video relative">
-                  <img src={scenario.thumbnail_url} alt={scenario.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <h3 className="text-sm font-black line-clamp-1">{scenario.title}</h3>
-                  </div>
-                </div>
-                <div className="p-3 space-y-2 mt-auto">
-                  <div className="flex gap-1">
-                    <div className="bg-zinc-800 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest text-zinc-500">
-                      Scenario
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => { setEditingModel(selectedModel); setShowModelModal(true); }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all text-sm font-bold"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  Modifier
+                </button>
+                <button 
+                  onClick={() => handleDeleteModel(selectedModel.id)}
+                  className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </header>
+
+            {/* Tabs du modèle */}
+            <div className="flex gap-2 mb-8">
+              <button 
+                onClick={() => setModelTab('infos')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all ${
+                  modelTab === 'infos' ? 'bg-white text-black' : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                Infos
+              </button>
+              <button 
+                onClick={() => setModelTab('scenarios')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all ${
+                  modelTab === 'scenarios' ? 'bg-white text-black' : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Film className="w-4 h-4" />
+                Scénarios
+                <span className="text-xs opacity-60">({modelScenarios.length})</span>
+              </button>
+              <button 
+                onClick={() => setModelTab('sugarfeed')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all ${
+                  modelTab === 'sugarfeed' ? 'bg-white text-black' : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Sparkles className="w-4 h-4" />
+                SugarFeed
+                <span className="text-xs opacity-60">({modelDrops.length})</span>
+              </button>
+            </div>
+
+            {/* Contenu selon l'onglet */}
+            {modelTab === 'infos' && (
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-zinc-900 rounded-2xl border border-white/5 p-6">
+                  <h3 className="font-black text-lg mb-4">Informations</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Âge</span>
+                      <span>{selectedModel.age} ans</span>
                     </div>
-                    {scenario.is_premium && (
-                      <div className="bg-pink-500/20 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest text-pink-500">PREMIUM</div>
-                    )}
-                  </div>
-                  <div className="flex gap-1">
-                    <button 
-                      onClick={() => router.push(`/goodwin/dashboard/scenario/${scenario.id}`)}
-                      className="flex-1 bg-pink-600 hover:bg-pink-500 py-2 rounded-lg font-bold transition-all flex items-center justify-center gap-1 text-[10px]"
-                    >
-                      Config <ChevronRight className="w-3 h-3" />
-                    </button>
-                    <button 
-                      onClick={() => setEditingScenario(scenario)}
-                      className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all"
-                    >
-                      <Edit2 className="w-3 h-3 text-white" />
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteScenario(scenario.id)}
-                      className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 transition-all hover:text-white"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Scénarios</span>
+                      <span>{modelScenarios.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Publications</span>
+                      <span>{modelDrops.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Fans</span>
+                      <span>{selectedModel.followers_count || 0}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            drops.map(drop => (
-              <div key={drop.id} className="bg-zinc-900 rounded-2xl overflow-hidden border border-white/5 group hover:border-pink-500/50 transition-all flex flex-col">
-                <div className="aspect-square relative">
-                  {drop.media_type === 'video' ? (
-                    <video src={drop.media_url} className="w-full h-full object-cover" muted />
-                  ) : (
-                    <img src={drop.media_url} alt={drop.caption || 'Drop'} className="w-full h-full object-cover" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
-                  {/* Type badge */}
-                  <div className="absolute top-2 right-2">
-                    {drop.media_type === 'video' ? (
-                      <div className="bg-purple-500 p-1.5 rounded-lg">
-                        <Video className="w-3 h-3 text-white" />
-                      </div>
+                <div className="bg-zinc-900 rounded-2xl border border-white/5 p-6">
+                  <h3 className="font-black text-lg mb-4">Persona AI</h3>
+                  <p className="text-sm text-zinc-400 whitespace-pre-wrap">{selectedModel.persona_prompt}</p>
+                </div>
+                <div className="bg-zinc-900 rounded-2xl border border-white/5 p-6">
+                  <h3 className="font-black text-lg mb-4">Style de langage</h3>
+                  <p className="text-sm text-zinc-400 whitespace-pre-wrap">{selectedModel.speaking_style}</p>
+                </div>
+                <div className="bg-zinc-900 rounded-2xl border border-white/5 p-6">
+                  <h3 className="font-black text-lg mb-4">Configuration photos</h3>
+                  <p className="text-sm text-zinc-400">
+                    {selectedModel.photo_folder_path ? (
+                      <span className="text-green-400">📁 {selectedModel.photo_folder_path}</span>
                     ) : (
-                      <div className="bg-pink-500 p-1.5 rounded-lg">
-                        <Image className="w-3 h-3 text-white" />
-                      </div>
+                      <span className="text-zinc-600">Non configuré</span>
                     )}
-                  </div>
-                  {/* Pinned badge */}
-                  {drop.is_pinned && (
-                    <div className="absolute top-2 left-2 bg-amber-500 px-2 py-0.5 rounded-full text-[8px] font-black uppercase">
-                      📌 Épinglé
-                    </div>
-                  )}
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <p className="text-xs font-bold text-white/80 truncate">{drop.model?.name}</p>
-                    {drop.caption && (
-                      <p className="text-[10px] text-zinc-400 truncate">{drop.caption}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="p-3 space-y-2 mt-auto">
-                  <div className="flex items-center gap-3 text-xs text-zinc-500">
-                    <span>❤️ {drop.likes_count}</span>
-                    <span>💬 {drop.comments_count}</span>
-                  </div>
-                  <div className="flex gap-1">
-                    <button 
-                      onClick={() => setEditingDrop(drop)}
-                      className="flex-1 bg-white/5 hover:bg-white/10 py-2 rounded-lg font-bold transition-all flex items-center justify-center gap-1 text-xs"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" /> Modif.
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteDrop(drop.id)}
-                      className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 transition-all hover:text-white"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  </p>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            )}
+
+            {modelTab === 'scenarios' && (
+              <>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-black">Scénarios de {selectedModel.name}</h2>
+                  <button 
+                    onClick={() => { setEditingScenario(null); setShowScenarioModal(true); }}
+                    className="flex items-center gap-2 bg-pink-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-pink-500 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Nouveau scénario
+                  </button>
+                </div>
+                
+                {modelScenarios.length === 0 ? (
+                  <div className="text-center py-16 bg-zinc-900 rounded-2xl border border-white/5">
+                    <Film className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                    <p className="text-zinc-500">Aucun scénario pour ce modèle</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-4">
+                    {modelScenarios.map(scenario => (
+                      <div key={scenario.id} className="bg-zinc-900 rounded-2xl overflow-hidden border border-white/5 hover:border-pink-500/50 transition-all">
+                        <div className="aspect-video relative">
+                          <img src={scenario.thumbnail_url} alt={scenario.title} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                          {scenario.is_premium && (
+                            <div className="absolute top-2 right-2 bg-pink-500 px-2 py-0.5 rounded-full text-[10px] font-black">PREMIUM</div>
+                          )}
+                          <div className="absolute bottom-3 left-3 right-3">
+                            <h3 className="font-bold text-sm">{scenario.title}</h3>
+                            <p className="text-xs text-zinc-400">{scenario.context}</p>
+                          </div>
+                        </div>
+                        <div className="p-3 flex gap-2">
+                          <button 
+                            onClick={() => { setEditingScenario(scenario); setShowScenarioModal(true); }}
+                            className="flex-1 bg-white/5 hover:bg-white/10 py-2 rounded-lg font-bold text-xs transition-all"
+                          >
+                            Modifier
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteScenario(scenario.id)}
+                            className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {modelTab === 'sugarfeed' && (
+              <>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-black">SugarFeed de {selectedModel.name}</h2>
+                  <button 
+                    onClick={() => { setEditingDrop(null); setShowDropModal(true); }}
+                    className="flex items-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-2 rounded-xl font-bold hover:opacity-90 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Nouvelle publication
+                  </button>
+                </div>
+                
+                {modelDrops.length === 0 ? (
+                  <div className="text-center py-16 bg-zinc-900 rounded-2xl border border-white/5">
+                    <Sparkles className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                    <p className="text-zinc-500">Aucune publication pour ce modèle</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-4">
+                    {modelDrops.map(drop => (
+                      <div key={drop.id} className="bg-zinc-900 rounded-2xl overflow-hidden border border-white/5 hover:border-pink-500/50 transition-all">
+                        <div className="aspect-[3/4] relative">
+                          {drop.media_type === 'video' ? (
+                            <video src={drop.media_url} className="w-full h-full object-cover" muted />
+                          ) : (
+                            <img src={drop.media_url} alt={drop.caption || 'Drop'} className="w-full h-full object-cover" />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                          <div className="absolute top-2 right-2">
+                            {drop.media_type === 'video' ? (
+                              <div className="bg-purple-500 p-1.5 rounded-lg"><Video className="w-3 h-3" /></div>
+                            ) : (
+                              <div className="bg-pink-500 p-1.5 rounded-lg"><Image className="w-3 h-3" /></div>
+                            )}
+                          </div>
+                          {drop.is_pinned && (
+                            <div className="absolute top-2 left-2 bg-amber-500 px-2 py-0.5 rounded-full text-[8px] font-black">📌</div>
+                          )}
+                          <div className="absolute bottom-3 left-3 right-3">
+                            <div className="flex gap-2 text-xs text-white/80">
+                              <span>❤️ {drop.likes_count}</span>
+                              <span>💬 {drop.comments_count}</span>
+                            </div>
+                            {drop.caption && (
+                              <p className="text-xs text-zinc-400 truncate mt-1">{drop.caption}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="p-3 flex gap-2">
+                          <button 
+                            onClick={() => { setEditingDrop(drop); setShowDropModal(true); }}
+                            className="flex-1 bg-white/5 hover:bg-white/10 py-2 rounded-lg font-bold text-xs transition-all"
+                          >
+                            Modifier
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteDrop(drop.id)}
+                            className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
       </div>
 
-      {/* Model Modal (Add/Edit) */}
+      {/* Modals */}
       <AnimatePresence>
+        {/* Model Modal */}
         {(showModelModal || editingModel) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6 text-white">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowModelModal(false); setEditingModel(null); }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-zinc-900 w-full max-w-2xl rounded-3xl border border-white/10 p-12 overflow-y-auto max-h-[90vh]">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-black uppercase">{editingModel ? 'MODIFIER LE MODÈLE' : 'NOUVEAU MODÈLE'}</h2>
-                <button onClick={() => { setShowModelModal(false); setEditingModel(null); }} className="p-2 rounded-full hover:bg-white/5"><X className="w-6 h-6" /></button>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-zinc-900 w-full max-w-2xl rounded-3xl border border-white/10 p-10 overflow-y-auto max-h-[90vh]">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-black">{editingModel ? 'Modifier le modèle' : 'Nouveau modèle'}</h2>
+                <button onClick={() => { setShowModelModal(false); setEditingModel(null); }} className="p-2 rounded-full hover:bg-white/5"><X className="w-5 h-5" /></button>
               </div>
-              <form className="space-y-6" onSubmit={handleSaveModel}>
-                <div className="grid grid-cols-2 gap-6">
+              <form className="space-y-5" onSubmit={handleSaveModel}>
+                <div className="grid grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Prénom</label>
+                    <label className="text-xs font-bold text-zinc-500">Prénom</label>
                     <input name="name" defaultValue={editingModel?.name} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Âge</label>
+                    <label className="text-xs font-bold text-zinc-500">Âge</label>
                     <input name="age" type="number" defaultValue={editingModel?.age || 18} min="18" className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" required />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Brève Description</label>
-                  <input name="description" defaultValue={editingModel?.description} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="Ex: Étudiante espiègle et provocatrice..." required />
+                  <label className="text-xs font-bold text-zinc-500">Description</label>
+                  <input name="description" defaultValue={editingModel?.description} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="Ex: Étudiante espiègle..." required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">URL Photo Présentation</label>
-                  <input name="avatar" defaultValue={editingModel?.avatar_url} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="https://..." required />
+                  <label className="text-xs font-bold text-zinc-500">Bio SugarFeed</label>
+                  <textarea name="bio" defaultValue={editingModel?.bio} rows={2} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" placeholder="Bio courte..." />
+                </div>
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-500">URL Photo Présentation</label>
+                    <input name="avatar" defaultValue={editingModel?.avatar_url} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" required />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-500">Nombre de fans</label>
+                    <input name="followers_count" type="number" defaultValue={editingModel?.followers_count || 0} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">URL Vidéo Preview (Hover)</label>
-                  <input name="show_video" defaultValue={editingModel?.show_video} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="https://... (optionnel)" />
+                  <label className="text-xs font-bold text-zinc-500">URL Vidéo Preview (optionnel)</label>
+                  <input name="show_video" defaultValue={editingModel?.show_video} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">URL Photo Chat (Spécifique)</label>
-                  <input name="chat_avatar" defaultValue={editingModel?.chat_avatar_url} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="https://... (optionnel)" />
+                  <label className="text-xs font-bold text-zinc-500">URL Photo Chat (optionnel)</label>
+                  <input name="chat_avatar" defaultValue={editingModel?.chat_avatar_url} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">📸 Dossier Photos Supabase</label>
-                  <input name="photo_folder" defaultValue={editingModel?.photo_folder_path} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="models/emma/photos (optionnel)" />
-                  <p className="text-xs text-zinc-600">Chemin du dossier dans Supabase Storage contenant les photos à envoyer</p>
+                  <label className="text-xs font-bold text-zinc-500">📸 Dossier Photos Supabase</label>
+                  <input name="photo_folder" defaultValue={editingModel?.photo_folder_path} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" placeholder="Lily/photos" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Persona AI (Prompt Système)</label>
-                  <textarea name="persona" defaultValue={editingModel?.persona_prompt} rows={4} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" required />
+                  <label className="text-xs font-bold text-zinc-500">Persona AI</label>
+                  <textarea name="persona" defaultValue={editingModel?.persona_prompt} rows={3} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Style de langage</label>
+                  <label className="text-xs font-bold text-zinc-500">Style de langage</label>
                   <textarea name="style" defaultValue={editingModel?.speaking_style} rows={2} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" required />
                 </div>
-                <button type="submit" disabled={translating} className="w-full bg-pink-600 py-4 rounded-xl font-black hover:bg-pink-500 transition-all uppercase tracking-widest shadow-lg shadow-pink-600/20 disabled:opacity-50 flex items-center justify-center gap-2">
-                  {translating ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      TRADUCTION EN COURS...
-                    </>
-                  ) : (
-                    editingModel ? 'METTRE À JOUR' : 'CRÉER LE MODÈLE'
-                  )}
+                <button type="submit" disabled={translating} className="w-full bg-pink-600 py-3 rounded-xl font-black hover:bg-pink-500 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                  {translating ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Traduction...</> : (editingModel ? 'Mettre à jour' : 'Créer')}
                 </button>
               </form>
             </motion.div>
           </div>
         )}
 
-        {/* Scenario Modal (Add/Edit) */}
+        {/* Scenario Modal */}
         {(showScenarioModal || editingScenario) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6 text-white">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowScenarioModal(false); setEditingScenario(null); }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-zinc-900 w-full max-w-2xl rounded-3xl border border-white/10 p-12 overflow-y-auto max-h-[90vh]">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-black uppercase">{editingScenario ? 'MODIFIER LE SCÉNARIO' : 'NOUVEAU SCÉNARIO'}</h2>
-                <button onClick={() => { setShowScenarioModal(false); setEditingScenario(null); }} className="p-2 rounded-full hover:bg-white/5"><X className="w-6 h-6" /></button>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-zinc-900 w-full max-w-2xl rounded-3xl border border-white/10 p-10 overflow-y-auto max-h-[90vh]">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-black">{editingScenario ? 'Modifier le scénario' : 'Nouveau scénario'}</h2>
+                <button onClick={() => { setShowScenarioModal(false); setEditingScenario(null); }} className="p-2 rounded-full hover:bg-white/5"><X className="w-5 h-5" /></button>
               </div>
-              <form className="space-y-6" onSubmit={handleSaveScenario}>
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Modèle lié</label>
-                  {models.length > 0 ? (
-                    <select name="model_id" defaultValue={editingScenario?.model_id} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" required>
-                      {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                    </select>
-                  ) : (
-                    <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4" /> Crée un modèle d'abord !
-                    </div>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-6">
+              <p className="text-sm text-zinc-500 mb-6">Pour : <span className="text-pink-400 font-bold">{selectedModel?.name}</span></p>
+              <form className="space-y-5" onSubmit={handleSaveScenario}>
+                <div className="grid grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Titre</label>
+                    <label className="text-xs font-bold text-zinc-500">Titre</label>
                     <input name="title" defaultValue={editingScenario?.title} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Lieu (Label UI)</label>
-                    <input name="context" defaultValue={editingScenario?.context} placeholder="Ex: Bar lounge" className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" required />
+                    <label className="text-xs font-bold text-zinc-500">Lieu</label>
+                    <input name="context" defaultValue={editingScenario?.context} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" required />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Contexte pour l&apos;IA (Détails croustillants)</label>
-                  <textarea name="ai_context" defaultValue={editingScenario?.ai_context} rows={3} placeholder="Ex: Elle est en petite culotte dans sa chambre..." className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" />
+                  <label className="text-xs font-bold text-zinc-500">Contexte IA</label>
+                  <textarea name="ai_context" defaultValue={editingScenario?.ai_context} rows={2} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">URL Miniature</label>
+                  <label className="text-xs font-bold text-zinc-500">URL Miniature</label>
                   <input name="thumbnail" defaultValue={editingScenario?.thumbnail_url} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Description</label>
-                  <textarea name="description" defaultValue={editingScenario?.description} rows={3} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" required />
+                  <label className="text-xs font-bold text-zinc-500">Description</label>
+                  <textarea name="description" defaultValue={editingScenario?.description} rows={2} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" required />
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" name="is_premium" defaultChecked={editingScenario?.is_premium} className="w-5 h-5 rounded border-white/10 bg-zinc-800 text-pink-600 focus:ring-pink-500" />
-                  <span className="font-bold text-sm uppercase tracking-widest">Scénario Premium</span>
+                  <input type="checkbox" name="is_premium" defaultChecked={editingScenario?.is_premium} className="w-5 h-5 rounded border-white/10 bg-zinc-800 text-pink-600" />
+                  <span className="font-bold text-sm">Scénario Premium</span>
                 </label>
-                <button type="submit" disabled={models.length === 0 || translating} className="w-full bg-pink-600 py-4 rounded-xl font-black hover:bg-pink-500 transition-all uppercase tracking-widest shadow-lg shadow-pink-600/20 disabled:opacity-50 flex items-center justify-center gap-2">
-                  {translating ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      TRADUCTION EN COURS...
-                    </>
-                  ) : (
-                    editingScenario ? 'METTRE À JOUR' : 'CRÉER LE SCÉNARIO'
-                  )}
+                <button type="submit" disabled={translating} className="w-full bg-pink-600 py-3 rounded-xl font-black hover:bg-pink-500 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                  {translating ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Traduction...</> : (editingScenario ? 'Mettre à jour' : 'Créer')}
                 </button>
               </form>
             </motion.div>
           </div>
         )}
 
-        {/* Drop Modal (Add/Edit) */}
+        {/* Drop Modal */}
         {(showDropModal || editingDrop) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6 text-white">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowDropModal(false); setEditingDrop(null); }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative bg-zinc-900 w-full max-w-xl rounded-3xl border border-white/10 p-10 overflow-y-auto max-h-[90vh]">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-black uppercase">{editingDrop ? 'MODIFIER LA PUBLICATION' : 'NOUVELLE PUBLICATION'}</h2>
-                <button onClick={() => { setShowDropModal(false); setEditingDrop(null); }} className="p-2 rounded-full hover:bg-white/5"><X className="w-6 h-6" /></button>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-black">{editingDrop ? 'Modifier la publication' : 'Nouvelle publication'}</h2>
+                <button onClick={() => { setShowDropModal(false); setEditingDrop(null); }} className="p-2 rounded-full hover:bg-white/5"><X className="w-5 h-5" /></button>
               </div>
-              <form className="space-y-6" onSubmit={handleSaveDrop}>
+              <p className="text-sm text-zinc-500 mb-6">Pour : <span className="text-pink-400 font-bold">{selectedModel?.name}</span></p>
+              <form className="space-y-5" onSubmit={handleSaveDrop}>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Modèle</label>
-                  {models.length > 0 ? (
-                    <select name="model_id" defaultValue={editingDrop?.model_id} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" required>
-                      {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                    </select>
-                  ) : (
-                    <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4" /> Crée un modèle d'abord !
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Type de média</label>
+                  <label className="text-xs font-bold text-zinc-500">Type de média</label>
                   <div className="flex gap-4">
                     <label className="flex-1 cursor-pointer">
                       <input type="radio" name="media_type" value="image" defaultChecked={!editingDrop || editingDrop.media_type === 'image'} className="sr-only peer" />
@@ -653,20 +749,19 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">URL du média</label>
-                  <input name="media_url" defaultValue={editingDrop?.media_url} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" placeholder="https://..." required />
-                  <p className="text-xs text-zinc-600">URL de l&apos;image ou vidéo depuis Supabase Storage</p>
+                  <label className="text-xs font-bold text-zinc-500">URL du média</label>
+                  <input name="media_url" defaultValue={editingDrop?.media_url} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none" required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Légende (optionnel)</label>
-                  <textarea name="caption" defaultValue={editingDrop?.caption || ''} rows={2} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" placeholder="Ex: Journée à la plage 🏖️" />
+                  <label className="text-xs font-bold text-zinc-500">Légende (optionnel)</label>
+                  <textarea name="caption" defaultValue={editingDrop?.caption || ''} rows={2} className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-3 focus:border-pink-500 outline-none text-sm" />
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" name="is_pinned" defaultChecked={editingDrop?.is_pinned} className="w-5 h-5 rounded border-white/10 bg-zinc-800 text-amber-500 focus:ring-amber-500" />
-                  <span className="font-bold text-sm uppercase tracking-widest">📌 Épingler en haut</span>
+                  <input type="checkbox" name="is_pinned" defaultChecked={editingDrop?.is_pinned} className="w-5 h-5 rounded border-white/10 bg-zinc-800 text-amber-500" />
+                  <span className="font-bold text-sm">📌 Épingler en haut</span>
                 </label>
-                <button type="submit" disabled={models.length === 0} className="w-full bg-gradient-to-r from-pink-600 to-purple-600 py-4 rounded-xl font-black hover:opacity-90 transition-all uppercase tracking-widest shadow-lg disabled:opacity-50">
-                  {editingDrop ? 'METTRE À JOUR' : 'PUBLIER'}
+                <button type="submit" className="w-full bg-gradient-to-r from-pink-600 to-purple-600 py-3 rounded-xl font-black hover:opacity-90 transition-all">
+                  {editingDrop ? 'Mettre à jour' : 'Publier'}
                 </button>
               </form>
             </motion.div>
