@@ -451,13 +451,17 @@ export default function ModelProfilePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+            className="fixed inset-0 z-50 bg-gradient-to-b from-purple-950/95 via-fuchsia-950/95 to-black/95 backdrop-blur-xl flex items-center justify-center"
             onClick={() => setSelectedDropIndex(null)}
           >
+            {/* Glow effects */}
+            <div className="absolute top-20 left-1/4 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+
             {/* Close button */}
             <button 
               onClick={() => setSelectedDropIndex(null)}
-              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 transition-colors"
             >
               <X className="w-6 h-6 text-white" />
             </button>
@@ -466,7 +470,7 @@ export default function ModelProfilePage() {
             {selectedDropIndex > 0 && (
               <button
                 onClick={(e) => { e.stopPropagation(); navigatePrev(); }}
-                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110"
               >
                 <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 text-white" />
               </button>
@@ -476,7 +480,7 @@ export default function ModelProfilePage() {
             {selectedDropIndex < displayedDrops.length - 1 && (isPremium || selectedDropIndex + 1 < FREE_POSTS_LIMIT) && (
               <button
                 onClick={(e) => { e.stopPropagation(); navigateNext(); }}
-                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110"
               >
                 <ChevronRight className="w-6 h-6 md:w-8 md:h-8 text-white" />
               </button>
