@@ -15,3 +15,4 @@ ALTER TABLE public.phases
 ADD COLUMN IF NOT EXISTS ai_instructions TEXT;
 
 
+

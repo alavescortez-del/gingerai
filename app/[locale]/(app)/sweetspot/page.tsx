@@ -367,6 +367,7 @@ export default function SweetSpotPage() {
                     controls
                     autoPlay
                     loop
+                    muted
                     playsInline
                   />
                 ) : (

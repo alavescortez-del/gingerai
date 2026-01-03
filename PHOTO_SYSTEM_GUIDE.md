@@ -227,3 +227,4 @@ Retourne maintenant un flag `shouldSendPhoto` :
 
 **🎉 Le système est prêt à l'emploi !**
 
+

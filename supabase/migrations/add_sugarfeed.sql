@@ -125,3 +125,4 @@ CREATE TRIGGER trigger_update_comments_count
 AFTER INSERT OR DELETE ON public.drop_comments
 FOR EACH ROW EXECUTE FUNCTION update_drop_comments_count();
 
+

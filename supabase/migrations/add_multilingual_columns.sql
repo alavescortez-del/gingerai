@@ -35,3 +35,4 @@ CREATE INDEX IF NOT EXISTS idx_scenarios_locale ON scenarios (title, title_en, t
 CREATE INDEX IF NOT EXISTS idx_models_locale ON models (description, description_en, description_de);
 
 
+

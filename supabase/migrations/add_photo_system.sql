@@ -36,3 +36,4 @@ CREATE POLICY "Users can insert their own sent photos"
 
 COMMENT ON TABLE public.sent_photos IS 'Tracking des photos envoyées pour éviter les répétitions';
 
+
