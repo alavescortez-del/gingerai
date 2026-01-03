@@ -184,7 +184,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             {dbModels.map((model, index) => (
               <motion.div
                 key={model.id}
@@ -239,23 +239,23 @@ export default function HomePage() {
                   </div>
                   
                   <motion.div 
-                    className="p-6"
+                    className="p-3 md:p-6"
                     animate={{
                       y: hoveredModel === model.id ? -10 : 0
                     }}
                     transition={{ duration: 0.3 }}
                   >
-                    <h3 className="text-2xl font-black text-white mb-1">
-                      {model.name}, {model.age} {tc('years')}
+                    <h3 className="text-sm md:text-2xl font-black text-white mb-1">
+                      {model.name}, {model.age}
                     </h3>
                     
-                    <div className="flex gap-2 mb-3">
-                      <span className="px-2 py-1 rounded-lg bg-pink-500/20 text-pink-400 text-xs font-bold uppercase tracking-wider">
+                    <div className="flex gap-2 mb-2 md:mb-3">
+                      <span className="px-1.5 md:px-2 py-0.5 md:py-1 rounded-lg bg-pink-500/20 text-pink-400 text-[10px] md:text-xs font-bold uppercase tracking-wider">
                         {tc('available')}
                       </span>
                     </div>
                     
-                    <p className="text-zinc-400 text-sm line-clamp-2">
+                    <p className="text-zinc-400 text-xs md:text-sm line-clamp-2 hidden md:block">
                       {getDescription(model, locale)}
                     </p>
                   </motion.div>
