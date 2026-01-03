@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -20,6 +20,41 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled
 }
 
+// Composant vidéo avec autoplay contrôlé
+function VideoThumbnail({ src, shouldPlay, isLocked }: { src: string, shouldPlay: boolean, isLocked: boolean }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [isHovered, setIsHovered] = useState(false)
+  
+  useEffect(() => {
+    if (!videoRef.current || isLocked) return
+    
+    if (shouldPlay || isHovered) {
+      videoRef.current.play().catch(() => {})
+    } else {
+      videoRef.current.pause()
+      videoRef.current.currentTime = 0
+    }
+  }, [shouldPlay, isHovered, isLocked])
+  
+  return (
+    <>
+      <video
+        ref={videoRef}
+        src={src}
+        className="w-full h-full object-cover"
+        muted
+        loop
+        playsInline
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      />
+      <div className="absolute top-2 right-2">
+        <Play className="w-5 h-5 text-white drop-shadow-lg" fill="white" />
+      </div>
+    </>
+  )
+}
+
 export default function SweetSpotPage() {
   const t = useTranslations('sweetspot')
   const params = useParams()
@@ -32,11 +67,32 @@ export default function SweetSpotPage() {
   const [userId, setUserId] = useState<string | null>(null)
   const [userPlan, setUserPlan] = useState<string>('free')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [playingVideos, setPlayingVideos] = useState<Set<string>>(new Set())
 
   const isPremium = userPlan === 'soft' || userPlan === 'unleashed'
   const FREE_POSTS_LIMIT = 3
 
   const selectedDrop = selectedDropIndex !== null ? drops[selectedDropIndex] : null
+  
+  // Animation automatique de 2-3 vidéos random
+  useEffect(() => {
+    if (drops.length === 0) return
+    
+    const videoDrops = drops.filter(d => d.media_type === 'video')
+    if (videoDrops.length === 0) return
+    
+    const selectRandomVideos = () => {
+      const count = Math.min(2 + Math.floor(Math.random() * 2), videoDrops.length) // 2-3 vidéos
+      const shuffled = shuffleArray(videoDrops)
+      const selected = shuffled.slice(0, count).map(d => d.id)
+      setPlayingVideos(new Set(selected))
+    }
+    
+    selectRandomVideos()
+    const interval = setInterval(selectRandomVideos, 4000) // Change toutes les 4 secondes
+    
+    return () => clearInterval(interval)
+  }, [drops])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -221,20 +277,11 @@ export default function SweetSpotPage() {
                   {/* Media */}
                   <div className={`absolute inset-0 bg-zinc-900 rounded-lg overflow-hidden ${isLocked ? 'blur-lg' : ''}`}>
                     {drop.media_type === 'video' ? (
-                      <>
-                        <video
-                          src={drop.media_url}
-                          className="w-full h-full object-cover"
-                          muted
-                          loop
-                          playsInline
-                          onMouseEnter={(e) => !isLocked && e.currentTarget.play()}
-                          onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
-                        />
-                        <div className="absolute top-2 right-2">
-                          <Play className="w-5 h-5 text-white drop-shadow-lg" fill="white" />
-                        </div>
-                      </>
+                      <VideoThumbnail 
+                        src={drop.media_url} 
+                        shouldPlay={playingVideos.has(drop.id)} 
+                        isLocked={isLocked} 
+                      />
                     ) : (
                       <Image
                         src={drop.media_url}
