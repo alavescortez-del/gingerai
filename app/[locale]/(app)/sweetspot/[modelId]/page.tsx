@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -18,6 +18,83 @@ function shuffleArray<T>(array: T[]): T[] {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
   return shuffled
+}
+
+// Lecteur vidéo style Instagram (pour le modal)
+function InstaVideoPlayer({ src }: { src: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [progress, setProgress] = useState(0)
+  const [showPlayIcon, setShowPlayIcon] = useState(false)
+
+  const togglePlay = () => {
+    if (!videoRef.current) return
+    if (isPlaying) {
+      videoRef.current.pause()
+    } else {
+      videoRef.current.play()
+    }
+    setIsPlaying(!isPlaying)
+    setShowPlayIcon(true)
+    setTimeout(() => setShowPlayIcon(false), 600)
+  }
+
+  const handleTimeUpdate = () => {
+    if (!videoRef.current) return
+    const percent = (videoRef.current.currentTime / videoRef.current.duration) * 100
+    setProgress(percent)
+  }
+
+  return (
+    <div 
+      className="relative max-w-full max-h-full cursor-pointer" 
+      onClick={togglePlay}
+    >
+      <video
+        ref={videoRef}
+        src={src}
+        className="max-w-full max-h-[70vh] object-contain rounded-lg"
+        autoPlay
+        loop
+        muted
+        playsInline
+        onTimeUpdate={handleTimeUpdate}
+      />
+      
+      {/* Play/Pause overlay au centre */}
+      <AnimatePresence>
+        {showPlayIcon && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          >
+            <div className="w-20 h-20 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
+              {isPlaying ? (
+                <Play className="w-10 h-10 text-white ml-1" fill="white" />
+              ) : (
+                <div className="flex gap-1">
+                  <div className="w-3 h-10 bg-white rounded-sm" />
+                  <div className="w-3 h-10 bg-white rounded-sm" />
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Progress bar minimaliste en bas */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 rounded-b-lg overflow-hidden">
+        <motion.div 
+          className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
+          style={{ width: `${progress}%` }}
+          transition={{ duration: 0.1 }}
+        />
+      </div>
+    </div>
+  )
 }
 
 export default function ModelProfilePage() {
@@ -519,15 +596,7 @@ export default function ModelProfilePage() {
               {/* Media */}
               <div className="flex-1 flex items-center justify-center min-h-0 px-4">
                 {selectedDrop.media_type === 'video' ? (
-                  <video
-                    src={selectedDrop.media_url}
-                    className="max-w-full max-h-full object-contain rounded-lg"
-                    controls
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                  />
+                  <InstaVideoPlayer src={selectedDrop.media_url} />
                 ) : (
                   <div className="relative w-full h-full max-h-[70vh]">
                     <Image
