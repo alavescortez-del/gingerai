@@ -816,14 +816,23 @@ export default function HomePage() {
               transition={{ duration: 0.2 }}
               drag="y"
               dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.5 }}
+              dragElastic={{ top: 0.3, bottom: 0.3 }}
               onDragEnd={(_, info) => {
-                if (info.offset.y > 100) {
-                  setSelectedPopIndex(null)
+                // Swipe up = next video
+                if (info.offset.y < -80 && selectedPopIndex < allPops.length - 1) {
+                  setSelectedPopIndex(selectedPopIndex + 1)
+                }
+                // Swipe down = previous video or close if first
+                else if (info.offset.y > 80) {
+                  if (selectedPopIndex > 0) {
+                    setSelectedPopIndex(selectedPopIndex - 1)
+                  } else {
+                    setSelectedPopIndex(null)
+                  }
                 }
               }}
               className="relative w-full max-w-lg mx-auto h-full flex flex-col"
-              style={{ touchAction: 'pan-x' }}
+              style={{ touchAction: 'none' }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}

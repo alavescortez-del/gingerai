@@ -577,14 +577,24 @@ export default function ModelProfilePage() {
               transition={{ duration: 0.2 }}
               drag="y"
               dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.5 }}
+              dragElastic={{ top: 0.3, bottom: 0.3 }}
               onDragEnd={(_, info) => {
-                if (info.offset.y > 100) {
-                  setSelectedDropIndex(null)
+                const canGoNext = selectedDropIndex !== null && selectedDropIndex < displayedDrops.length - 1 && (isPremium || selectedDropIndex + 1 < FREE_POSTS_LIMIT)
+                // Swipe up = next video
+                if (info.offset.y < -80 && canGoNext) {
+                  setSelectedDropIndex(selectedDropIndex + 1)
+                }
+                // Swipe down = previous video or close if first
+                else if (info.offset.y > 80) {
+                  if (selectedDropIndex !== null && selectedDropIndex > 0) {
+                    setSelectedDropIndex(selectedDropIndex - 1)
+                  } else {
+                    setSelectedDropIndex(null)
+                  }
                 }
               }}
-              className="relative w-full max-w-lg mx-auto h-full flex flex-col md:drag-none"
-              style={{ touchAction: 'pan-x' }}
+              className="relative w-full max-w-lg mx-auto h-full flex flex-col"
+              style={{ touchAction: 'none' }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
