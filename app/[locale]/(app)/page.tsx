@@ -210,6 +210,7 @@ function PopsModal({
   
   useEffect(() => {
     setMounted(true)
+    return () => setMounted(false)
   }, [])
 
   const isOpen = selectedPopIndex !== null && selectedPop !== null
@@ -218,32 +219,23 @@ function PopsModal({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
-      document.body.style.pointerEvents = 'none'
     } else {
       document.body.style.overflow = ''
-      document.body.style.pointerEvents = ''
     }
     return () => {
       document.body.style.overflow = ''
-      document.body.style.pointerEvents = ''
     }
   }, [isOpen])
 
-  if (!mounted) return null
+  // Ne rien rendre si pas monté ou pas ouvert
+  if (!mounted || !isOpen || !selectedPop) return null
 
-  const modalContent = (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div 
-          key="pops-modal-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-          className="fixed inset-0 bg-gradient-to-b from-purple-950/95 via-fuchsia-950/95 to-black/95 backdrop-blur-xl flex items-center justify-center"
-          style={{ zIndex: 99999, pointerEvents: 'auto' }}
-          onClick={onClose}
-        >
+  return createPortal(
+    <div 
+      className="fixed inset-0 bg-gradient-to-b from-purple-950/95 via-fuchsia-950/95 to-black/95 backdrop-blur-xl flex items-center justify-center"
+      style={{ zIndex: 99999 }}
+      onClick={onClose}
+    >
           {/* Glow effects */}
           <div className="absolute top-20 left-1/4 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -276,28 +268,8 @@ function PopsModal({
             </button>
           )}
 
-          {/* Content - Swipeable on mobile */}
-          <motion.div
-            key={selectedPop.id}
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            transition={{ duration: 0.2 }}
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0.3, bottom: 0.3 }}
-            onDragEnd={(_, info) => {
-              if (info.offset.y < -80 && selectedPopIndex < allPops.length - 1) {
-                onNext()
-              }
-              else if (info.offset.y > 80) {
-                if (selectedPopIndex > 0) {
-                  onPrev()
-                } else {
-                  onClose()
-                }
-              }
-            }}
+          {/* Content */}
+          <div
             className="relative w-full max-w-lg mx-auto h-full flex flex-col pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
           >
@@ -347,13 +319,12 @@ function PopsModal({
                 />
               )}
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
   )
-
-  return createPortal(modalContent, document.body)
 }
 
 export default function HomePage() {
