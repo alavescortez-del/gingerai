@@ -97,6 +97,41 @@ function InstaVideoPlayer({ src }: { src: string }) {
   )
 }
 
+// Composant pour afficher la description avec "voir plus"
+function CaptionText({ name, caption }: { name: string, caption: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const isLong = caption.length > 100
+
+  return (
+    <p className="text-sm text-zinc-300 mt-1">
+      <span className="font-bold text-white mr-1">{name}</span>
+      {isLong && !expanded ? (
+        <>
+          {caption.slice(0, 100)}...
+          <button 
+            onClick={() => setExpanded(true)}
+            className="text-zinc-500 ml-1 hover:text-white transition-colors"
+          >
+            voir plus
+          </button>
+        </>
+      ) : (
+        <>
+          {caption}
+          {isLong && (
+            <button 
+              onClick={() => setExpanded(false)}
+              className="text-zinc-500 ml-1 hover:text-white transition-colors"
+            >
+              voir moins
+            </button>
+          )}
+        </>
+      )}
+    </p>
+  )
+}
+
 export default function ModelProfilePage() {
   const t = useTranslations('sweetspot')
   const params = useParams()
@@ -634,7 +669,7 @@ export default function ModelProfilePage() {
               </div>
 
               {/* Actions */}
-              <div className="p-4 shrink-0">
+              <div className="p-4 shrink-0 max-h-[30vh] overflow-y-auto">
                 <div className="flex items-center gap-4 mb-2">
                   <button
                     onClick={() => handleLike(selectedDrop.id)}
@@ -645,18 +680,15 @@ export default function ModelProfilePage() {
                       fill={selectedDrop.is_liked ? 'currentColor' : 'none'}
                     />
                   </button>
-                  <button className="transition-transform hover:scale-110">
-                    <MessageCircle className="w-7 h-7 text-white" />
-                  </button>
+                  <span className="text-sm font-bold text-white">
+                    {formatCount(selectedDrop.likes_count)} {t('likes')}
+                  </span>
                 </div>
-                <p className="text-sm font-bold text-white">
-                  {formatCount(selectedDrop.likes_count)} {t('likes')}
-                </p>
                 {selectedDrop.caption && (
-                  <p className="text-sm text-zinc-300 mt-1">
-                    <span className="font-bold text-white mr-1">{model.name}</span>
-                    {selectedDrop.caption}
-                  </p>
+                  <CaptionText 
+                    name={model.name} 
+                    caption={selectedDrop.caption} 
+                  />
                 )}
                 {selectedDrop.tags && selectedDrop.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">

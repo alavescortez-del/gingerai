@@ -69,6 +69,41 @@ function PopsVideo({ src, isAnimating }: { src: string, isAnimating: boolean }) 
   )
 }
 
+// Composant pour afficher la description avec "voir plus"
+function CaptionText({ name, caption }: { name: string, caption: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const isLong = caption.length > 100
+
+  return (
+    <p className="text-sm text-zinc-300">
+      <span className="font-bold text-white mr-1">{name}</span>
+      {isLong && !expanded ? (
+        <>
+          {caption.slice(0, 100)}...
+          <button 
+            onClick={() => setExpanded(true)}
+            className="text-zinc-500 ml-1 hover:text-white transition-colors"
+          >
+            voir plus
+          </button>
+        </>
+      ) : (
+        <>
+          {caption}
+          {isLong && (
+            <button 
+              onClick={() => setExpanded(false)}
+              className="text-zinc-500 ml-1 hover:text-white transition-colors"
+            >
+              voir moins
+            </button>
+          )}
+        </>
+      )}
+    </p>
+  )
+}
+
 // Lecteur vidéo style Instagram (pour le modal)
 function InstaVideoPlayer({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -871,19 +906,19 @@ export default function HomePage() {
               </div>
 
               {/* Caption & Actions */}
-              <div className="p-4 shrink-0">
+              <div className="p-4 shrink-0 max-h-[30vh] overflow-y-auto">
                 {selectedPop.caption && (
-                  <p className="text-white mb-3">
-                    <span className="font-bold">{selectedPop.model?.name}</span>{' '}
-                    {selectedPop.caption}
-                  </p>
+                  <CaptionText 
+                    name={selectedPop.model?.name || ''} 
+                    caption={selectedPop.caption} 
+                  />
                 )}
                 
                 {/* Link to SweetSpot */}
                 <Link 
                   href={`/${locale}/sweetspot`}
                   onClick={() => setSelectedPopIndex(null)}
-                  className="inline-flex items-center gap-2 text-pink-400 text-sm hover:text-pink-300 transition-colors"
+                  className="inline-flex items-center gap-2 text-pink-400 text-sm hover:text-pink-300 transition-colors mt-3"
                 >
                   <Sparkles className="w-4 h-4" />
                   Voir tout le SweetSpot
