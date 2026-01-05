@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -11,7 +11,8 @@ import ScenarioCard from '@/components/scenario/ScenarioCard'
 import AuthModal from '@/components/auth/AuthModal'
 import { useGameStore } from '@/lib/stores/gameStore'
 import { getDescription } from '@/lib/i18n-helpers'
-import { Play, Sparkles } from 'lucide-react'
+import { Play, Sparkles, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import Image from 'next/image'
 
 interface ScenarioWithModel extends Scenario {
   model: Model
@@ -68,6 +69,83 @@ function PopsVideo({ src, isAnimating }: { src: string, isAnimating: boolean }) 
   )
 }
 
+// Lecteur vidéo style Instagram (pour le modal)
+function InstaVideoPlayer({ src }: { src: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [progress, setProgress] = useState(0)
+  const [showPlayIcon, setShowPlayIcon] = useState(false)
+
+  const togglePlay = () => {
+    if (!videoRef.current) return
+    if (isPlaying) {
+      videoRef.current.pause()
+    } else {
+      videoRef.current.play()
+    }
+    setIsPlaying(!isPlaying)
+    setShowPlayIcon(true)
+    setTimeout(() => setShowPlayIcon(false), 600)
+  }
+
+  const handleTimeUpdate = () => {
+    if (!videoRef.current) return
+    const percent = (videoRef.current.currentTime / videoRef.current.duration) * 100
+    setProgress(percent)
+  }
+
+  return (
+    <div 
+      className="relative max-w-full max-h-full cursor-pointer" 
+      onClick={togglePlay}
+    >
+      <video
+        ref={videoRef}
+        src={src}
+        className="max-w-full max-h-[70vh] object-contain rounded-lg"
+        autoPlay
+        loop
+        muted
+        playsInline
+        onTimeUpdate={handleTimeUpdate}
+      />
+      
+      {/* Play/Pause overlay */}
+      <AnimatePresence>
+        {showPlayIcon && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          >
+            <div className="w-20 h-20 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
+              {isPlaying ? (
+                <Play className="w-10 h-10 text-white ml-1" fill="white" />
+              ) : (
+                <div className="flex gap-1">
+                  <div className="w-3 h-10 bg-white rounded-sm" />
+                  <div className="w-3 h-10 bg-white rounded-sm" />
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Progress bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 rounded-b-lg overflow-hidden">
+        <motion.div 
+          className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
+          style={{ width: `${progress}%` }}
+          transition={{ duration: 0.1 }}
+        />
+      </div>
+    </div>
+  )
+}
+
 const CAROUSEL_IMAGES = [
   { url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&h=800&fit=crop', key: 'title1' },
   { url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1200&h=800&fit=crop', key: 'title2' },
@@ -84,9 +162,38 @@ export default function HomePage() {
   const [dbScenarios, setDbScenarios] = useState<ScenarioWithModel[]>([])
   const [dbModels, setDbModels] = useState<Model[]>([])
   const [latestPops, setLatestPops] = useState<DropWithModel[]>([])
+  const [allPops, setAllPops] = useState<DropWithModel[]>([])
   const [animatingPops, setAnimatingPops] = useState<Set<string>>(new Set())
+  const [selectedPopIndex, setSelectedPopIndex] = useState<number | null>(null)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { user } = useGameStore()
+
+  const selectedPop = selectedPopIndex !== null ? allPops[selectedPopIndex] : null
+
+  // Navigation dans le modal
+  const navigatePrev = useCallback(() => {
+    if (selectedPopIndex !== null && selectedPopIndex > 0) {
+      setSelectedPopIndex(selectedPopIndex - 1)
+    }
+  }, [selectedPopIndex])
+
+  const navigateNext = useCallback(() => {
+    if (selectedPopIndex !== null && selectedPopIndex < allPops.length - 1) {
+      setSelectedPopIndex(selectedPopIndex + 1)
+    }
+  }, [selectedPopIndex, allPops.length])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedPopIndex === null) return
+      if (e.key === 'ArrowLeft') navigatePrev()
+      if (e.key === 'ArrowRight') navigateNext()
+      if (e.key === 'Escape') setSelectedPopIndex(null)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedPopIndex, navigatePrev, navigateNext])
 
   useEffect(() => {
     fetchData()
@@ -145,7 +252,7 @@ export default function HomePage() {
       
       if (modData) setDbModels(modData as Model[])
 
-      // Fetch latest POPS (vidéos uniquement) avec modèle
+      // Fetch ALL POPS (vidéos uniquement) avec modèle pour navigation
       const { data: popsData } = await supabase
         .from('drops')
         .select(`
@@ -154,11 +261,12 @@ export default function HomePage() {
         `)
         .eq('media_type', 'video')
         .order('created_at', { ascending: false })
-        .limit(6)
       
       if (popsData) {
         // Mélanger pour affichage aléatoire
-        setLatestPops(shuffleArray(popsData as DropWithModel[]))
+        const shuffledPops = shuffleArray(popsData as DropWithModel[])
+        setAllPops(shuffledPops) // Tous les POPS pour la navigation
+        setLatestPops(shuffledPops.slice(0, 6)) // 6 premiers pour l'affichage
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -280,13 +388,15 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Link 
-                  href={`/${locale}/sweetspot`}
-                  className="block relative aspect-[9/16] rounded-xl overflow-hidden group"
-                  onClick={(e) => {
+                <button 
+                  className="block relative aspect-[9/16] rounded-xl overflow-hidden group w-full"
+                  onClick={() => {
                     if (!user) {
-                      e.preventDefault()
                       setShowAuthModal(true)
+                    } else {
+                      // Trouver l'index dans allPops
+                      const allPopsIndex = allPops.findIndex(p => p.id === pop.id)
+                      setSelectedPopIndex(allPopsIndex !== -1 ? allPopsIndex : 0)
                     }
                   }}
                 >
@@ -301,7 +411,7 @@ export default function HomePage() {
                     {pop.model?.avatar_url && (
                       <img 
                         src={pop.model.avatar_url} 
-                        alt={pop.model.name}
+                        alt={pop.model.name || ''}
                         className="w-6 h-6 rounded-full border border-pink-500"
                       />
                     )}
@@ -312,7 +422,7 @@ export default function HomePage() {
                   
                   {/* Hover overlay */}
                   <div className="absolute inset-0 bg-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Link>
+                </button>
               </motion.div>
             ))}
           </div>
@@ -649,6 +759,131 @@ export default function HomePage() {
           </div>
         </motion.div>
       </section>
+
+      {/* POPS Full Screen Modal */}
+      <AnimatePresence>
+        {selectedPop && selectedPopIndex !== null && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-gradient-to-b from-purple-950/95 via-fuchsia-950/95 to-black/95 backdrop-blur-xl flex items-center justify-center"
+            onClick={() => setSelectedPopIndex(null)}
+          >
+            {/* Glow effects */}
+            <div className="absolute top-20 left-1/4 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Close button - hidden on mobile */}
+            <button 
+              onClick={() => setSelectedPopIndex(null)}
+              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 transition-colors hidden md:block"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+
+            {/* Swipe indicator on mobile */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 md:hidden">
+              <div className="w-10 h-1 bg-white/40 rounded-full" />
+            </div>
+
+            {/* Navigation Previous - hidden on mobile */}
+            {selectedPopIndex > 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); navigatePrev(); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110 hidden md:block"
+              >
+                <ChevronLeft className="w-8 h-8 text-white" />
+              </button>
+            )}
+
+            {/* Navigation Next - hidden on mobile */}
+            {selectedPopIndex < allPops.length - 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); navigateNext(); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110 hidden md:block"
+              >
+                <ChevronRight className="w-8 h-8 text-white" />
+              </button>
+            )}
+
+            {/* Content - Swipeable on mobile */}
+            <motion.div
+              key={selectedPop.id}
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              transition={{ duration: 0.2 }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.5 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100) {
+                  setSelectedPopIndex(null)
+                }
+              }}
+              className="relative w-full max-w-lg mx-auto h-full flex flex-col"
+              style={{ touchAction: 'pan-x' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center gap-3 p-4 shrink-0">
+                <Link 
+                  href={`/${locale}/sweetspot/${selectedPop.model_id}`}
+                  onClick={() => setSelectedPopIndex(null)}
+                >
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-pink-500">
+                    <Image
+                      src={selectedPop.model?.avatar_url || ''}
+                      alt={selectedPop.model?.name || ''}
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                    />
+                  </div>
+                </Link>
+                <div className="flex-1">
+                  <Link 
+                    href={`/${locale}/sweetspot/${selectedPop.model_id}`}
+                    onClick={() => setSelectedPopIndex(null)}
+                  >
+                    <p className="font-bold text-white hover:underline">{selectedPop.model?.name}</p>
+                  </Link>
+                </div>
+                {/* Counter */}
+                <span className="text-white/50 text-sm">
+                  {selectedPopIndex + 1} / {allPops.length}
+                </span>
+              </div>
+
+              {/* Media */}
+              <div className="flex-1 flex items-center justify-center min-h-0 px-4">
+                <InstaVideoPlayer src={selectedPop.media_url} />
+              </div>
+
+              {/* Caption & Actions */}
+              <div className="p-4 shrink-0">
+                {selectedPop.caption && (
+                  <p className="text-white mb-3">
+                    <span className="font-bold">{selectedPop.model?.name}</span>{' '}
+                    {selectedPop.caption}
+                  </p>
+                )}
+                
+                {/* Link to SweetSpot */}
+                <Link 
+                  href={`/${locale}/sweetspot`}
+                  onClick={() => setSelectedPopIndex(null)}
+                  className="inline-flex items-center gap-2 text-pink-400 text-sm hover:text-pink-300 transition-colors"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Voir tout le SweetSpot
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AuthModal 
         isOpen={showAuthModal}
