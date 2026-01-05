@@ -34,12 +34,13 @@
     "logout": "Logout"
   },
   "sweetspot": {
-    "subtitle": "Latest moments from your models",
+    "subtitle": "Latest POPS from your favorite models 🔥",
     "posts": "Posts",
     "followers": "Followers",
     "likes": "Likes",
     "message": "Message",
     "follow": "Follow",
+    "viewAll": "View all SweetSpot",
     "viewComments": "View all {count} comments",
     "empty": {
       "title": "No posts yet",

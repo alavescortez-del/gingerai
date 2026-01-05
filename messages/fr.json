@@ -34,12 +34,13 @@
     "logout": "Déconnexion"
   },
   "sweetspot": {
-    "subtitle": "Les derniers moments de tes modèles",
+    "subtitle": "Les derniers POPS de tes modèles préférées 🔥",
     "posts": "Publications",
     "followers": "Followers",
     "likes": "J'aime",
     "message": "Message",
     "follow": "Suivre",
+    "viewAll": "Voir tout le SweetSpot",
     "viewComments": "Voir les {count} commentaires",
     "empty": {
       "title": "Aucune publication",

@@ -34,12 +34,13 @@
     "logout": "Abmelden"
   },
   "sweetspot": {
-    "subtitle": "Die neuesten Momente deiner Models",
+    "subtitle": "Die neuesten POPS deiner Lieblingsmodels 🔥",
     "posts": "Beiträge",
     "followers": "Follower",
     "likes": "Gefällt mir",
     "message": "Nachricht",
     "follow": "Folgen",
+    "viewAll": "Alle SweetSpot ansehen",
     "viewComments": "Alle {count} Kommentare ansehen",
     "empty": {
       "title": "Keine Beiträge",

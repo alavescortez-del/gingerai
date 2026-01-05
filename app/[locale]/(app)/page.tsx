@@ -1,21 +1,71 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { supabase } from '@/lib/supabase'
-import { Scenario, Model } from '@/types/database'
+import { Scenario, Model, Drop } from '@/types/database'
 import ScenarioCard from '@/components/scenario/ScenarioCard'
 import AuthModal from '@/components/auth/AuthModal'
 import { useGameStore } from '@/lib/stores/gameStore'
 import { getDescription } from '@/lib/i18n-helpers'
+import { Play, Sparkles } from 'lucide-react'
 
 interface ScenarioWithModel extends Scenario {
   model: Model
   actions: any[]
   phases: any[]
+}
+
+interface DropWithModel extends Drop {
+  model?: Model
+}
+
+// Fonction pour mélanger un tableau
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
+// Composant vidéo POPS pour la grille
+function PopsVideo({ src, isAnimating }: { src: string, isAnimating: boolean }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [isHovered, setIsHovered] = useState(false)
+  
+  useEffect(() => {
+    if (!videoRef.current) return
+    
+    if (isAnimating || isHovered) {
+      videoRef.current.play().catch(() => {})
+    } else {
+      videoRef.current.pause()
+      videoRef.current.currentTime = 0
+    }
+  }, [isAnimating, isHovered])
+  
+  return (
+    <>
+      <video
+        ref={videoRef}
+        src={src}
+        className="w-full h-full object-cover"
+        muted
+        loop
+        playsInline
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      />
+      <div className="absolute top-2 right-2">
+        <Play className="w-4 h-4 text-white drop-shadow-lg" fill="white" />
+      </div>
+    </>
+  )
 }
 
 const CAROUSEL_IMAGES = [
@@ -33,6 +83,8 @@ export default function HomePage() {
   const [hoveredModel, setHoveredModel] = useState<string | null>(null)
   const [dbScenarios, setDbScenarios] = useState<ScenarioWithModel[]>([])
   const [dbModels, setDbModels] = useState<Model[]>([])
+  const [latestPops, setLatestPops] = useState<DropWithModel[]>([])
+  const [animatingPops, setAnimatingPops] = useState<Set<string>>(new Set())
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { user } = useGameStore()
 
@@ -43,6 +95,22 @@ export default function HomePage() {
     }, 5000)
     return () => clearInterval(timer)
   }, [])
+
+  // Animation aléatoire des POPS
+  useEffect(() => {
+    if (latestPops.length === 0) return
+    
+    const animateRandomPops = () => {
+      const popIds = latestPops.map(p => p.id)
+      const shuffled = shuffleArray(popIds)
+      const toAnimate = new Set(shuffled.slice(0, 2))
+      setAnimatingPops(toAnimate)
+    }
+    
+    animateRandomPops()
+    const interval = setInterval(animateRandomPops, 4000)
+    return () => clearInterval(interval)
+  }, [latestPops])
 
   const fetchData = async () => {
     try {
@@ -76,6 +144,22 @@ export default function HomePage() {
         .order('created_at', { ascending: false })
       
       if (modData) setDbModels(modData as Model[])
+
+      // Fetch latest POPS (vidéos uniquement) avec modèle
+      const { data: popsData } = await supabase
+        .from('drops')
+        .select(`
+          *,
+          model:models(*)
+        `)
+        .eq('media_type', 'video')
+        .order('created_at', { ascending: false })
+        .limit(6)
+      
+      if (popsData) {
+        // Mélanger pour affichage aléatoire
+        setLatestPops(shuffleArray(popsData as DropWithModel[]))
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -266,7 +350,86 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 4: Features */}
+      {/* SECTION 4: SweetSpot POPS */}
+      {latestPops.length > 0 && (
+        <section className="px-6 py-20 max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <Link href={`/${locale}/sweetspot`} className="inline-flex items-center gap-3 group">
+              <Sparkles className="w-8 h-8 text-pink-500" />
+              <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-500 bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
+                SweetSpot
+              </h2>
+            </Link>
+            <p className="text-zinc-400 text-lg mt-4">
+              {t('sweetspot.subtitle')}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
+            {latestPops.map((pop, index) => (
+              <motion.div
+                key={pop.id}
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Link 
+                  href={`/${locale}/sweetspot`}
+                  className="block relative aspect-[9/16] rounded-xl overflow-hidden group"
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault()
+                      setShowAuthModal(true)
+                    }
+                  }}
+                >
+                  <PopsVideo 
+                    src={pop.media_url} 
+                    isAnimating={animatingPops.has(pop.id)}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  
+                  {/* Model avatar */}
+                  <div className="absolute bottom-2 left-2 flex items-center gap-2">
+                    {pop.model?.avatar_url && (
+                      <img 
+                        src={pop.model.avatar_url} 
+                        alt={pop.model.name}
+                        className="w-6 h-6 rounded-full border border-pink-500"
+                      />
+                    )}
+                    <span className="text-white text-xs font-bold truncate">
+                      {pop.model?.name}
+                    </span>
+                  </div>
+                  
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <Link 
+              href={`/${locale}/sweetspot`}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 text-white font-bold hover:from-pink-500/30 hover:to-purple-500/30 transition-all"
+              onClick={(e) => {
+                if (!user) {
+                  e.preventDefault()
+                  setShowAuthModal(true)
+                }
+              }}
+            >
+              <Sparkles className="w-5 h-5 text-pink-500" />
+              {t('sweetspot.viewAll')}
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* SECTION 5: Features */}
       <section className="px-6 py-20 max-w-5xl mx-auto">
         <div className="grid md:grid-cols-3 gap-8">
           <motion.div
