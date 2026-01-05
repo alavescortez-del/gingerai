@@ -646,10 +646,6 @@ export default function ModelProfilePage() {
                 <div className="flex-1">
                   <p className="font-bold text-white">{model.name}</p>
                 </div>
-                {/* Counter */}
-                <span className="text-white/50 text-sm">
-                  {selectedDropIndex + 1} / {isPremium ? displayedDrops.length : Math.min(displayedDrops.length, FREE_POSTS_LIMIT)}
-                </span>
               </div>
 
               {/* Media */}

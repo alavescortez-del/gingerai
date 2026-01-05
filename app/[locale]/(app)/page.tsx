@@ -894,10 +894,6 @@ export default function HomePage() {
                     <p className="font-bold text-white hover:underline">{selectedPop.model?.name}</p>
                   </Link>
                 </div>
-                {/* Counter */}
-                <span className="text-white/50 text-sm">
-                  {selectedPopIndex + 1} / {allPops.length}
-                </span>
               </div>
 
               {/* Media */}
@@ -905,7 +901,7 @@ export default function HomePage() {
                 <InstaVideoPlayer src={selectedPop.media_url} />
               </div>
 
-              {/* Caption & Actions */}
+              {/* Caption */}
               <div className="p-4 shrink-0 max-h-[30vh] overflow-y-auto">
                 {selectedPop.caption && (
                   <CaptionText 
@@ -913,16 +909,6 @@ export default function HomePage() {
                     caption={selectedPop.caption} 
                   />
                 )}
-                
-                {/* Link to SweetSpot */}
-                <Link 
-                  href={`/${locale}/sweetspot`}
-                  onClick={() => setSelectedPopIndex(null)}
-                  className="inline-flex items-center gap-2 text-pink-400 text-sm hover:text-pink-300 transition-colors mt-3"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Voir tout le SweetSpot
-                </Link>
               </div>
             </motion.div>
           </motion.div>

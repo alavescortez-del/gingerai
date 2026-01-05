@@ -535,10 +535,6 @@ export default function SweetSpotPage() {
                     <p className="font-bold text-white hover:underline">{selectedDrop.model?.name}</p>
                   </Link>
                 </div>
-                {/* Counter */}
-                <span className="text-white/50 text-sm">
-                  {selectedDropIndex + 1} / {isPremium ? drops.length : Math.min(drops.length, FREE_POSTS_LIMIT)}
-                </span>
               </div>
 
               {/* Media */}
