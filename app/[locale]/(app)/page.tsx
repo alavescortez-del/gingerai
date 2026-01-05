@@ -796,12 +796,14 @@ export default function HomePage() {
       </section>
 
       {/* POPS Full Screen Modal */}
-      <AnimatePresence>
-        {selectedPop && selectedPopIndex !== null && (
+      <AnimatePresence mode="wait">
+        {selectedPopIndex !== null && selectedPop && (
           <motion.div 
+            key="pops-modal"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             className="fixed inset-0 z-50 bg-gradient-to-b from-purple-950/95 via-fuchsia-950/95 to-black/95 backdrop-blur-xl flex items-center justify-center"
             onClick={() => setSelectedPopIndex(null)}
           >
@@ -862,8 +864,7 @@ export default function HomePage() {
                   }
                 }
               }}
-              className="relative w-full max-w-lg mx-auto h-full flex flex-col"
-              style={{ touchAction: 'none' }}
+              className="relative w-full max-w-lg mx-auto h-full flex flex-col md:pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}

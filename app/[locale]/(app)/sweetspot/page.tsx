@@ -510,7 +510,6 @@ export default function SweetSpotPage() {
                 }
               }}
               className="relative w-full max-w-lg mx-auto h-full flex flex-col"
-              style={{ touchAction: 'none' }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
