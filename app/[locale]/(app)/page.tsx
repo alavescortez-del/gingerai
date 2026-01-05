@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -187,7 +188,7 @@ const CAROUSEL_IMAGES = [
   { url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1200&h=800&fit=crop', key: 'title3' },
 ]
 
-// Composant Modal POPS isolé pour éviter les bugs d'AnimatePresence
+// Composant Modal POPS avec Portal pour isolation complète du DOM
 function PopsModal({ 
   selectedPop, 
   selectedPopIndex, 
@@ -205,16 +206,42 @@ function PopsModal({
   onNext: () => void,
   locale: string
 }) {
-  return (
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const isOpen = selectedPopIndex !== null && selectedPop !== null
+
+  // Bloquer le scroll quand ouvert
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+      document.body.style.pointerEvents = 'none'
+    } else {
+      document.body.style.overflow = ''
+      document.body.style.pointerEvents = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.pointerEvents = ''
+    }
+  }, [isOpen])
+
+  if (!mounted) return null
+
+  const modalContent = (
     <AnimatePresence>
-      {selectedPopIndex !== null && selectedPop && (
+      {isOpen && (
         <motion.div 
           key="pops-modal-overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-[100] bg-gradient-to-b from-purple-950/95 via-fuchsia-950/95 to-black/95 backdrop-blur-xl flex items-center justify-center"
+          className="fixed inset-0 bg-gradient-to-b from-purple-950/95 via-fuchsia-950/95 to-black/95 backdrop-blur-xl flex items-center justify-center"
+          style={{ zIndex: 99999, pointerEvents: 'auto' }}
           onClick={onClose}
         >
           {/* Glow effects */}
@@ -325,6 +352,8 @@ function PopsModal({
       )}
     </AnimatePresence>
   )
+
+  return createPortal(modalContent, document.body)
 }
 
 export default function HomePage() {
@@ -393,18 +422,6 @@ export default function HomePage() {
     const interval = setInterval(animateRandomPops, 4000)
     return () => clearInterval(interval)
   }, [latestPops])
-
-  // Bloquer le scroll du body quand le modal est ouvert
-  useEffect(() => {
-    if (selectedPopIndex !== null) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'unset'
-    }
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [selectedPopIndex])
 
   const fetchData = async () => {
     try {
