@@ -256,7 +256,86 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 3: Discuter Librement */}
+      {/* SECTION 3: SweetSpot POPS */}
+      {latestPops.length > 0 && (
+        <section className="px-6 py-20 max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <Link href={`/${locale}/sweetspot`} className="inline-flex items-center gap-3 group">
+              <Sparkles className="w-8 h-8 text-pink-500" />
+              <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-500 bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
+                SweetSpot
+              </h2>
+            </Link>
+            <p className="text-zinc-400 text-lg mt-4">
+              Les derniers POPS de tes modèles préférées 🔥
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
+            {latestPops.map((pop, index) => (
+              <motion.div
+                key={pop.id}
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Link 
+                  href={`/${locale}/sweetspot`}
+                  className="block relative aspect-[9/16] rounded-xl overflow-hidden group"
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault()
+                      setShowAuthModal(true)
+                    }
+                  }}
+                >
+                  <PopsVideo 
+                    src={pop.media_url} 
+                    isAnimating={animatingPops.has(pop.id)}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  
+                  {/* Model avatar */}
+                  <div className="absolute bottom-2 left-2 flex items-center gap-2">
+                    {pop.model?.avatar_url && (
+                      <img 
+                        src={pop.model.avatar_url} 
+                        alt={pop.model.name}
+                        className="w-6 h-6 rounded-full border border-pink-500"
+                      />
+                    )}
+                    <span className="text-white text-xs font-bold truncate">
+                      {pop.model?.name}
+                    </span>
+                  </div>
+                  
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <Link 
+              href={`/${locale}/sweetspot`}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 text-white font-bold hover:from-pink-500/30 hover:to-purple-500/30 transition-all"
+              onClick={(e) => {
+                if (!user) {
+                  e.preventDefault()
+                  setShowAuthModal(true)
+                }
+              }}
+            >
+              <Sparkles className="w-5 h-5 text-pink-500" />
+              Voir tout le SweetSpot
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* SECTION 4: Discuter Librement */}
       <section className="px-6 py-20 bg-black/20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -350,86 +429,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 4: SweetSpot POPS */}
-      {latestPops.length > 0 && (
-        <section className="px-6 py-20 max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <Link href={`/${locale}/sweetspot`} className="inline-flex items-center gap-3 group">
-              <Sparkles className="w-8 h-8 text-pink-500" />
-              <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-500 bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
-                SweetSpot
-              </h2>
-            </Link>
-            <p className="text-zinc-400 text-lg mt-4">
-              {t('sweetspot.subtitle')}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
-            {latestPops.map((pop, index) => (
-              <motion.div
-                key={pop.id}
-                initial={{ y: 20, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Link 
-                  href={`/${locale}/sweetspot`}
-                  className="block relative aspect-[9/16] rounded-xl overflow-hidden group"
-                  onClick={(e) => {
-                    if (!user) {
-                      e.preventDefault()
-                      setShowAuthModal(true)
-                    }
-                  }}
-                >
-                  <PopsVideo 
-                    src={pop.media_url} 
-                    isAnimating={animatingPops.has(pop.id)}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  
-                  {/* Model avatar */}
-                  <div className="absolute bottom-2 left-2 flex items-center gap-2">
-                    {pop.model?.avatar_url && (
-                      <img 
-                        src={pop.model.avatar_url} 
-                        alt={pop.model.name}
-                        className="w-6 h-6 rounded-full border border-pink-500"
-                      />
-                    )}
-                    <span className="text-white text-xs font-bold truncate">
-                      {pop.model?.name}
-                    </span>
-                  </div>
-                  
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="text-center mt-8">
-            <Link 
-              href={`/${locale}/sweetspot`}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 text-white font-bold hover:from-pink-500/30 hover:to-purple-500/30 transition-all"
-              onClick={(e) => {
-                if (!user) {
-                  e.preventDefault()
-                  setShowAuthModal(true)
-                }
-              }}
-            >
-              <Sparkles className="w-5 h-5 text-pink-500" />
-              {t('sweetspot.viewAll')}
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {/* SECTION 5: Features */}
+      {/* SECTION 4: Features */}
       <section className="px-6 py-20 max-w-5xl mx-auto">
         <div className="grid md:grid-cols-3 gap-8">
           <motion.div
