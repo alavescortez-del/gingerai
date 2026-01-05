@@ -111,7 +111,7 @@ export default function ModelProfilePage() {
   const [userId, setUserId] = useState<string | null>(null)
   const [userPlan, setUserPlan] = useState<string>('free')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [activeTab, setActiveTab] = useState<'all' | 'dropsy'>('all')
+  const [activeTab, setActiveTab] = useState<'all' | 'pops'>('all')
 
   const isPremium = userPlan === 'soft' || userPlan === 'unleashed'
   const FREE_POSTS_LIMIT = 3
@@ -385,15 +385,15 @@ export default function ModelProfilePage() {
             <span className="text-xs opacity-70">({drops.length})</span>
           </button>
           <button
-            onClick={() => setActiveTab('dropsy')}
+            onClick={() => setActiveTab('pops')}
             className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${
-              activeTab === 'dropsy' 
+              activeTab === 'pops' 
                 ? 'bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30' 
                 : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
             }`}
           >
             <Film className="w-4 h-4" />
-            Dropsy
+            POPS
             <span className="text-xs opacity-70">({drops.filter(d => d.media_type === 'video').length})</span>
           </button>
         </div>
@@ -415,7 +415,7 @@ export default function ModelProfilePage() {
               )}
             </div>
             <h3 className="text-xl font-bold text-white mb-2">
-              {activeTab === 'all' ? 'Aucune publication' : 'Aucun Dropsy'}
+              {activeTab === 'all' ? 'Aucune publication' : 'Aucun POPS'}
             </h3>
             <p className="text-white/50">
               {model.name} n'a pas encore partagé de {activeTab === 'all' ? 'contenu' : 'vidéo'}

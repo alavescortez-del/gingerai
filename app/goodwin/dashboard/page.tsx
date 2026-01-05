@@ -800,7 +800,7 @@ export default function AdminDashboard() {
                       <input type="radio" name="media_type" value="video" defaultChecked={editingDrop?.media_type === 'video'} className="sr-only peer" />
                       <div className="p-4 rounded-xl border border-white/10 bg-zinc-800 peer-checked:border-purple-500 peer-checked:bg-purple-500/10 transition-all flex items-center justify-center gap-2">
                         <Video className="w-5 h-5" />
-                        <span className="font-bold">Dropsy</span>
+                        <span className="font-bold">POPS</span>
                       </div>
                     </label>
                   </div>
