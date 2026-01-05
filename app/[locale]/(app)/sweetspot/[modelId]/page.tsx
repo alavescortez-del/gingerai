@@ -578,10 +578,6 @@ export default function ModelProfilePage() {
               <X className="w-6 h-6 text-white" />
             </button>
 
-            {/* Swipe indicator on mobile */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 md:hidden">
-              <div className="w-10 h-1 bg-white/40 rounded-full" />
-            </div>
 
             {/* Navigation Previous - hidden on mobile */}
             {selectedDropIndex > 0 && (
@@ -634,6 +630,13 @@ export default function ModelProfilePage() {
             >
               {/* Header */}
               <div className="flex items-center gap-3 p-4 shrink-0">
+                {/* Back button */}
+                <button
+                  onClick={() => setSelectedDropIndex(null)}
+                  className="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
                 <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-pink-500">
                   <Image
                     src={model.avatar_url}

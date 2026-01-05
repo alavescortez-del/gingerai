@@ -11,7 +11,7 @@ import ScenarioCard from '@/components/scenario/ScenarioCard'
 import AuthModal from '@/components/auth/AuthModal'
 import { useGameStore } from '@/lib/stores/gameStore'
 import { getDescription } from '@/lib/i18n-helpers'
-import { Play, Sparkles, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Play, Sparkles, X, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 
 interface ScenarioWithModel extends Scenario {
@@ -817,10 +817,6 @@ export default function HomePage() {
               <X className="w-6 h-6 text-white" />
             </button>
 
-            {/* Swipe indicator on mobile */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 md:hidden">
-              <div className="w-10 h-1 bg-white/40 rounded-full" />
-            </div>
 
             {/* Navigation Previous - hidden on mobile */}
             {selectedPopIndex > 0 && (
@@ -872,6 +868,13 @@ export default function HomePage() {
             >
               {/* Header */}
               <div className="flex items-center gap-3 p-4 shrink-0">
+                {/* Back button */}
+                <button
+                  onClick={() => setSelectedPopIndex(null)}
+                  className="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
                 <Link 
                   href={`/${locale}/sweetspot/${selectedPop.model_id}`}
                   onClick={() => setSelectedPopIndex(null)}
