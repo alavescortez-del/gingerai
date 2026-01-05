@@ -420,42 +420,56 @@ export default function SweetSpotPage() {
             <div className="absolute top-20 left-1/4 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
 
-            {/* Close button */}
+            {/* Close button - hidden on mobile */}
             <button 
               onClick={() => setSelectedDropIndex(null)}
-              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 transition-colors"
+              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 transition-colors hidden md:block"
             >
               <X className="w-6 h-6 text-white" />
             </button>
 
-            {/* Navigation Previous */}
+            {/* Swipe indicator on mobile */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 md:hidden">
+              <div className="w-10 h-1 bg-white/40 rounded-full" />
+            </div>
+
+            {/* Navigation Previous - hidden on mobile */}
             {selectedDropIndex > 0 && (
               <button
                 onClick={(e) => { e.stopPropagation(); navigatePrev(); }}
-                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110 hidden md:block"
               >
-                <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                <ChevronLeft className="w-8 h-8 text-white" />
               </button>
             )}
 
-            {/* Navigation Next */}
+            {/* Navigation Next - hidden on mobile */}
             {selectedDropIndex < drops.length - 1 && (isPremium || selectedDropIndex + 1 < FREE_POSTS_LIMIT) && (
               <button
                 onClick={(e) => { e.stopPropagation(); navigateNext(); }}
-                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-50 p-2 md:p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110 hidden md:block"
               >
-                <ChevronRight className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                <ChevronRight className="w-8 h-8 text-white" />
               </button>
             )}
 
-            {/* Content */}
+            {/* Content - Swipeable on mobile */}
             <motion.div
               key={selectedDrop.id}
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-lg mx-auto h-full flex flex-col"
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.5 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100) {
+                  setSelectedDropIndex(null)
+                }
+              }}
+              className="relative w-full max-w-lg mx-auto h-full flex flex-col md:drag-none"
+              style={{ touchAction: 'pan-x' }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
