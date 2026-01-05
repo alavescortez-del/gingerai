@@ -148,6 +148,18 @@ export default function ModelProfilePage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [activeTab, setActiveTab] = useState<'all' | 'pops'>('all')
 
+  // Bloquer le scroll du body quand le modal est ouvert
+  useEffect(() => {
+    if (selectedDropIndex !== null) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [selectedDropIndex])
+
   const isPremium = userPlan === 'soft' || userPlan === 'unleashed'
   const FREE_POSTS_LIMIT = 3
 

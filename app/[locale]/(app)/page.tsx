@@ -187,6 +187,146 @@ const CAROUSEL_IMAGES = [
   { url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1200&h=800&fit=crop', key: 'title3' },
 ]
 
+// Composant Modal POPS isolé pour éviter les bugs d'AnimatePresence
+function PopsModal({ 
+  selectedPop, 
+  selectedPopIndex, 
+  allPops, 
+  onClose, 
+  onPrev, 
+  onNext,
+  locale
+}: { 
+  selectedPop: DropWithModel | null, 
+  selectedPopIndex: number | null, 
+  allPops: DropWithModel[], 
+  onClose: () => void,
+  onPrev: () => void,
+  onNext: () => void,
+  locale: string
+}) {
+  return (
+    <AnimatePresence>
+      {selectedPopIndex !== null && selectedPop && (
+        <motion.div 
+          key="pops-modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-[100] bg-gradient-to-b from-purple-950/95 via-fuchsia-950/95 to-black/95 backdrop-blur-xl flex items-center justify-center"
+          onClick={onClose}
+        >
+          {/* Glow effects */}
+          <div className="absolute top-20 left-1/4 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Close button - hidden on mobile */}
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 z-[110] p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 transition-colors hidden md:block"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+
+          {/* Navigation Previous - hidden on mobile */}
+          {selectedPopIndex > 0 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onPrev(); }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-[110] p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110 hidden md:block"
+            >
+              <ChevronLeft className="w-8 h-8 text-white" />
+            </button>
+          )}
+
+          {/* Navigation Next - hidden on mobile */}
+          {selectedPopIndex < allPops.length - 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onNext(); }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-[110] p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110 hidden md:block"
+            >
+              <ChevronRight className="w-8 h-8 text-white" />
+            </button>
+          )}
+
+          {/* Content - Swipeable on mobile */}
+          <motion.div
+            key={selectedPop.id}
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            transition={{ duration: 0.2 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0.3, bottom: 0.3 }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y < -80 && selectedPopIndex < allPops.length - 1) {
+                onNext()
+              }
+              else if (info.offset.y > 80) {
+                if (selectedPopIndex > 0) {
+                  onPrev()
+                } else {
+                  onClose()
+                }
+              }
+            }}
+            className="relative w-full max-w-lg mx-auto h-full flex flex-col pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center gap-3 p-4 shrink-0">
+              <button
+                onClick={onClose}
+                className="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <Link 
+                href={`/${locale}/sweetspot/${selectedPop.model_id}`}
+                onClick={onClose}
+              >
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-pink-500">
+                  <Image
+                    src={selectedPop.model?.avatar_url || ''}
+                    alt={selectedPop.model?.name || ''}
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                  />
+                </div>
+              </Link>
+              <div className="flex-1">
+                <Link 
+                  href={`/${locale}/sweetspot/${selectedPop.model_id}`}
+                  onClick={onClose}
+                >
+                  <p className="font-bold text-white hover:underline">{selectedPop.model?.name}</p>
+                </Link>
+              </div>
+            </div>
+
+            {/* Media */}
+            <div className="flex-1 flex items-center justify-center min-h-0 px-4">
+              <InstaVideoPlayer src={selectedPop.media_url} />
+            </div>
+
+            {/* Caption */}
+            <div className="p-4 shrink-0 max-h-[30vh] overflow-y-auto">
+              {selectedPop.caption && (
+                <CaptionText 
+                  name={selectedPop.model?.name || ''} 
+                  caption={selectedPop.caption} 
+                />
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
 export default function HomePage() {
   const params = useParams()
   const locale = (params.locale as string) || 'fr'
@@ -253,6 +393,18 @@ export default function HomePage() {
     const interval = setInterval(animateRandomPops, 4000)
     return () => clearInterval(interval)
   }, [latestPops])
+
+  // Bloquer le scroll du body quand le modal est ouvert
+  useEffect(() => {
+    if (selectedPopIndex !== null) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [selectedPopIndex])
 
   const fetchData = async () => {
     try {
@@ -795,129 +947,16 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* POPS Full Screen Modal */}
-      <AnimatePresence mode="wait">
-        {selectedPopIndex !== null && selectedPop && (
-          <motion.div 
-            key="pops-modal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-50 bg-gradient-to-b from-purple-950/95 via-fuchsia-950/95 to-black/95 backdrop-blur-xl flex items-center justify-center"
-            onClick={() => setSelectedPopIndex(null)}
-          >
-            {/* Glow effects */}
-            <div className="absolute top-20 left-1/4 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
-
-            {/* Close button - hidden on mobile */}
-            <button 
-              onClick={() => setSelectedPopIndex(null)}
-              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 transition-colors hidden md:block"
-            >
-              <X className="w-6 h-6 text-white" />
-            </button>
-
-
-            {/* Navigation Previous - hidden on mobile */}
-            {selectedPopIndex > 0 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); navigatePrev(); }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110 hidden md:block"
-              >
-                <ChevronLeft className="w-8 h-8 text-white" />
-              </button>
-            )}
-
-            {/* Navigation Next - hidden on mobile */}
-            {selectedPopIndex < allPops.length - 1 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); navigateNext(); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/10 hover:bg-pink-500/30 backdrop-blur-sm border border-white/10 transition-all hover:scale-110 hidden md:block"
-              >
-                <ChevronRight className="w-8 h-8 text-white" />
-              </button>
-            )}
-
-            {/* Content - Swipeable on mobile */}
-            <motion.div
-              key={selectedPop.id}
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              transition={{ duration: 0.2 }}
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0.3, bottom: 0.3 }}
-              onDragEnd={(_, info) => {
-                // Swipe up = next video
-                if (info.offset.y < -80 && selectedPopIndex < allPops.length - 1) {
-                  setSelectedPopIndex(selectedPopIndex + 1)
-                }
-                // Swipe down = previous video or close if first
-                else if (info.offset.y > 80) {
-                  if (selectedPopIndex > 0) {
-                    setSelectedPopIndex(selectedPopIndex - 1)
-                  } else {
-                    setSelectedPopIndex(null)
-                  }
-                }
-              }}
-              className="relative w-full max-w-lg mx-auto h-full flex flex-col md:pointer-events-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="flex items-center gap-3 p-4 shrink-0">
-                {/* Back button */}
-                <button
-                  onClick={() => setSelectedPopIndex(null)}
-                  className="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5 text-white" />
-                </button>
-                <Link 
-                  href={`/${locale}/sweetspot/${selectedPop.model_id}`}
-                  onClick={() => setSelectedPopIndex(null)}
-                >
-                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-pink-500">
-                    <Image
-                      src={selectedPop.model?.avatar_url || ''}
-                      alt={selectedPop.model?.name || ''}
-                      width={40}
-                      height={40}
-                      className="object-cover"
-                    />
-                  </div>
-                </Link>
-                <div className="flex-1">
-                  <Link 
-                    href={`/${locale}/sweetspot/${selectedPop.model_id}`}
-                    onClick={() => setSelectedPopIndex(null)}
-                  >
-                    <p className="font-bold text-white hover:underline">{selectedPop.model?.name}</p>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Media */}
-              <div className="flex-1 flex items-center justify-center min-h-0 px-4">
-                <InstaVideoPlayer src={selectedPop.media_url} />
-              </div>
-
-              {/* Caption */}
-              <div className="p-4 shrink-0 max-h-[30vh] overflow-y-auto">
-                {selectedPop.caption && (
-                  <CaptionText 
-                    name={selectedPop.model?.name || ''} 
-                    caption={selectedPop.caption} 
-                  />
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {/* POPS Full Screen Modal */}
+      <PopsModal 
+        selectedPop={selectedPop}
+        selectedPopIndex={selectedPopIndex}
+        allPops={allPops}
+        onClose={() => setSelectedPopIndex(null)}
+        onPrev={navigatePrev}
+        onNext={navigateNext}
+        locale={locale}
+      />
 
       <AuthModal 
         isOpen={showAuthModal}
