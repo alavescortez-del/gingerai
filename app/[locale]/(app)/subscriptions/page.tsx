@@ -1,16 +1,27 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Check, CreditCard, Landmark, ShieldCheck, Lock, Shield } from 'lucide-react'
+import { Check, CreditCard, Landmark, ShieldCheck, Lock, Shield, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
+import { useGameStore } from '@/lib/stores/gameStore'
+import { useRouter, useParams } from 'next/navigation'
+import AuthModal from '@/components/auth/AuthModal'
 
 type PlanId = 'soft' | 'unleashed'
+type PaymentMethod = 'CARD' | 'PAY_BY_BANK' | 'CRYPTO'
 
 export default function SubscriptionsPage() {
   const t = useTranslations('subscriptions')
+  const router = useRouter()
+  const params = useParams()
+  const locale = params.locale as string
+  const { user } = useGameStore()
+  
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('soft')
-  const [imageError, setImageError] = useState(false)
+  const [isLoading, setIsLoading] = useState<PaymentMethod | null>(null)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const plans = [
     {
@@ -33,6 +44,50 @@ export default function SubscriptionsPage() {
   const unleashedFeatures = t.raw('plans.unleashed.features') as string[]
   const currentFeatures = selectedPlan === 'soft' ? softFeatures : unleashedFeatures
 
+  const handlePayment = async (paymentMethod: PaymentMethod) => {
+    // Vérifier si l'utilisateur est connecté
+    if (!user) {
+      setShowAuthModal(true)
+      return
+    }
+
+    setIsLoading(paymentMethod)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/payment/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          planId: selectedPlan,
+          userId: user.id,
+          userEmail: user.email,
+          paymentMethod: paymentMethod
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erreur lors de l\'initialisation du paiement')
+      }
+
+      // Rediriger vers la page de paiement UpGate
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl
+      } else {
+        throw new Error('URL de paiement non reçue')
+      }
+
+    } catch (err) {
+      console.error('Payment error:', err)
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue')
+      setIsLoading(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-ginger-bg py-8 px-4">
       <div className="max-w-6xl mx-auto">
@@ -46,10 +101,6 @@ export default function SubscriptionsPage() {
               src="https://eyezejnwhhiheabkcntx.supabase.co/storage/v1/object/public/models-ia/Lily/promote-lily.webp" 
               alt="Model"
               className="w-full h-auto rounded-3xl object-cover shadow-2xl"
-              onError={(e) => {
-                console.error('Image error:', e)
-                setImageError(true)
-              }}
             />
           </div>
 
@@ -125,44 +176,81 @@ export default function SubscriptionsPage() {
               </div>
             </div>
 
-            {/* Boutons de paiement - Plus compacts */}
+            {/* Message d'erreur */}
+            {error && (
+              <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+
+            {/* Boutons de paiement */}
             <div className="space-y-2">
               {/* Carte bancaire */}
-              <button className="w-full py-3 px-5 bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-md shadow-pink-600/20">
-                <span>Payer avec Carte Bancaire</span>
-                <div className="flex items-center gap-1">
-                  <div className="bg-white rounded px-1 py-0.5">
-                    <span className="text-blue-600 font-bold text-[10px]">VISA</span>
-                  </div>
-                  <div className="bg-white rounded px-1 py-0.5">
-                    <div className="flex">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-500 -mr-1" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+              <button 
+                onClick={() => handlePayment('CARD')}
+                disabled={isLoading !== null}
+                className="w-full py-3 px-5 bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-md shadow-pink-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading === 'CARD' ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <span>Payer avec Carte Bancaire</span>
+                    <div className="flex items-center gap-1">
+                      <div className="bg-white rounded px-1 py-0.5">
+                        <span className="text-blue-600 font-bold text-[10px]">VISA</span>
+                      </div>
+                      <div className="bg-white rounded px-1 py-0.5">
+                        <div className="flex">
+                          <div className="w-2.5 h-2.5 rounded-full bg-red-500 -mr-1" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </button>
 
               {/* Virement bancaire */}
-              <button className="w-full py-3 px-5 bg-zinc-800 border border-white/10 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-zinc-700 transition-colors">
-                <span>Paiement Bancaire Instantané</span>
-                <Landmark className="w-4 h-4" />
+              <button 
+                onClick={() => handlePayment('PAY_BY_BANK')}
+                disabled={isLoading !== null}
+                className="w-full py-3 px-5 bg-zinc-800 border border-white/10 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading === 'PAY_BY_BANK' ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <span>Paiement Bancaire Instantané</span>
+                    <Landmark className="w-4 h-4" />
+                  </>
+                )}
               </button>
 
               {/* Crypto */}
-              <button className="w-full py-3 px-5 bg-zinc-800 border border-white/10 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-zinc-700 transition-colors">
-                <span>Payer avec</span>
-                <div className="flex items-center gap-1">
-                  <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center">
-                    <span className="text-white text-[10px] font-bold">₿</span>
-                  </div>
-                  <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
-                    <span className="text-white text-[9px] font-bold">Ξ</span>
-                  </div>
-                  <div className="w-5 h-5 rounded-full bg-gray-400 flex items-center justify-center">
-                    <span className="text-white text-[9px] font-bold">Ł</span>
-                  </div>
-                </div>
+              <button 
+                onClick={() => handlePayment('CRYPTO')}
+                disabled={isLoading !== null}
+                className="w-full py-3 px-5 bg-zinc-800 border border-white/10 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading === 'CRYPTO' ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <span>Payer avec</span>
+                    <div className="flex items-center gap-1">
+                      <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center">
+                        <span className="text-white text-[10px] font-bold">₿</span>
+                      </div>
+                      <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
+                        <span className="text-white text-[9px] font-bold">Ξ</span>
+                      </div>
+                      <div className="w-5 h-5 rounded-full bg-gray-400 flex items-center justify-center">
+                        <span className="text-white text-[9px] font-bold">Ł</span>
+                      </div>
+                    </div>
+                  </>
+                )}
               </button>
             </div>
 
@@ -217,6 +305,14 @@ export default function SubscriptionsPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal d'authentification */}
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialView="register"
+      />
     </div>
   )
 }
+
