@@ -143,8 +143,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Extraire l'URL de redirection
-    const redirectUrl = responseData.redirect_url || responseData.redirectUrl || responseData.checkout_url
+    // Extraire l'URL de redirection (dans session.redirect_url)
+    const redirectUrl = responseData.session?.redirect_url || responseData.redirect_url
 
     if (!redirectUrl) {
       console.error('[UpGate] No redirect URL in response:', responseData)
@@ -153,6 +153,8 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       )
     }
+
+    console.log('[UpGate] Redirect URL found:', redirectUrl)
 
     // Sauvegarder la transaction en attente dans la base de données
     const { error: dbError } = await supabaseAdmin
