@@ -68,7 +68,8 @@ export async function POST(request: NextRequest) {
         currency_code: plan.currency
       },
       customer: {
-        merchant_customer_id: userId
+        merchant_customer_id: userId,
+        email: userEmail
       },
       callback: {
         success_url: `${baseUrl}/fr/payment/success?transaction_id=${merchantPaymentId}`,
