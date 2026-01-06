@@ -113,17 +113,15 @@ export async function POST(request: NextRequest) {
     })
 
     // Appeler l'API UpGate
-    // Format d'authentification: Basic Auth avec merchant_id:api_key
-    const authString = Buffer.from(`${UPGATE_MERCHANT_ID}:${UPGATE_API_KEY}`).toString('base64')
-    
+    // Essayer avec juste la clé API comme Bearer token (format standard)
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'Authorization': `Basic ${authString}`
+      'Authorization': UPGATE_API_KEY // Juste la clé, sans préfixe
     }
 
     console.log('[UpGate] Request headers:', {
       'Content-Type': 'application/json',
-      'Authorization': 'Basic ***',
+      'Authorization': '***' + UPGATE_API_KEY.slice(-4), // Montrer les 4 derniers chars
       'Merchant-ID': UPGATE_MERCHANT_ID
     })
     console.log('[UpGate] Request body:', JSON.stringify(checkoutRequest, null, 2))
