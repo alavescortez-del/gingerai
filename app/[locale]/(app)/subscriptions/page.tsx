@@ -55,6 +55,8 @@ export default function SubscriptionsPage() {
     setError(null)
 
     try {
+      console.log('[Payment] Starting checkout...', { planId: selectedPlan, userId: user.id })
+      
       const response = await fetch('/api/payment/checkout', {
         method: 'POST',
         headers: {
@@ -68,22 +70,28 @@ export default function SubscriptionsPage() {
         })
       })
 
+      console.log('[Payment] Response status:', response.status)
+      
       const data = await response.json()
+      console.log('[Payment] Response data:', data)
 
       if (!response.ok) {
-        throw new Error(data.error || 'Erreur lors de l\'initialisation du paiement')
+        const errorMsg = data.error || data.details || 'Erreur lors de l\'initialisation du paiement'
+        throw new Error(typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg)
       }
 
       // Rediriger vers la page de paiement UpGate
       if (data.redirectUrl) {
+        console.log('[Payment] Redirecting to:', data.redirectUrl)
         window.location.href = data.redirectUrl
       } else {
         throw new Error('URL de paiement non reçue')
       }
 
     } catch (err) {
-      console.error('Payment error:', err)
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue')
+      console.error('[Payment] Error:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Une erreur est survenue'
+      setError(errorMessage)
       setIsLoading(null)
     }
   }
@@ -315,4 +323,5 @@ export default function SubscriptionsPage() {
     </div>
   )
 }
+
 
