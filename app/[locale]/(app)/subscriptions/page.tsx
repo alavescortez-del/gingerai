@@ -4,9 +4,9 @@ import { motion } from 'framer-motion'
 import { Check, CreditCard, Landmark, ShieldCheck, Lock, Shield, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
-import { useGameStore } from '@/lib/stores/gameStore'
 import { useRouter, useParams } from 'next/navigation'
 import AuthModal from '@/components/auth/AuthModal'
+import { useAuth } from '@/lib/hooks/useAuth'
 
 type PlanId = 'soft' | 'unleashed'
 type PaymentMethod = 'CARD' | 'PAY_BY_BANK' | 'CRYPTO'
@@ -16,7 +16,7 @@ export default function SubscriptionsPage() {
   const router = useRouter()
   const params = useParams()
   const locale = params.locale as string
-  const { user } = useGameStore()
+  const { user, loading: authLoading } = useAuth()
   
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('soft')
   const [isLoading, setIsLoading] = useState<PaymentMethod | null>(null)
@@ -45,6 +45,9 @@ export default function SubscriptionsPage() {
   const currentFeatures = selectedPlan === 'soft' ? softFeatures : unleashedFeatures
 
   const handlePayment = async (paymentMethod: PaymentMethod) => {
+    // Attendre que l'auth soit chargée
+    if (authLoading) return
+    
     // Vérifier si l'utilisateur est connecté
     if (!user) {
       setShowAuthModal(true)
@@ -323,5 +326,7 @@ export default function SubscriptionsPage() {
     </div>
   )
 }
+
+
 
 
