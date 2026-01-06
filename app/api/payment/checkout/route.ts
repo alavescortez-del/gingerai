@@ -69,7 +69,10 @@ export async function POST(request: NextRequest) {
       },
       customer: {
         merchant_customer_id: userId,
-        email: userEmail
+        email: userEmail,
+        // Ajouter l'IP réelle du client pour éviter "Suspected Fraud"
+        ip_address: request.headers.get('x-forwarded-for')?.split(',')[0] || request.headers.get('x-real-ip') || '',
+        user_agent: request.headers.get('user-agent') || ''
       },
       callback: {
         success_url: `${baseUrl}/fr/payment/success?transaction_id=${merchantPaymentId}`,
