@@ -5,7 +5,6 @@ import { CheckCircle, Sparkles, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
-import { useGameStore } from '@/lib/stores/gameStore'
 import confetti from 'canvas-confetti'
 
 export default function PaymentSuccessPage() {
@@ -13,7 +12,6 @@ export default function PaymentSuccessPage() {
   const searchParams = useSearchParams()
   const locale = params.locale as string
   const transactionId = searchParams.get('transaction_id')
-  const { refreshUser } = useGameStore()
 
   useEffect(() => {
     // Lancer les confettis
@@ -48,11 +46,8 @@ export default function PaymentSuccessPage() {
       })
     }, 250)
 
-    // Rafraîchir les données utilisateur
-    refreshUser?.()
-
     return () => clearInterval(interval)
-  }, [refreshUser])
+  }, [])
 
   return (
     <div className="min-h-screen bg-ginger-bg flex items-center justify-center p-4">
