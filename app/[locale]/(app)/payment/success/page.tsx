@@ -1,13 +1,13 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { CheckCircle, Sparkles, ArrowRight } from 'lucide-react'
+import { CheckCircle, Sparkles, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import confetti from 'canvas-confetti'
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const locale = params.locale as string
@@ -157,3 +157,18 @@ export default function PaymentSuccessPage() {
   )
 }
 
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-ginger-bg flex items-center justify-center">
+      <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
+    </div>
+  )
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <PaymentSuccessContent />
+    </Suspense>
+  )
+}

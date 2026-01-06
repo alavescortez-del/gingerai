@@ -1,26 +1,35 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { XCircle, RefreshCw, MessageCircle, ArrowLeft } from 'lucide-react'
+import { XCircle, RefreshCw, MessageCircle, ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function PaymentFailurePage() {
+function PaymentFailureContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const locale = params.locale as string
   const transactionId = searchParams.get('transaction_id')
-  const errorCode = searchParams.get('error')
+  const errorCode = searchParams.get('error_code')
+  const errorMessage = searchParams.get('error_message')
 
   const getErrorMessage = () => {
+    // Utiliser le message d'UpGate s'il existe
+    if (errorMessage) {
+      return `${errorMessage}. Pas de panique, aucun montant n'a été prélevé.`
+    }
+    
     switch (errorCode) {
       case 'declined':
+      case '2302': // Suspected Fraud
         return 'Ta banque a refusé la transaction. Vérifie tes informations de carte ou essaie un autre moyen de paiement.'
       case 'insufficient_funds':
         return 'Fonds insuffisants sur ton compte. Vérifie ton solde ou utilise une autre carte.'
       case 'expired_card':
         return 'Ta carte a expiré. Utilise une carte valide.'
       case 'cancelled':
+      case '2904': // Timeout
         return 'Tu as annulé le paiement. Pas de souci, tu peux réessayer quand tu veux !'
       default:
         return 'Une erreur est survenue lors du paiement. Pas de panique, aucun montant n\'a été prélevé.'
@@ -125,3 +134,18 @@ export default function PaymentFailurePage() {
   )
 }
 
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-ginger-bg flex items-center justify-center">
+      <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
+    </div>
+  )
+}
+
+export default function PaymentFailurePage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <PaymentFailureContent />
+    </Suspense>
+  )
+}
