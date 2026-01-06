@@ -58,23 +58,21 @@ export async function POST(request: NextRequest) {
     // Prix en euros (pas en centimes pour UpGate)
     const priceInEuros = plan.priceInCents / 100
 
-    // Construire la requête UpGate selon leur documentation
+    // Construire la requête UpGate - format EXACT de leur documentation
     const checkoutRequest = {
       payment_data: {
         merchant_payment_id: merchantPaymentId,
-        methods: paymentMethod ? [paymentMethod] : ['CARD'],
+        methods: ['CARD'],
         type: 'RECURRING',
         amount: priceInEuros,
         currency_code: plan.currency
       },
       customer: {
-        merchant_customer_id: userId,
-        email: userEmail
+        merchant_customer_id: userId
       },
       callback: {
         success_url: `${baseUrl}/fr/payment/success?transaction_id=${merchantPaymentId}`,
-        failure_url: `${baseUrl}/fr/payment/failure?transaction_id=${merchantPaymentId}`,
-        postback_url: `${baseUrl}/api/payment/webhook`
+        failure_url: `${baseUrl}/fr/payment/failure?transaction_id=${merchantPaymentId}`
       },
       products: [
         {
@@ -83,8 +81,8 @@ export async function POST(request: NextRequest) {
           description: `Abonnement mensuel Sugarush ${planId === 'soft' ? 'Soft' : 'Unleashed'}`,
           price: priceInEuros,
           charge: {
-            value: 1,
-            interval: 'MONTH'
+            value: 30,
+            interval: 'DAY'
           }
         }
       ]
