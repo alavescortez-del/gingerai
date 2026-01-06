@@ -18,41 +18,16 @@ export function useAuth() {
         const { data: { user } } = await supabase.auth.getUser()
         
         if (user) {
-          // Essayer d'abord profiles (nouvelle table), sinon users (ancienne table)
-          let { data: profile } = await supabase
-            .from('profiles')
+          const { data: profile } = await supabase
+            .from('users')
             .select('*')
             .eq('id', user.id)
             .single()
 
-          if (!profile) {
-            const { data: userProfile } = await supabase
-              .from('users')
-              .select('*')
-              .eq('id', user.id)
-              .single()
-            profile = userProfile
-          }
-
           if (profile) {
-            // Adapter le format pour le store
-            const userForStore = {
-              ...profile,
-              credits: profile.credits || 0
-            }
-            setAuthUser(userForStore as any)
-            setUser(userForStore as any)
-            setCredits(profile.credits || 0)
-          } else {
-            // User existe dans auth mais pas de profile -> créer un objet minimal
-            const minimalUser = {
-              id: user.id,
-              email: user.email,
-              credits: 0
-            }
-            setAuthUser(minimalUser as any)
-            setUser(minimalUser as any)
-            setCredits(0)
+            setAuthUser(profile)
+            setUser(profile)
+            setCredits(profile.credits)
           }
         }
       } catch (error) {
@@ -67,40 +42,16 @@ export function useAuth() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
-        // Essayer d'abord profiles, sinon users
-        let { data: profile } = await supabase
-          .from('profiles')
+        const { data: profile } = await supabase
+          .from('users')
           .select('*')
           .eq('id', session.user.id)
           .single()
 
-        if (!profile) {
-          const { data: userProfile } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-          profile = userProfile
-        }
-
         if (profile) {
-          const userForStore = {
-            ...profile,
-            credits: profile.credits || 0
-          }
-          setAuthUser(userForStore as any)
-          setUser(userForStore as any)
-          setCredits(profile.credits || 0)
-        } else {
-          // User existe dans auth mais pas de profile -> créer un objet minimal
-          const minimalUser = {
-            id: session.user.id,
-            email: session.user.email,
-            credits: 0
-          }
-          setAuthUser(minimalUser as any)
-          setUser(minimalUser as any)
-          setCredits(0)
+          setAuthUser(profile)
+          setUser(profile)
+          setCredits(profile.credits)
         }
       } else if (event === 'SIGNED_OUT') {
         setAuthUser(null)
@@ -123,4 +74,3 @@ export function useAuth() {
     signOut
   }
 }
-
