@@ -19,19 +19,15 @@ export function useAuth() {
         
         if (user) {
           const { data: profile } = await supabase
-            .from('profiles')
+            .from('users')
             .select('*')
             .eq('id', user.id)
             .single()
 
           if (profile) {
-            const userForStore = {
-              ...profile,
-              credits: profile.credits || 0
-            }
-            setAuthUser(userForStore as any)
-            setUser(userForStore as any)
-            setCredits(profile.credits || 0)
+            setAuthUser(profile)
+            setUser(profile)
+            setCredits(profile.credits)
           }
         }
       } catch (error) {
@@ -47,19 +43,15 @@ export function useAuth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         const { data: profile } = await supabase
-          .from('profiles')
+          .from('users')
           .select('*')
           .eq('id', session.user.id)
           .single()
 
         if (profile) {
-          const userForStore = {
-            ...profile,
-            credits: profile.credits || 0
-          }
-          setAuthUser(userForStore as any)
-          setUser(userForStore as any)
-          setCredits(profile.credits || 0)
+          setAuthUser(profile)
+          setUser(profile)
+          setCredits(profile.credits)
         }
       } else if (event === 'SIGNED_OUT') {
         setAuthUser(null)

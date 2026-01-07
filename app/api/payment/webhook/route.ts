@@ -77,33 +77,25 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', merchantTransactionId)
         
-        // Mettre à jour le profil utilisateur avec l'abonnement
+        // Mettre à jour l'utilisateur avec l'abonnement (table users, pas profiles)
         const subscriptionData = {
-          subscription_plan: planId,
+          plan: planId, // La colonne s'appelle 'plan' dans la table users
           subscription_status: 'active',
           subscription_started_at: new Date().toISOString(),
           subscription_id: data.subscription?.subscription_id || null,
           next_billing_date: data.subscription?.next_rebill_date || null
         }
         
-        const { error: profileError } = await supabaseAdmin
-          .from('profiles')
+        const { error: userError } = await supabaseAdmin
+          .from('users')
           .update(subscriptionData)
           .eq('id', userId)
           
-        if (profileError) {
-          console.error('[Webhook] Error updating profile:', profileError)
-          
-          // Essayer d'insérer si le profil n'existe pas
-          await supabaseAdmin
-            .from('profiles')
-            .upsert({
-              id: userId,
-              ...subscriptionData
-            })
+        if (userError) {
+          console.error('[Webhook] Error updating user:', userError)
+        } else {
+          console.log('[Webhook] Subscription activated for user:', userId)
         }
-        
-        console.log('[Webhook] Subscription activated for user:', userId)
         
       } else if (data.status === 'DECLINED') {
         // Paiement refusé
@@ -137,7 +129,7 @@ export async function POST(request: NextRequest) {
       console.log('[Webhook] Refund processed for user:', userId)
       
       await supabaseAdmin
-        .from('profiles')
+        .from('users')
         .update({
           subscription_status: 'refunded',
           updated_at: new Date().toISOString()
@@ -149,7 +141,7 @@ export async function POST(request: NextRequest) {
       console.log('[Webhook] Chargeback for user:', userId)
       
       await supabaseAdmin
-        .from('profiles')
+        .from('users')
         .update({
           subscription_status: 'chargeback',
           updated_at: new Date().toISOString()
@@ -171,4 +163,3 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json({ status: 'Webhook endpoint active' })
 }
-
