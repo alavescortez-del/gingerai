@@ -329,9 +329,12 @@ export default function ModelProfilePage() {
       <div className="sticky top-16 z-30 bg-gradient-to-r from-purple-900/80 via-pink-900/80 to-rose-900/80 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-5xl mx-auto px-4 py-3">
           <div className="flex items-center gap-4">
-            <Link href={`/${locale}/sweetspot`} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+            <button 
+              onClick={() => router.push(`/${locale}/sweetspot`)}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
               <ArrowLeft className="w-5 h-5 text-white" />
-            </Link>
+            </button>
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-pink-400" />
               <span className="font-black text-white">SweetSpot</span>
