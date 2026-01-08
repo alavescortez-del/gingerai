@@ -555,19 +555,28 @@ export default function AdminDashboard() {
                             <p className="text-xs text-zinc-400">{scenario.context}</p>
                           </div>
                         </div>
-                        <div className="p-3 flex gap-2">
+                        <div className="p-3 space-y-2">
                           <button 
-                            onClick={() => { setEditingScenario(scenario); setShowScenarioModal(true); }}
-                            className="flex-1 bg-white/5 hover:bg-white/10 py-2 rounded-lg font-bold text-xs transition-all"
+                            onClick={() => router.push(`/goodwin/dashboard/scenario/${scenario.id}`)}
+                            className="w-full bg-purple-600 hover:bg-purple-500 py-2 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2"
                           >
-                            Modifier
+                            <Settings className="w-3.5 h-3.5" />
+                            Gérer les actions
                           </button>
-                          <button 
-                            onClick={() => handleDeleteScenario(scenario.id)}
-                            className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => { setEditingScenario(scenario); setShowScenarioModal(true); }}
+                              className="flex-1 bg-white/5 hover:bg-white/10 py-2 rounded-lg font-bold text-xs transition-all"
+                            >
+                              Modifier infos
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteScenario(scenario.id)}
+                              className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
